@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Church Driver</string>
+    <string name="ok_text">ठिक छ</string>
+    <string name="no_internet">इन्टरनेट जडान छैन</string>
+    <string name="chruch_ride">Promenade à léglise</string>
+    <string name="become_chruchrider">Devenez un chauffeur déglise</string>
+    <string name="powered_by">Propulsé par Church Ride</string>
+    <string name="login_now">Bougez avec Church Ride</string>
+    <string name="phone_number">Entrez le numéro de téléphone</string>
+    <string name="login">SE CONNECTER</string>
+    <string name="please_enter_user_id">Veuillez saisir votre numéro de portable</string>
+    <string name="invalid_login_details">अवैध लगइन विवरणहरू</string>
+    <string name="dentz">डेन्ट्ज</string>
+    <string name="logout">बाहिर निस्कनु</string>
+    <string name="choose_language">Choisir la langue de lapplication</string>
+    <string name="choose_group">समूह छान्नुहोस्</string>
+    <string name="questions">विकल्पहरू</string>
+    <string name="choose_message">सन्देश छान्नुहोस्</string>
+    <string name="my_profile">मेरो प्रोफाइल</string>
+    <string name="view_reports">रिपोर्टहरू हेर्नुहोस्</string>
+    <string name="by_logging_in_you_may_receive_an_sms_for_verification">En vous connectant, vous pouvez recevoir un sms pour vérification.</string>
+    <string name="enter_the_6_digit_code">Entrez le code à 6 chiffres envoyé à</string>
+    <string name="next">SUIVANT</string>
+    <string name="invalid_otp_entered">OTP INVALIDE ENTRÉ</string>
+    <string name="resend_code">Vous navez pas reçu dOTP ?</string>
+    <string name="resendotp">Renvoyer OTP</string>
+</resources>

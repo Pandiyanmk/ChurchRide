@@ -1,0 +1,13 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item android:drawable="@color/appColor" />
+
+    <item>
+        <bitmap
+            android:layout_width="180sp"
+            android:layout_height="180sp"
+            android:gravity="center"
+            android:src="@drawable/racinglogo" />
+    </item>
+
+</layer-list>

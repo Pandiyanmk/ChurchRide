@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center"
+    android:background="@color/appColor"
+    android:gravity="top"
+    android:orientation="vertical"
+    android:weightSum="1"
+    tools:context=".view.GetStartedPage">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_weight="1"
+        android:gravity="top"
+        android:layout_marginTop="50sp"
+        android:orientation="vertical">
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="20sp"
+            android:layout_marginEnd="20sp"
+            android:gravity="center"
+            android:orientation="vertical">
+            <!--text view for heading-->
+            <!--text view for sub heading-->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:fontFamily="@font/regular"
+                android:gravity="start"
+                android:text="@string/login_now"
+                android:textColor="@color/black"
+                android:textSize="23sp"
+                android:textStyle="bold"
+                android:theme="@style/loginPageSubHeadingTextTheme" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="60sp"
+                android:layout_marginTop="22dp"
+                android:background="@drawable/custom_edit_text_cut"
+                android:gravity="center"
+                android:orientation="horizontal"
+                android:padding="5sp"
+                android:weightSum="1">
+
+                <ImageView
+                    android:layout_width="30sp"
+                    android:layout_height="30sp"
+                    android:layout_marginStart="20sp"
+                    android:src="@drawable/uscode">
+
+                </ImageView>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:layout_marginStart="10sp"
+                    android:fontFamily="@font/bold"
+                    android:gravity="center"
+                    android:text="+1"
+                    android:textColor="@color/black"
+                    android:textSize="16sp" />
+
+                <EditText
+                    android:id="@+id/mobile_number"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:background="@null"
+                    android:fontFamily="@font/bold"
+                    android:hint="@string/phone_number"
+                    android:imeOptions="actionDone"
+                    android:inputType="phone"
+                    android:maxLength="15"
+                    android:paddingStart="12dp"
+                    android:paddingEnd="12dp"
+                    android:textColor="@color/black" />
+
+                <ImageView
+                    android:id="@+id/clear"
+                    android:layout_width="30sp"
+                    android:layout_height="30sp"
+                    android:padding="4sp"
+                    android:visibility="invisible"
+                    android:layout_marginStart="20sp"
+                    android:layout_marginEnd="20sp"
+                    android:src="@drawable/baseline_close">
+
+                </ImageView>
+            </LinearLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="20sp"
+                android:layout_margin="5sp"
+                android:fontFamily="@font/regular"
+                android:gravity="start"
+                android:text="@string/by_logging_in_you_may_receive_an_sms_for_verification"
+                android:textColor="@color/black"
+                android:textSize="16sp" />
+            <com.apachat.loadingbutton.core.customViews.CircularProgressButton
+                android:id="@+id/loginButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="right"
+                android:layout_marginTop="20sp"
+                android:padding="10sp"
+                android:background="@drawable/buttonback"
+                android:fontFamily="@font/regular"
+                android:gravity="center"
+                android:text="@string/login"
+                android:textColor="@color/white"
+                android:textSize="20sp"
+                android:textStyle="bold">
+
+            </com.apachat.loadingbutton.core.customViews.CircularProgressButton>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="left"
+                android:layout_marginTop="20sp"
+                android:layout_margin="5sp"
+                android:fontFamily="@font/regular"
+                android:gravity="start"
+                android:text="@string/choose_language"
+                android:textColor="@color/black"
+                android:textSize="20sp" />
+            <com.app.chruchridedriver.view.CustomSpinner
+                android:id="@+id/language_spinnear"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:layout_marginTop="5dp"
+                android:dropDownVerticalOffset="40dp"
+                android:background="@drawable/bg_spinner"/>
+
+
+
+        </LinearLayout>
+    </LinearLayout>
+
+
+</LinearLayout>

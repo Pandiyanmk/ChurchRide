@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Church Driver</string>
+    <string name="ok_text">OK</string>
+    <string name="no_internet">No Internet Connection</string>
+    <string name="chruch_ride">Church Ride</string>
+    <string name="become_chruchrider">Become a Church Driver</string>
+    <string name="powered_by">Powered by Church Ride</string>
+    <string name="login_now">Get Moving with Church Ride</string>
+    <string name="phone_number">Enter Phone Number</string>
+    <string name="login">LOGIN</string>
+    <string name="please_enter_user_id">Please enter Mobile Number</string>
+    <string name="invalid_login_details">INVALID LOGIN DETAILS</string>
+    <string name="dentz">Dentz</string>
+    <string name="logout">LOGOUT</string>
+    <string name="choose_language">Choose App Language</string>
+    <string name="choose_group">Choose Group:</string>
+    <string name="questions">Options:</string>
+    <string name="choose_message">Choose Message:</string>
+    <string name="my_profile">My Profile</string>
+    <string name="view_reports">View Reports</string>
+    <string name="by_logging_in_you_may_receive_an_sms_for_verification">By Logging in you may receive an sms for verification.</string>
+    <string name="enter_the_6_digit_code">Enter the 6 digit code sent to</string>
+    <string name="next">NEXT</string>
+    <string name="invalid_otp_entered">INVALID OTP ENTERED</string>
+    <string name="resend_code">Didnot Receive OTP?</string>
+    <string name="resendotp">Resend OTP</string>
+</resources>

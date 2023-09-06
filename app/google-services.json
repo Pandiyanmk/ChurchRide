@@ -1,0 +1,69 @@
+{
+  "project_info": {
+    "project_number": "631140367546",
+    "firebase_url": "https://pandiyan-medium-default-rtdb.firebaseio.com",
+    "project_id": "pandiyan-medium",
+    "storage_bucket": "pandiyan-medium.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:631140367546:android:ba37fe6c30545714539683",
+        "android_client_info": {
+          "package_name": "com.app.chruchridedriver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "631140367546-ugkjkd2psmoaufmrm99au6fu42uuck05.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPtNv8DXox5bxxAI1AqSL9Y4eWv5Ew6qE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "631140367546-ugkjkd2psmoaufmrm99au6fu42uuck05.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:631140367546:android:1cddb8ac9cc82b5c539683",
+        "android_client_info": {
+          "package_name": "com.vibe.britevibe"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "631140367546-ugkjkd2psmoaufmrm99au6fu42uuck05.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAPtNv8DXox5bxxAI1AqSL9Y4eWv5Ew6qE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "631140367546-ugkjkd2psmoaufmrm99au6fu42uuck05.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
