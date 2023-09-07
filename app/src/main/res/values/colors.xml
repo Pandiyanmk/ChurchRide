@@ -13,4 +13,5 @@
     <color name="bluecolor">#3935BD</color>
     <color name="green">#304A27</color>
     <color name="colorAccent">#CDD3D2</color>
+    <color name="red">#ff0000</color>
 </resources>

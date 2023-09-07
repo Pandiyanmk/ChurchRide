@@ -18,7 +18,7 @@ import com.apachat.loadingbutton.core.customViews.CircularProgressButton
 import com.app.chruchridedriver.R
 import com.app.chruchridedriver.adapter.LanguageAdapter
 import com.app.chruchridedriver.data.model.LanguageCode
-import com.app.chruchridedriver.interfaces.LanguageAdapterInterface
+import com.app.chruchridedriver.interfaces.ClickedAdapterInterface
 import com.app.chruchridedriver.repository.MainRepository
 import com.app.chruchridedriver.util.CommonUtil
 import com.app.chruchridedriver.viewModel.LoginPageViewModel
@@ -27,12 +27,12 @@ import java.util.Locale
 
 
 class LoginPage : AppCompatActivity(), CustomSpinner.OnSpinnerEventsListener,
-    LanguageAdapterInterface {
+    ClickedAdapterInterface {
     private lateinit var loginPageViewModel: LoginPageViewModel
     private val cu = CommonUtil()
     var name: String? = null
     private var spinnerLang: CustomSpinner? = null
-
+    private var loginButton: CircularProgressButton? = null
     private var adapter: LanguageAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,7 +49,7 @@ class LoginPage : AppCompatActivity(), CustomSpinner.OnSpinnerEventsListener,
 
         /* Initializing Views */
         val mobileNumber = findViewById<TextView>(R.id.mobile_number)
-        val loginButton = findViewById<CircularProgressButton>(R.id.loginButton)
+        loginButton = findViewById(R.id.loginButton)
         val clear = findViewById<ImageView>(R.id.clear)
         spinnerLang = findViewById(R.id.language_spinnear)
 
@@ -83,19 +83,18 @@ class LoginPage : AppCompatActivity(), CustomSpinner.OnSpinnerEventsListener,
 
         spinnerLang!!.setSpinnerEventsListener(this)
 
-        loginButton.setOnClickListener {
+        loginButton!!.setOnClickListener {
             if (mobileNumber.text.toString().isEmpty()) {
                 displayMessageInAlert(getString(R.string.please_enter_user_id).uppercase(Locale.ROOT))
             } else {
-                loginButton.startAnimation()
-                startFetch("+1"+mobileNumber.text.toString())
+                startFetch("+1" + mobileNumber.text.toString())
             }
         }
         setLanguageBasedOnCode()
 
         loginPageViewModel.errorMessage.observe(this) { errorMessage ->
             cu.showAlert(errorMessage, this)
-            loginButton.revertAnimation()
+            loginButton!!.revertAnimation()
         }
 
         loginPageViewModel.responseContent.observe(this) { result ->
@@ -108,12 +107,13 @@ class LoginPage : AppCompatActivity(), CustomSpinner.OnSpinnerEventsListener,
                 cu.showAlert(getString(R.string.invalid_login_details), this)
             }
 
-            loginButton.revertAnimation()
+            loginButton!!.revertAnimation()
         }
     }
 
     private fun startFetch(mobileNumber: String) {
         if (cu.isNetworkAvailable(this)) {
+            loginButton!!.startAnimation()
             loginPageViewModel.getLoginResponse(mobileNumber)
         } else {
             displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
@@ -132,7 +132,7 @@ class LoginPage : AppCompatActivity(), CustomSpinner.OnSpinnerEventsListener,
         spinnerLang!!.background = ContextCompat.getDrawable(this, R.drawable.bg_spinner)
     }
 
-    override fun selectedLanguage(name: String) {
+    override fun selectedValue(name: String) {
         val sharedPreference = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
         val isLan = sharedPreference.getString("isLanguage", "en")
 

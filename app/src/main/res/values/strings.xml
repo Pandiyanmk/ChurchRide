@@ -24,4 +24,23 @@
     <string name="invalid_otp_entered">INVALID OTP ENTERED</string>
     <string name="resend_code">Didnot Receive OTP?</string>
     <string name="resendotp">Resend OTP</string>
+    <string name="step_1_of_3">STEP 1 OF 3</string>
+    <string name="enter_driver_details_to_drive_with_church_ride">Enter Driver Details to drive with Church Ride</string>
+    <string name="enter_name">Enter Name</string>
+    <string name="date_of_birth">Date Of Birth</string>
+    <string name="email_address">Enter Email Address</string>
+    <string name="enter_address">Enter Address</string>
+    <string name="enter_city">Enter City</string>
+    <string name="enter_zipcode">Enter Zipcode</string>
+    <string name="choose_church_for_pickup_drop">Choose Church For Pickup/Drop</string>
+    <string name="no_church_has_been_added_contact_admin">No church has been added contact admin</string>
+    <string name="all_fields_need_to_be_filled">ALL FIELDS NEED TO BE FILLED</string>
+    <string name="please_enter_valid_email">Please enter valid email</string>
+    <string name="camera_permission_denied">Camera Permission Denied</string>
+    <string name="camera_permission_was_denied_unable_to_take_a_picture">Camera permission was denied. Unable to take a picture.</string>
+    <string name="choose_profile_image">CHOOSE PROFILE IMAGE</string>
+    <string name="cancel">CANCEL</string>
+    <string name="camera">CAMERA</string>
+    <string name="gallery">GALLERY</string>
+    <string name="storage_permission_was_denied">Storage permission was denied.</string>
 </resources>

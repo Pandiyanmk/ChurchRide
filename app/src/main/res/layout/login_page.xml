@@ -106,6 +106,7 @@
                 android:layout_margin="5sp"
                 android:fontFamily="@font/regular"
                 android:gravity="start"
+                android:textStyle="bold"
                 android:text="@string/by_logging_in_you_may_receive_an_sms_for_verification"
                 android:textColor="@color/black"
                 android:textSize="16sp" />
@@ -133,6 +134,7 @@
                 android:layout_margin="5sp"
                 android:fontFamily="@font/regular"
                 android:gravity="start"
+                android:textStyle="bold"
                 android:text="@string/choose_language"
                 android:textColor="@color/black"
                 android:textSize="20sp" />

@@ -10,24 +10,33 @@
     android:orientation="vertical"
     android:weightSum="1"
     tools:context=".view.GetStartedPage">
-    <com.example.loadinganimation.LoadingAnimation
-        android:id="@+id/loadingAnim"
+
+    <me.zhanghai.android.materialprogressbar.MaterialProgressBar
+        android:id="@+id/loader"
+        style="@style/Widget.MaterialProgressBar.ProgressBar.Horizontal"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:elevation="10dp"
-        app:barType="@drawable/triad_ring"
-        app:boldText="false"
-        app:enlarge="5"
-        android:visibility="gone"
-        app:textColor="@color/purple_500"
-        app:textSize="15sp" />
+        android:layout_height="wrap_content"
+        android:indeterminate="true"
+        android:indeterminateTint="@color/red"
+        android:visibility="invisible"
+        app:mpb_progressStyle="horizontal" />
+
+    <ImageView
+        android:id="@+id/backtap"
+        android:layout_margin="10sp"
+        android:src="@drawable/baseline_arrow_back_24"
+        android:layout_width="30sp"
+        android:layout_height="30sp">
+
+    </ImageView>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
+        android:layout_marginTop="30sp"
         android:layout_weight="1"
         android:gravity="top"
-        android:layout_marginTop="50sp"
         android:orientation="vertical">
 
 
@@ -66,38 +75,42 @@
 
             <in.aabhasjindal.otptextview.OtpTextView
                 android:id="@+id/otp_view"
-                android:layout_marginTop="10sp"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textColor="@color/black"
-                app:text_typeface="@font/regular"
-                app:height="40dp"
-                app:width="40dp"
+                android:layout_marginTop="10sp"
                 android:fontFamily="@font/regular"
+                android:textColor="@color/black"
                 app:bar_enabled="true"
                 app:bar_height="2dp"
+                app:height="40dp"
                 app:length="6"
-                app:otp_text_size="24dp"/>
+                app:otp_box_background="@color/colorAccent"
+                app:otp_text_size="24dp"
+                app:text_typeface="@font/regular"
+                app:width="40dp" />
+
             <TextView
-                android:layout_marginTop="20sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="20sp"
                 android:fontFamily="@font/regular"
                 android:gravity="center"
                 android:text="@string/resend_code"
                 android:textColor="@color/grey"
                 android:textSize="20sp"
                 android:theme="@style/loginPageSubHeadingTextTheme" />
+
             <TextView
                 android:id="@+id/resendotp"
-                android:layout_marginTop="10sp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10sp"
                 android:fontFamily="@font/regular"
                 android:gravity="center"
                 android:text="@string/resendotp"
+                android:textAllCaps="true"
                 android:textColor="@color/green"
-                android:textSize="20sp"
+                android:textSize="17sp"
                 android:theme="@style/loginPageSubHeadingTextTheme" />
 
 
@@ -107,17 +120,16 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="right"
                 android:layout_marginTop="20sp"
-                android:padding="10sp"
                 android:background="@drawable/buttonback"
                 android:fontFamily="@font/regular"
                 android:gravity="center"
+                android:padding="10sp"
                 android:text="@string/next"
                 android:textColor="@color/white"
                 android:textSize="20sp"
                 android:textStyle="bold">
 
             </com.apachat.loadingbutton.core.customViews.CircularProgressButton>
-
 
 
         </LinearLayout>

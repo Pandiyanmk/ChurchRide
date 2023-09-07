@@ -1,11 +1,13 @@
 package com.app.chruchridedriver.view
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Paint
 import android.os.Bundle
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
@@ -15,8 +17,8 @@ import com.app.chruchridedriver.repository.MainRepository
 import com.app.chruchridedriver.util.CommonUtil
 import com.app.chruchridedriver.viewModel.LoginPageViewModel
 import com.app.chruchridedriver.viewModel.LoginPageViewModelFactory
-import com.example.loadinganimation.LoadingAnimation
 import `in`.aabhasjindal.otptextview.OtpTextView
+import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import java.util.Locale
 
 
@@ -24,7 +26,8 @@ class OTPPage : AppCompatActivity() {
     private lateinit var loginPageViewModel: LoginPageViewModel
     private val cu = CommonUtil()
     private var currentOTP = ""
-    private var loader: LoadingAnimation? = null
+    private var currentMobileNumber = ""
+    private var loader: MaterialProgressBar? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,22 +43,29 @@ class OTPPage : AppCompatActivity() {
         currentOTP = "" + intent.getStringExtra("codeOTP")
         val codesent = findViewById<TextView>(R.id.codesent)
         val resendotp = findViewById<TextView>(R.id.resendotp)
-        val otp_view = findViewById<OtpTextView>(R.id.otp_view)
+        val otpView = findViewById<OtpTextView>(R.id.otp_view)
+        val backtap = findViewById<ImageView>(R.id.backtap)
         val nextButton = findViewById<CircularProgressButton>(R.id.nextButton)
-        loader = findViewById(R.id.loadingAnim)
+        loader = findViewById(R.id.loader)
 
-
-        codesent.text = intent.getStringExtra("mobileNumber")
-        otp_view.requestFocus()
-        otp_view.setOTP(currentOTP)
-        if (otp_view.requestFocus()) {
+        currentMobileNumber = "" + intent.getStringExtra("mobileNumber")
+        codesent.text = currentMobileNumber
+        otpView.requestFocus()
+        otpView.setOTP(currentOTP)
+        if (otpView.requestFocus()) {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
         }
         resendotp.paintFlags = resendotp.paintFlags or Paint.UNDERLINE_TEXT_FLAG
+        backtap.setOnClickListener {
+            closeKeyboard()
+            finish()
+        }
         resendotp.setOnClickListener {
             if (cu.isNetworkAvailable(this)) {
-                startLoader()
-                loginPageViewModel.getLoginResponse(codesent.text.toString())
+                if (loader!!.visibility == View.INVISIBLE) {
+                    startLoader()
+                    loginPageViewModel.getLoginResponse(currentMobileNumber)
+                }
             } else {
                 displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
             }
@@ -69,15 +79,19 @@ class OTPPage : AppCompatActivity() {
         loginPageViewModel.responseContent.observe(this) { result ->
             if (result.data.isNotEmpty()) {
                 currentOTP = result.data[0].codeOTP
-                otp_view.setOTP(currentOTP)
+                otpView.setOTP(currentOTP)
             }
             stopLoader()
         }
 
 
         nextButton.setOnClickListener {
-            if (otp_view.otp!! == currentOTP) {
-
+            if (otpView.otp!! == currentOTP) {
+                closeKeyboard()
+                val moveToReset = Intent(this, DriverDetails::class.java)
+                moveToReset.putExtra("mobileNumber", currentMobileNumber)
+                startActivity(moveToReset)
+                finish()
             } else {
                 cu.showAlert(getString(R.string.invalid_otp_entered), this)
             }
@@ -89,12 +103,11 @@ class OTPPage : AppCompatActivity() {
     }
 
     private fun startLoader() {
-        closeKeyboard()
         loader!!.visibility = View.VISIBLE
     }
 
     private fun stopLoader() {
-        loader!!.visibility = View.GONE
+        loader!!.visibility = View.INVISIBLE
     }
 
     private fun closeKeyboard() {

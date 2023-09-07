@@ -11,16 +11,16 @@ import android.widget.TextView;
 
 import com.app.chruchridedriver.R;
 import com.app.chruchridedriver.data.model.LanguageCode;
-import com.app.chruchridedriver.interfaces.LanguageAdapterInterface;
+import com.app.chruchridedriver.interfaces.ClickedAdapterInterface;
 
 import java.util.List;
 
 public class LanguageAdapter extends BaseAdapter {
     private final Context context;
     private final List<LanguageCode> codeList;
-    LanguageAdapterInterface onLanguageChangeListener;
+    ClickedAdapterInterface onLanguageChangeListener;
 
-    public LanguageAdapter(Context context, List<LanguageCode> languageCodes, LanguageAdapterInterface onLanguageChangeListener) {
+    public LanguageAdapter(Context context, List<LanguageCode> languageCodes, ClickedAdapterInterface onLanguageChangeListener) {
         this.context = context;
         this.codeList = languageCodes;
         this.onLanguageChangeListener = onLanguageChangeListener;
@@ -51,7 +51,7 @@ public class LanguageAdapter extends BaseAdapter {
         txtName.setText(codeList.get(i).getName());
         image.setImageResource(codeList.get(i).getImage());
 
-        txtName.setOnClickListener(v -> onLanguageChangeListener.selectedLanguage(codeList.get(i).getName()));
+        txtName.setOnClickListener(v -> onLanguageChangeListener.selectedValue(codeList.get(i).getName()));
 
         return rootView;
     }

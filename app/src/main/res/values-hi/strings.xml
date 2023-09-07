@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">Church Driver</string>
-    <string name="ok_text">ठिक छ</string>
-    <string name="no_internet">इन्टरनेट जडान छैन</string>
+    <string name="ok_text">DACCORD</string>
+    <string name="no_internet">Pas de connexion Internet</string>
     <string name="chruch_ride">Promenade à léglise</string>
     <string name="become_chruchrider">Devenez un chauffeur déglise</string>
     <string name="powered_by">Propulsé par Church Ride</string>
@@ -24,4 +24,23 @@
     <string name="invalid_otp_entered">OTP INVALIDE ENTRÉ</string>
     <string name="resend_code">Vous navez pas reçu dOTP ?</string>
     <string name="resendotp">Renvoyer OTP</string>
+    <string name="step_1_of_3">ÉTAPE 1 SUR 3</string>
+    <string name="enter_driver_details_to_drive_with_church_ride">Entrez les détails du conducteur pour conduire avec Church Ride</string>
+    <string name="enter_name">Entrez le nom</string>
+    <string name="date_of_birth">Date de naissance</string>
+    <string name="email_address">Entrer Adresse E-mail</string>
+    <string name="enter_address">Entrer l adresse</string>
+    <string name="enter_city">Entrez la ville</string>
+    <string name="enter_zipcode">Entrer le code postal</string>
+    <string name="choose_church_for_pickup_drop">Choisissez l église pour le ramassage/le dépôt</string>
+    <string name="no_church_has_been_added_contact_admin">Aucune église na été ajoutée contacter ladministrateur</string>
+    <string name="all_fields_need_to_be_filled">TOUS LES CHAMPS DOIVENT ÊTRE REMPLIS</string>
+    <string name="please_enter_valid_email">Veuillez entrer une adresse e-mail valide</string>
+    <string name="camera_permission_denied">Autorisation de la caméra refusée</string>
+    <string name="camera_permission_was_denied_unable_to_take_a_picture">Lautorisation de la caméra a été refusée. Impossible de prendre une photo.</string>
+    <string name="choose_profile_image">CHOISISSEZ LIMAGE DE PROFIL</string>
+    <string name="cancel">ANNULER</string>
+    <string name="camera">CAMÉRA</string>
+    <string name="gallery">GALERIE</string>
+    <string name="storage_permission_was_denied">Lautorisation de stockage a été refusée.</string>
 </resources>
