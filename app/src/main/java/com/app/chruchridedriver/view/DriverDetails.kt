@@ -55,6 +55,7 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
     private val IMAGE_CAPTURE = 1001
     private var imageUri: Uri? = null
     private var isProfileImage = false
+    var readPermission = Manifest.permission.READ_EXTERNAL_STORAGE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -62,6 +63,10 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
 
         /* Hiding ToolBar */
         supportActionBar?.hide()
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            readPermission = Manifest.permission.READ_MEDIA_IMAGES
+        }
 
         /* ViewModel Initialization */
         driverDetailPageViewModel = ViewModelProvider(
@@ -245,7 +250,7 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
         } else if (requestCode == READ_PERMISSION_CODE) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                 val storagePermissionGranted = ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.READ_EXTERNAL_STORAGE
+                    this, readPermission
                 ) == PackageManager.PERMISSION_GRANTED
                 if (storagePermissionGranted) {
                     chooseImageGallery()
@@ -295,10 +300,10 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
         var permissionGranted = false
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             val storagePermissionNotGranted = ContextCompat.checkSelfPermission(
-                this, Manifest.permission.READ_EXTERNAL_STORAGE
+                this, readPermission
             ) == PackageManager.PERMISSION_DENIED
             if (storagePermissionNotGranted) {
-                val permission = arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+                val permission = arrayOf(readPermission)
                 requestPermissions(permission, READ_PERMISSION_CODE)
             } else {
                 permissionGranted = true
