@@ -32,6 +32,18 @@
             android:exported="false"
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
         <activity
+            android:name="com.app.chruchridedriver.view.VehicleDetails"
+            android:exported="false"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
+        <activity
+            android:name="com.app.chruchridedriver.view.DocumentUpload"
+            android:exported="false"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
+        <activity
+            android:name="com.app.chruchridedriver.view.ViewImage"
+            android:exported="false"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
+        <activity
             android:name="com.app.chruchridedriver.view.GetStartedPage"
             android:exported="true">
             <intent-filter>

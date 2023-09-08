@@ -11,7 +11,6 @@ import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.apachat.loadingbutton.core.customViews.CircularProgressButton
@@ -26,8 +25,7 @@ import com.app.chruchridedriver.viewModel.LoginPageViewModelFactory
 import java.util.Locale
 
 
-class LoginPage : AppCompatActivity(), CustomSpinner.OnSpinnerEventsListener,
-    ClickedAdapterInterface {
+class LoginPage : BaseActivity(), CustomSpinner.OnSpinnerEventsListener, ClickedAdapterInterface {
     private lateinit var loginPageViewModel: LoginPageViewModel
     private val cu = CommonUtil()
     var name: String? = null
@@ -37,6 +35,7 @@ class LoginPage : AppCompatActivity(), CustomSpinner.OnSpinnerEventsListener,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        updateLanguage()
         setContentView(R.layout.login_page)
 
         /* Hiding ToolBar */
@@ -160,7 +159,7 @@ class LoginPage : AppCompatActivity(), CustomSpinner.OnSpinnerEventsListener,
         val moveToReset = Intent(this, GetStartedPage::class.java)
         moveToReset.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
         startActivity(moveToReset)
-        finishAffinity()
+        finish()
     }
 
     private fun setLanguageBasedOnCode() {

@@ -25,6 +25,7 @@
     <string name="resend_code">Vous navez pas reçu dOTP ?</string>
     <string name="resendotp">Renvoyer OTP</string>
     <string name="step_1_of_3">ÉTAPE 1 SUR 3</string>
+    <string name="step_2_of_3">ÉTAPE 2 SUR 3</string>
     <string name="enter_driver_details_to_drive_with_church_ride">Entrez les détails du conducteur pour conduire avec Church Ride</string>
     <string name="enter_name">Entrez le nom</string>
     <string name="date_of_birth">Date de naissance</string>
@@ -43,4 +44,19 @@
     <string name="camera">CAMÉRA</string>
     <string name="gallery">GALERIE</string>
     <string name="storage_permission_was_denied">Lautorisation de stockage a été refusée.</string>
+    <string name="enter_vehicle_details_to_drive_with_church_ride">Ingrese los detalles del vehículo para conducir con Church Ride</string>
+    <string name="enter_vehicle_type">Ingrese el tipo de vehículo</string>
+    <string name="enter_make">Ingrese la marca del vehículo</string>
+    <string name="enter_vehicle_model">Ingrese el modelo de vehículo</string>
+    <string name="enter_year">Introduzca el año</string>
+    <string name="enter_color">Introducir color</string>
+    <string name="no_of_doors">Número de puertas</string>
+    <string name="no_of_seats">Número de asientos</string>
+    <string name="step_3_of_3">PASO 3 DE 3</string>
+    <string name="upload_all_below_mentioned_documents">Cargue todos los documentos mencionados a continuación</string>
+    <string name="note">Nota:</string>
+    <string name="no_image_choosen">Ninguna imagen elegida</string>
+    <string name="choose_image">Elige Imagen</string>
+    <string name="image_added">Imagen agregada</string>
+    <string name="all_images_need_to_be_uploaded">Todas las imágenes deben cargarse</string>
 </resources>

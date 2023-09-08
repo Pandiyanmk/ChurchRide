@@ -2,7 +2,6 @@ package com.app.chruchridedriver.view
 
 import android.Manifest
 import android.app.Activity
-import android.app.DatePickerDialog
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -11,55 +10,48 @@ import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
-import android.text.InputType
-import android.text.TextUtils
-import android.util.Patterns
 import android.view.View
 import android.view.inputmethod.InputMethodManager
-import android.widget.EditText
 import android.widget.ImageView
+import android.widget.LinearLayout
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.apachat.loadingbutton.core.customViews.CircularProgressButton
 import com.app.chruchridedriver.R
-import com.app.chruchridedriver.data.model.Church
-import com.app.chruchridedriver.data.model.DriverDetailsData
+import com.app.chruchridedriver.adapter.DocumentAdapter
+import com.app.chruchridedriver.data.model.Document
 import com.app.chruchridedriver.interfaces.ClickedAdapterInterface
 import com.app.chruchridedriver.repository.MainRepository
 import com.app.chruchridedriver.util.CommonUtil
-import com.app.chruchridedriver.viewModel.DriverDetailPageViewModel
-import com.app.chruchridedriver.viewModel.DriverDetailsViewModelFactory
+import com.app.chruchridedriver.viewModel.DocumentPageViewModel
+import com.app.chruchridedriver.viewModel.DocumentViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import de.hdodenhof.circleimageview.CircleImageView
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
-import java.text.SimpleDateFormat
-import java.util.Calendar
 import java.util.Locale
 
 
-class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
-    private lateinit var driverDetailPageViewModel: DriverDetailPageViewModel
+class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
+    private lateinit var documentPageViewModel: DocumentPageViewModel
     private val cu = CommonUtil()
-    private var currentMobileNumber = ""
     private var loader: MaterialProgressBar? = null
-    private var dob: EditText? = null
-    private var cal = Calendar.getInstance()
-    private var churchList: List<Church>? = emptyList()
-    private var listDialog: ChurchDialogList? = null
-    private var choosechruch: EditText? = null
-    private var profile_picture: CircleImageView? = null
     private val CAMERA_PERMISSION_CODE = 1000
     private val READ_PERMISSION_CODE = 1001
     private val IMAGE_CHOOSE = 1000
     private val IMAGE_CAPTURE = 1001
     private var imageUri: Uri? = null
     private var isProfileImage = false
-    var readPermission = Manifest.permission.READ_EXTERNAL_STORAGE
+    private var documentList: ArrayList<Document>? = null
+    private var adapter: DocumentAdapter? = null
+    private var selectedPosition: Int = 0
+    private var readPermission = Manifest.permission.READ_EXTERNAL_STORAGE
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.driver_details_page)
+        setContentView(R.layout.documentupload)
 
         /* Hiding ToolBar */
         supportActionBar?.hide()
@@ -69,91 +61,55 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
         }
 
         /* ViewModel Initialization */
-        driverDetailPageViewModel = ViewModelProvider(
-            this, DriverDetailsViewModelFactory(MainRepository())
-        )[DriverDetailPageViewModel::class.java]
-        currentMobileNumber = "" + intent.getStringExtra("mobileNumber")
+        documentPageViewModel = ViewModelProvider(
+            this, DocumentViewModelFactory(MainRepository())
+        )[DocumentPageViewModel::class.java]
         loader = findViewById(R.id.loader)
         val backtap = findViewById<ImageView>(R.id.backtap)
-        val name = findViewById<EditText>(R.id.name)
-        val emailAddress = findViewById<EditText>(R.id.email_address)
-        val address = findViewById<EditText>(R.id.address)
-        val city = findViewById<EditText>(R.id.city)
-        val zipcode = findViewById<EditText>(R.id.zipcode)
-        choosechruch = findViewById(R.id.choosechruch)
-        profile_picture = findViewById(R.id.profile_picture)
-        dob = findViewById(R.id.dob)
-
-        dob!!.isClickable = true
-        dob!!.isFocusable = false
-        dob!!.inputType = InputType.TYPE_NULL
-
-        choosechruch!!.isClickable = true
-        choosechruch!!.isFocusable = false
-        choosechruch!!.inputType = InputType.TYPE_NULL
-
-        val drivernext = findViewById<CircularProgressButton>(R.id.drivernext)
-        drivernext.setOnClickListener {
-            if (name.text.toString() == "" || dob!!.text.toString() == "" || emailAddress.text.toString() == "" || address.text.toString() == "" || city.text.toString() == "" || choosechruch!!.text.toString() == "" || zipcode.text.toString() == "" || !isProfileImage) {
-                displayMessageInAlert(getString(R.string.all_fields_need_to_be_filled))
-            } else {
-                if (isValidEmail(emailAddress.text.toString())) {
-                    val driverDetailsData = DriverDetailsData(
-                        imageUrl = "",
-                        name = name.text.toString(),
-                        dob = dob!!.text.toString(),
-                        emailAddress = emailAddress.text.toString(),
-                        address = address.text.toString(),
-                        city = address.text.toString(),
-                        churchName = city.text.toString(),
-                        zipCode = choosechruch!!.text.toString(),
-                        mobileNumber = zipcode.text.toString()
-                    )
-                    val driverDetailsIntent = Intent(this, VehicleDetails::class.java)
-                    driverDetailsIntent.putExtra("driverDetails", driverDetailsData)
-                    startActivity(driverDetailsIntent)
-                } else {
-                    displayMessageInAlert(getString(R.string.please_enter_valid_email))
-                }
-            }
-        }
+        val documentnext = findViewById<CircularProgressButton>(R.id.documentnext)
+        val documentView = findViewById<RecyclerView>(R.id.documentView)
+        val head = findViewById<LinearLayout>(R.id.head)
+        documentView.layoutManager = LinearLayoutManager(this)
         backtap.setOnClickListener {
             closeKeyboard()
             finish()
         }
 
-        profile_picture!!.setOnClickListener {
-            chooseCameraOrGallery()
+        documentnext.setOnClickListener {
+            var isValid = true
+            for (i in 0 until documentList!!.size) {
+                if (documentList!![i].uploaded == 0) {
+                    isValid = false
+                }
+            }
+            if (isValid) {
+                Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
+            } else {
+                displayMessageInAlert(getString(R.string.all_images_need_to_be_uploaded).uppercase())
+            }
         }
 
-        dob!!.setOnClickListener {
-            displayDatePicker()
-        }
+
         if (cu.isNetworkAvailable(this)) {
             startLoader()
-            driverDetailPageViewModel.getChurchResponse()
+            documentPageViewModel.getDocumentResponse()
         } else {
             displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
         }
 
-        choosechruch!!.setOnClickListener {
-            if (churchList!!.isNotEmpty()) {
-                churchDialog(churchList!!)
-            } else {
-                displayMessageInAlert(getString(R.string.no_church_has_been_added_contact_admin))
-            }
-        }
-
-        driverDetailPageViewModel.errorMessage.observe(this) { errorMessage ->
+        documentPageViewModel.errorMessage.observe(this) { errorMessage ->
+            documentnext.visibility = View.GONE
             displayMessageInAlert(errorMessage)
             stopLoader()
         }
 
-        driverDetailPageViewModel.responseContent.observe(this) { result ->
+        documentPageViewModel.responseContent.observe(this) { result ->
+            documentnext.visibility = View.VISIBLE
+            head.visibility = View.VISIBLE
             stopLoader()
-            if (result.church.isNotEmpty()) {
-                churchList = result.church
-            }
+            documentList = result.documents as ArrayList<Document>
+            adapter = DocumentAdapter(documentList!!, this, this)
+            documentView.adapter = adapter
         }
 
     }
@@ -175,47 +131,6 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             imm?.hideSoftInputFromWindow(view.windowToken, 0)
         }
-    }
-
-    private fun displayDatePicker() {
-        val date = DatePickerDialog(
-            this,
-            dateSetListener,
-            cal.get(Calendar.YEAR),
-            cal.get(Calendar.MONTH),
-            cal.get(Calendar.DAY_OF_MONTH)
-        )
-        date.datePicker.maxDate = System.currentTimeMillis() - 568025136000L
-        date.show()
-    }
-
-    private val dateSetListener =
-        DatePickerDialog.OnDateSetListener { _, year, monthOfYear, dayOfMonth ->
-            cal.set(Calendar.YEAR, year)
-            cal.set(Calendar.MONTH, monthOfYear)
-            cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
-            val myFormat = "dd MMM yyyy"
-            val sdf = SimpleDateFormat(myFormat, Locale.US)
-            dob!!.setText(sdf.format(cal.time).uppercase(Locale.getDefault()))
-
-        }
-
-    private fun churchDialog(churchList: List<Church>) {
-        listDialog = object : ChurchDialogList(
-            this, churchList as ArrayList<Church>, this
-        ) {}
-        listDialog!!.show()
-    }
-
-    override fun selectedValue(name: String?) {
-        listDialog?.let {
-            it.dismiss()
-            choosechruch!!.setText(name)
-        }
-    }
-
-    private fun isValidEmail(email: String): Boolean {
-        return !TextUtils.isEmpty(email) && Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
     private fun requestCameraPermission(): Boolean {
@@ -287,10 +202,10 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_CAPTURE) {
-            profile_picture?.setImageURI(imageUri)
+            updateImage(imageUri)
             isProfileImage = true
         } else if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_CHOOSE) {
-            profile_picture?.setImageURI(data?.data)
+            updateImage(data?.data)
             isProfileImage = true
         }
     }
@@ -334,6 +249,22 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
             permissionGranted = true
         }
         return permissionGranted
+    }
+
+    override fun selectedValue(position: String?) {
+        val pos = position!!.toInt()
+        selectedPosition = pos
+        chooseCameraOrGallery()
+    }
+
+    private fun updateImage(uri: Uri?) {
+        uri?.let {
+            val getData = documentList!![selectedPosition]
+            getData.uploaded = 1
+            getData.pathOfImage = uri
+            documentList!![selectedPosition] = getData
+            adapter!!.notifyDataSetChanged()
+        }
     }
 
 }

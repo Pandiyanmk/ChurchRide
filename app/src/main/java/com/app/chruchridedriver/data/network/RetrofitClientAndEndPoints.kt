@@ -1,6 +1,7 @@
 package com.app.chruchridedriver.data.network
 
 import com.app.chruchridedriver.data.model.ChurchDetails
+import com.app.chruchridedriver.data.model.DocumentsResponse
 import com.app.chruchridedriver.data.model.SendOTResponse
 import retrofit2.Response
 import retrofit2.Retrofit
@@ -20,6 +21,10 @@ interface RetrofitClientAndEndPoints {
     @GET("churchname.php")
     suspend fun getChurchResponse(
     ): Response<ChurchDetails>
+
+    @GET("documentlist.php")
+    suspend fun getDocumentResponse(
+    ): Response<DocumentsResponse>
 
     /* Building Retrofit with Base URL */
     companion object {
