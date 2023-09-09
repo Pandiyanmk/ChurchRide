@@ -59,4 +59,9 @@
     <string name="choose_image">Choose Image</string>
     <string name="image_added">Image Added</string>
     <string name="all_images_need_to_be_uploaded">All Images need to be uploaded</string>
+    <string name="close">CLOSE</string>
+    <string name="choose_gender">Choose Gender</string>
+    <string name="male">Male</string>
+    <string name="female">Female</string>
+    <string name="transgender">TransGender</string>
 </resources>

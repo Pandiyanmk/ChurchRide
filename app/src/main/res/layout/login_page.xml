@@ -33,7 +33,7 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/regular"
+                android:fontFamily="@font/monomedium"
                 android:gravity="start"
                 android:text="@string/login_now"
                 android:textColor="@color/black"
@@ -76,13 +76,12 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:background="@null"
-                    android:fontFamily="@font/bold"
+                    android:fontFamily="@font/monomedium"
                     android:hint="@string/phone_number"
                     android:imeOptions="actionDone"
                     android:inputType="phone"
                     android:maxLength="15"
                     android:paddingStart="12dp"
-                    android:paddingEnd="12dp"
                     android:textColor="@color/black" />
 
                 <ImageView
@@ -91,7 +90,7 @@
                     android:layout_height="30sp"
                     android:padding="4sp"
                     android:visibility="invisible"
-                    android:layout_marginStart="20sp"
+                    android:layout_marginStart="10sp"
                     android:layout_marginEnd="20sp"
                     android:src="@drawable/baseline_close">
 
@@ -104,9 +103,8 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="20sp"
                 android:layout_margin="5sp"
-                android:fontFamily="@font/regular"
+                android:fontFamily="@font/mediumitalic"
                 android:gravity="start"
-                android:textStyle="bold"
                 android:text="@string/by_logging_in_you_may_receive_an_sms_for_verification"
                 android:textColor="@color/black"
                 android:textSize="16sp" />
@@ -132,9 +130,8 @@
                 android:layout_gravity="left"
                 android:layout_marginTop="20sp"
                 android:layout_margin="5sp"
-                android:fontFamily="@font/regular"
+                android:fontFamily="@font/monomedium"
                 android:gravity="start"
-                android:textStyle="bold"
                 android:text="@string/choose_language"
                 android:textColor="@color/black"
                 android:textSize="20sp" />

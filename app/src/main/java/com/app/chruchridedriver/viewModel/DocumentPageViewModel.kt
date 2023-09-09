@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.app.chruchridedriver.data.model.DocumentsResponse
+import com.app.chruchridedriver.data.model.DriverRegisterationResponse
 import com.app.chruchridedriver.repository.MainRepository
 import com.app.chruchridedriver.util.NetworkState
 import kotlinx.coroutines.Dispatchers
@@ -23,6 +24,11 @@ class DocumentPageViewModel constructor(private val authCheckRepository: MainRep
         get() = _responseContent
 
 
+    private val _registerContent = MutableLiveData<DriverRegisterationResponse>()
+    val registerContent: LiveData<DriverRegisterationResponse>
+        get() = _registerContent
+
+
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String>
         get() = _errorMessage
@@ -36,6 +42,25 @@ class DocumentPageViewModel constructor(private val authCheckRepository: MainRep
                     when (response) {
                         is NetworkState.Success -> {
                             _responseContent.value = response.data!!
+                        }
+
+                        is NetworkState.Error -> {
+                            _errorMessage.value = response.errorMessage
+                        }
+                    }
+                }
+        }
+    }
+
+    //Register Driver Details
+    fun registerDriverDetails(map: MutableMap<String, String>) {
+        viewModelScope.launch {
+            authCheckRepository.registerDriverDetails(map).flowOn(Dispatchers.IO).catch { }
+                .collect { response ->
+                    stopLoader()
+                    when (response) {
+                        is NetworkState.Success -> {
+                            _registerContent.value = response.data!!
                         }
 
                         is NetworkState.Error -> {

@@ -2,6 +2,7 @@ package com.app.chruchridedriver.repository
 
 import com.app.chruchridedriver.data.model.ChurchDetails
 import com.app.chruchridedriver.data.model.DocumentsResponse
+import com.app.chruchridedriver.data.model.DriverRegisterationResponse
 import com.app.chruchridedriver.data.model.SendOTResponse
 import com.app.chruchridedriver.data.network.RetrofitClientAndEndPoints
 import com.app.chruchridedriver.util.NetworkState
@@ -76,6 +77,36 @@ class MainRepository {
     ): Flow<NetworkState<DocumentsResponse>> {
         try {
             val response = RetrofitClientAndEndPoints.getInstance().getDocumentResponse()
+
+            return if (response.isSuccessful) {
+                val responseBody = response.body()
+                if (responseBody != null) {
+                    flow {
+                        emit(NetworkState.Success(responseBody))
+                    }
+                } else {
+                    flow {
+                        emit(NetworkState.Error(response.message()))
+                    }
+                }
+            } else {
+                flow {
+                    emit(NetworkState.Error(response.message()))
+                }
+            }
+        } catch (e: Exception) {
+            return flow {
+                emit(NetworkState.Error(e.toString()))
+            }
+        }
+    }
+
+    /* API CALL To Get Document Response */
+    suspend fun registerDriverDetails(
+        params: Map<String, String>
+    ): Flow<NetworkState<DriverRegisterationResponse>> {
+        try {
+            val response = RetrofitClientAndEndPoints.getInstance().registerDetails(params)
 
             return if (response.isSuccessful) {
                 val responseBody = response.body()

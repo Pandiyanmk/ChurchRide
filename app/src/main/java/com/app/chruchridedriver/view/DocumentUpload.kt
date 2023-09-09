@@ -24,6 +24,8 @@ import com.apachat.loadingbutton.core.customViews.CircularProgressButton
 import com.app.chruchridedriver.R
 import com.app.chruchridedriver.adapter.DocumentAdapter
 import com.app.chruchridedriver.data.model.Document
+import com.app.chruchridedriver.data.model.DriverDetailsData
+import com.app.chruchridedriver.data.model.VehiclesDetailsData
 import com.app.chruchridedriver.interfaces.ClickedAdapterInterface
 import com.app.chruchridedriver.repository.MainRepository
 import com.app.chruchridedriver.util.CommonUtil
@@ -48,13 +50,18 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
     private var adapter: DocumentAdapter? = null
     private var selectedPosition: Int = 0
     private var readPermission = Manifest.permission.READ_EXTERNAL_STORAGE
-
+    var driverDetailsData: DriverDetailsData? = null
+    var vehicleDetailsData: VehiclesDetailsData? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.documentupload)
 
         /* Hiding ToolBar */
         supportActionBar?.hide()
+
+        driverDetailsData = intent.getSerializableExtra("driverDetails") as DriverDetailsData?
+
+        vehicleDetailsData = intent.getSerializableExtra("vehicleDetails") as VehiclesDetailsData?
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             readPermission = Manifest.permission.READ_MEDIA_IMAGES
@@ -83,6 +90,9 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
                 }
             }
             if (isValid) {
+                startLoader()
+                val driverDetails = getDriverDataInMap()
+                documentPageViewModel.registerDriverDetails(driverDetails)
                 Toast.makeText(this, "Success", Toast.LENGTH_SHORT).show()
             } else {
                 displayMessageInAlert(getString(R.string.all_images_need_to_be_uploaded).uppercase())
@@ -98,7 +108,6 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
         }
 
         documentPageViewModel.errorMessage.observe(this) { errorMessage ->
-            documentnext.visibility = View.GONE
             displayMessageInAlert(errorMessage)
             stopLoader()
         }
@@ -110,6 +119,11 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
             documentList = result.documents as ArrayList<Document>
             adapter = DocumentAdapter(documentList!!, this, this)
             documentView.adapter = adapter
+        }
+
+        documentPageViewModel.registerContent.observe(this) { result ->
+            Toast.makeText(this, "" + result.data[0].driverId, Toast.LENGTH_SHORT).show()
+            stopLoader()
         }
 
     }
@@ -265,6 +279,25 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
             documentList!![selectedPosition] = getData
             adapter!!.notifyDataSetChanged()
         }
+    }
+
+    private fun getDriverDataInMap(): MutableMap<String, String> {
+        val driverDataInHashMap = driverDetailsData?.let {
+            val map: MutableMap<String, String> = HashMap()
+            map["profilepic"] = it.imageUrl
+            map["name"] = it.name
+            map["dob"] = it.dob
+            map["address"] = it.address
+            map["city"] = it.city
+            map["churuch"] = it.churchName
+            map["zipcode"] = it.zipCode
+            map["mobileNumber"] = it.mobileNumber
+            map["gender"] = it.gender
+            map["emailaddress"] = it.emailAddress
+            map
+        }
+
+        return driverDataInHashMap!!
     }
 
 }

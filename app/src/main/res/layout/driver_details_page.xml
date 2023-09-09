@@ -39,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="10sp"
-            android:fontFamily="@font/regular"
+            android:fontFamily="@font/monomedium"
             android:gravity="start"
             android:text="@string/step_1_of_3"
             android:textColor="@color/black"
@@ -71,12 +71,11 @@
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/regular"
+                android:fontFamily="@font/monomedium"
                 android:gravity="start"
                 android:text="@string/enter_driver_details_to_drive_with_church_ride"
                 android:textColor="@color/black"
                 android:textSize="20sp"
-                android:textStyle="bold"
                 android:theme="@style/loginPageSubHeadingTextTheme" />
 
             <ScrollView
@@ -124,6 +123,7 @@
                         android:layout_marginTop="20sp"
                         android:layout_marginBottom="10sp"
                         android:hint="@string/enter_name"
+                        android:fontFamily="@font/monomedium"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
@@ -132,7 +132,7 @@
                             android:id="@+id/name"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/bold"
+                            android:fontFamily="@font/monomedium"
                             android:imeOptions="actionNext"
                             android:inputType="text"
                             android:maxLength="20"
@@ -143,9 +143,9 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="20sp"
                         android:layout_marginBottom="10sp"
                         android:hint="@string/date_of_birth"
+                        android:fontFamily="@font/monomedium"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
@@ -154,7 +154,30 @@
                             android:id="@+id/dob"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/bold"
+                            android:fontFamily="@font/monomedium"
+                            android:imeOptions="actionNext"
+                            android:inputType="text"
+                            android:maxLength="20"
+                            android:textSize="17sp" />
+
+                    </com.google.android.material.textfield.TextInputLayout>
+
+                    <com.google.android.material.textfield.TextInputLayout
+                        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginBottom="10sp"
+                        android:hint="@string/choose_gender"
+                        android:fontFamily="@font/monomedium"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent">
+
+                        <com.google.android.material.textfield.TextInputEditText
+                            android:id="@+id/gender"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:fontFamily="@font/monomedium"
                             android:imeOptions="actionNext"
                             android:inputType="text"
                             android:maxLength="20"
@@ -163,15 +186,13 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
 
-
-
                     <com.google.android.material.textfield.TextInputLayout
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10sp"
                         android:layout_marginBottom="10sp"
                         android:hint="@string/email_address"
+                        android:fontFamily="@font/monomedium"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
@@ -180,7 +201,7 @@
                             android:id="@+id/email_address"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/bold"
+                            android:fontFamily="@font/monomedium"
                             android:imeOptions="actionNext"
                             android:inputType="textEmailAddress"
                             android:maxLength="60"
@@ -193,7 +214,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10sp"
-                        android:hint="@string/enter_name"
+                        android:hint="@string/enter_address"
+                        android:fontFamily="@font/monomedium"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
@@ -202,7 +224,7 @@
                             android:id="@+id/address"
                             android:layout_width="match_parent"
                             android:layout_height="90sp"
-                            android:fontFamily="@font/bold"
+                            android:fontFamily="@font/monomedium"
                             android:gravity="top|left"
                             android:imeOptions="actionNext"
                             android:inputType="textMultiLine"
@@ -216,6 +238,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10sp"
                         android:hint="@string/enter_city"
+                        android:fontFamily="@font/monomedium"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
@@ -224,7 +247,7 @@
                             android:id="@+id/city"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/bold"
+                            android:fontFamily="@font/monomedium"
                             android:imeOptions="actionNext"
                             android:inputType="text"
                             android:maxLength="40"
@@ -236,6 +259,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginBottom="10sp"
+                        android:fontFamily="@font/monomedium"
                         android:hint="@string/choose_church_for_pickup_drop"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
@@ -245,7 +269,7 @@
                             android:id="@+id/choosechruch"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/bold"
+                            android:fontFamily="@font/monomedium"
                             android:imeOptions="actionNext"
                             android:inputType="text"
                             android:maxLength="60"
@@ -257,8 +281,8 @@
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="10sp"
-                        android:hint="@string/enter_zipcode"
+                         android:hint="@string/enter_zipcode"
+                        android:fontFamily="@font/monomedium"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
@@ -267,7 +291,7 @@
                             android:id="@+id/zipcode"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:fontFamily="@font/bold"
+                            android:fontFamily="@font/monomedium"
                             android:imeOptions="actionDone"
                             android:inputType="number"
                             android:maxLength="20"

@@ -59,4 +59,9 @@
     <string name="choose_image">Elige Imagen</string>
     <string name="image_added">Imagen agregada</string>
     <string name="all_images_need_to_be_uploaded">Todas las imágenes deben cargarse</string>
+    <string name="close">CERCA</string>
+    <string name="choose_gender">Elige Género</string>
+    <string name="male">Masculino</string>
+    <string name="female">Femenino</string>
+    <string name="transgender">Transgénero</string>
 </resources>

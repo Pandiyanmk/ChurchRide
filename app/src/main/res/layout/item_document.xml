@@ -18,7 +18,7 @@
                 android:id="@+id/documentName"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:fontFamily="@font/regular"
+                android:fontFamily="@font/monomedium"
                 android:gravity="start"
                 android:text="@string/upload_all_below_mentioned_documents"
                 android:textColor="@color/black"
@@ -44,12 +44,11 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="5sp"
-            android:fontFamily="@font/regular"
+            android:fontFamily="@font/monomedium"
             android:gravity="start"
             android:text="@string/upload_all_below_mentioned_documents"
             android:textColor="@color/grey"
-            android:textSize="17sp"
-            android:textStyle="bold"
+            android:textSize="15sp"
             android:theme="@style/loginPageSubHeadingTextTheme" />
 
         <LinearLayout
@@ -65,7 +64,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="10sp"
-                android:fontFamily="@font/regular"
+                android:fontFamily="@font/monomedium"
                 android:text="@string/choose_image">
 
             </Button>
@@ -81,12 +80,11 @@
                     android:id="@+id/filechoosen"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/regular"
+                    android:fontFamily="@font/monomedium"
                     android:gravity="start"
                     android:text="@string/no_image_choosen"
                     android:textColor="@color/grey"
                     android:textSize="17sp"
-                    android:textStyle="bold"
                     android:theme="@style/loginPageSubHeadingTextTheme" />
 
                 <ImageView

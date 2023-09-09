@@ -18,11 +18,15 @@ import android.view.View
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.apachat.loadingbutton.core.customViews.CircularProgressButton
 import com.app.chruchridedriver.R
+import com.app.chruchridedriver.adapter.ChurchAdapter
 import com.app.chruchridedriver.data.model.Church
 import com.app.chruchridedriver.data.model.DriverDetailsData
 import com.app.chruchridedriver.interfaces.ClickedAdapterInterface
@@ -30,6 +34,7 @@ import com.app.chruchridedriver.repository.MainRepository
 import com.app.chruchridedriver.util.CommonUtil
 import com.app.chruchridedriver.viewModel.DriverDetailPageViewModel
 import com.app.chruchridedriver.viewModel.DriverDetailsViewModelFactory
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import de.hdodenhof.circleimageview.CircleImageView
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
@@ -44,9 +49,9 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
     private var currentMobileNumber = ""
     private var loader: MaterialProgressBar? = null
     private var dob: EditText? = null
+    private var gender: EditText? = null
     private var cal = Calendar.getInstance()
     private var churchList: List<Church>? = emptyList()
-    private var listDialog: ChurchDialogList? = null
     private var choosechruch: EditText? = null
     private var profile_picture: CircleImageView? = null
     private val CAMERA_PERMISSION_CODE = 1000
@@ -54,6 +59,7 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
     private val IMAGE_CHOOSE = 1000
     private val IMAGE_CAPTURE = 1001
     private var imageUri: Uri? = null
+    private var dialog: BottomSheetDialog? = null
     private var isProfileImage = false
     var readPermission = Manifest.permission.READ_EXTERNAL_STORAGE
 
@@ -72,6 +78,10 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
         driverDetailPageViewModel = ViewModelProvider(
             this, DriverDetailsViewModelFactory(MainRepository())
         )[DriverDetailPageViewModel::class.java]
+        dialog = BottomSheetDialog(this)
+        dialog!!.setCancelable(true)
+
+
         currentMobileNumber = "" + intent.getStringExtra("mobileNumber")
         loader = findViewById(R.id.loader)
         val backtap = findViewById<ImageView>(R.id.backtap)
@@ -83,10 +93,15 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
         choosechruch = findViewById(R.id.choosechruch)
         profile_picture = findViewById(R.id.profile_picture)
         dob = findViewById(R.id.dob)
+        gender = findViewById(R.id.gender)
 
         dob!!.isClickable = true
         dob!!.isFocusable = false
         dob!!.inputType = InputType.TYPE_NULL
+
+        gender!!.isClickable = true
+        gender!!.isFocusable = false
+        gender!!.inputType = InputType.TYPE_NULL
 
         choosechruch!!.isClickable = true
         choosechruch!!.isFocusable = false
@@ -94,7 +109,7 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
 
         val drivernext = findViewById<CircularProgressButton>(R.id.drivernext)
         drivernext.setOnClickListener {
-            if (name.text.toString() == "" || dob!!.text.toString() == "" || emailAddress.text.toString() == "" || address.text.toString() == "" || city.text.toString() == "" || choosechruch!!.text.toString() == "" || zipcode.text.toString() == "" || !isProfileImage) {
+            if (name.text.toString() == "" || dob!!.text.toString() == "" || emailAddress.text.toString() == "" || address.text.toString() == "" || city.text.toString() == "" || choosechruch!!.text.toString() == "" || zipcode.text.toString() == "" || gender!!.text.toString() == "" || !isProfileImage) {
                 displayMessageInAlert(getString(R.string.all_fields_need_to_be_filled))
             } else {
                 if (isValidEmail(emailAddress.text.toString())) {
@@ -104,10 +119,11 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
                         dob = dob!!.text.toString(),
                         emailAddress = emailAddress.text.toString(),
                         address = address.text.toString(),
-                        city = address.text.toString(),
-                        churchName = city.text.toString(),
-                        zipCode = choosechruch!!.text.toString(),
-                        mobileNumber = zipcode.text.toString()
+                        city = city.text.toString(),
+                        churchName = choosechruch!!.text.toString(),
+                        zipCode = zipcode!!.text.toString(),
+                        mobileNumber = currentMobileNumber,
+                        gender = gender!!.text.toString()
                     )
                     val driverDetailsIntent = Intent(this, VehicleDetails::class.java)
                     driverDetailsIntent.putExtra("driverDetails", driverDetailsData)
@@ -128,6 +144,9 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
 
         dob!!.setOnClickListener {
             displayDatePicker()
+        }
+        gender!!.setOnClickListener {
+            genderDialog()
         }
         if (cu.isNetworkAvailable(this)) {
             startLoader()
@@ -201,17 +220,49 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
         }
 
     private fun churchDialog(churchList: List<Church>) {
-        listDialog = object : ChurchDialogList(
-            this, churchList as ArrayList<Church>, this
-        ) {}
-        listDialog!!.show()
+        val view = layoutInflater.inflate(R.layout.dialog_list, null)
+        dialog!!.setContentView(view)
+        val churchRecylerView = view.findViewById<RecyclerView>(R.id.rvList)
+        val close = view.findViewById<CircularProgressButton>(R.id.close)
+        churchRecylerView.layoutManager = LinearLayoutManager(this)
+        val adapter = ChurchAdapter(this, churchList as ArrayList<Church>, this)
+        churchRecylerView.adapter = adapter
+        dialog!!.show()
+
+        close.setOnClickListener {
+            dialog!!.dismiss()
+        }
+    }
+
+    private fun genderDialog() {
+        val view = layoutInflater.inflate(R.layout.gender_dialog, null)
+        dialog!!.setContentView(view)
+        val close = view.findViewById<CircularProgressButton>(R.id.close)
+        val male = view.findViewById<TextView>(R.id.male)
+        val female = view.findViewById<TextView>(R.id.female)
+        val transgender = view.findViewById<TextView>(R.id.transgender)
+
+        male.setOnClickListener {
+            gender!!.setText(male.text.toString())
+            dialog!!.dismiss()
+        }
+        female.setOnClickListener {
+            gender!!.setText(female.text.toString())
+            dialog!!.dismiss()
+        }
+        transgender.setOnClickListener {
+            gender!!.setText(transgender.text.toString())
+            dialog!!.dismiss()
+        }
+        close.setOnClickListener {
+            dialog!!.dismiss()
+        }
+        dialog!!.show()
     }
 
     override fun selectedValue(name: String?) {
-        listDialog?.let {
-            it.dismiss()
-            choosechruch!!.setText(name)
-        }
+        dialog?.dismiss()
+        choosechruch!!.setText(name)
     }
 
     private fun isValidEmail(email: String): Boolean {

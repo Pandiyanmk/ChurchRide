@@ -46,7 +46,6 @@ class DriverDetailPageViewModel constructor(private val authCheckRepository: Mai
         }
     }
 
-
     private fun stopLoader() {
         loading.value = false
     }
