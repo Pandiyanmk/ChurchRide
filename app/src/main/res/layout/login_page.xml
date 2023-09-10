@@ -81,6 +81,7 @@
                     android:imeOptions="actionDone"
                     android:inputType="phone"
                     android:maxLength="15"
+                    android:digits="0123456789"
                     android:paddingStart="12dp"
                     android:textColor="@color/black" />
 

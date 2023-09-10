@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Paint
 import android.os.Bundle
+import android.os.CountDownTimer
 import android.view.View
 import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
@@ -28,6 +29,7 @@ class OTPPage : AppCompatActivity() {
     private var currentOTP = ""
     private var currentMobileNumber = ""
     private var loader: MaterialProgressBar? = null
+    var timer: CountDownTimer? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,6 +45,7 @@ class OTPPage : AppCompatActivity() {
         currentOTP = "" + intent.getStringExtra("codeOTP")
         val codesent = findViewById<TextView>(R.id.codesent)
         val resendotp = findViewById<TextView>(R.id.resendotp)
+        val otptimer = findViewById<TextView>(R.id.otptimer)
         val otpView = findViewById<OtpTextView>(R.id.otp_view)
         val backtap = findViewById<ImageView>(R.id.backtap)
         val nextButton = findViewById<CircularProgressButton>(R.id.nextButton)
@@ -62,7 +65,7 @@ class OTPPage : AppCompatActivity() {
         }
         resendotp.setOnClickListener {
             if (cu.isNetworkAvailable(this)) {
-                if (loader!!.visibility == View.INVISIBLE) {
+                if (loader!!.visibility != View.VISIBLE) {
                     startLoader()
                     loginPageViewModel.getLoginResponse(currentMobileNumber)
                 }
@@ -80,6 +83,20 @@ class OTPPage : AppCompatActivity() {
             if (result.data.isNotEmpty()) {
                 currentOTP = result.data[0].codeOTP
                 otpView.setOTP(currentOTP)
+                otptimer.visibility = View.VISIBLE
+                resendotp.visibility = View.GONE
+                timer = object : CountDownTimer(60000, 1000) {
+                    override fun onTick(millisUntilFinished: Long) {
+                        otptimer.text = "${millisUntilFinished / 1000}"
+                    }
+
+                    override fun onFinish() {
+                        resendotp.visibility = View.VISIBLE
+                        otptimer.visibility = View.GONE
+                        timer = null
+                    }
+                }
+                timer?.start()
             }
             stopLoader()
         }
@@ -114,6 +131,14 @@ class OTPPage : AppCompatActivity() {
         this.currentFocus?.let { view ->
             val imm = getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
             imm?.hideSoftInputFromWindow(view.windowToken, 0)
+        }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        timer?.let {
+            it.cancel()
+            false
         }
     }
 }

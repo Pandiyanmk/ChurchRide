@@ -50,8 +50,8 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
     private var adapter: DocumentAdapter? = null
     private var selectedPosition: Int = 0
     private var readPermission = Manifest.permission.READ_EXTERNAL_STORAGE
-    var driverDetailsData: DriverDetailsData? = null
-    var vehicleDetailsData: VehiclesDetailsData? = null
+    private var driverDetailsData: DriverDetailsData? = null
+    private lateinit var vehicleDetailsData: VehiclesDetailsData
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.documentupload)
@@ -61,7 +61,8 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
 
         driverDetailsData = intent.getSerializableExtra("driverDetails") as DriverDetailsData?
 
-        vehicleDetailsData = intent.getSerializableExtra("vehicleDetails") as VehiclesDetailsData?
+        vehicleDetailsData =
+            (intent.getSerializableExtra("vehicleDetails") as VehiclesDetailsData?)!!
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             readPermission = Manifest.permission.READ_MEDIA_IMAGES
@@ -151,21 +152,16 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
         var permissionGranted = false
 
         // If system os is Marshmallow or Above, we need to request runtime permission
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val cameraPermissionNotGranted = ContextCompat.checkSelfPermission(
-                this, Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_DENIED
-            if (cameraPermissionNotGranted) {
-                val permission = arrayOf(Manifest.permission.CAMERA)
+        val cameraPermissionNotGranted = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_DENIED
+        if (cameraPermissionNotGranted) {
+            val permission = arrayOf(Manifest.permission.CAMERA)
 
-                // Display permission dialog
-                requestPermissions(permission, CAMERA_PERMISSION_CODE)
-            } else {
-                // Permission already granted
-                permissionGranted = true
-            }
+            // Display permission dialog
+            requestPermissions(permission, CAMERA_PERMISSION_CODE)
         } else {
-            // Android version earlier than M -> no need to request permission
+            // Permission already granted
             permissionGranted = true
         }
 
@@ -199,15 +195,13 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
                 displayMessageInAlert(getString(R.string.camera_permission_was_denied_unable_to_take_a_picture))
             }
         } else if (requestCode == READ_PERMISSION_CODE) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val storagePermissionGranted = ContextCompat.checkSelfPermission(
-                    this, readPermission
-                ) == PackageManager.PERMISSION_GRANTED
-                if (storagePermissionGranted) {
-                    chooseImageGallery()
-                } else {
-                    displayMessageInAlert(getString(R.string.storage_permission_was_denied))
-                }
+            val storagePermissionGranted = ContextCompat.checkSelfPermission(
+                this, readPermission
+            ) == PackageManager.PERMISSION_GRANTED
+            if (storagePermissionGranted) {
+                chooseImageGallery()
+            } else {
+                displayMessageInAlert(getString(R.string.storage_permission_was_denied))
             }
         }
     }
@@ -225,7 +219,7 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
     }
 
     private fun chooseCameraOrGallery() {
-        MaterialAlertDialogBuilder(this).setTitle(getString(R.string.choose_profile_image))
+        MaterialAlertDialogBuilder(this).setTitle(getString(R.string.choose_image_to_upload))
             .setNeutralButton(getString(R.string.cancel)) { _, _ ->
                 // Respond to neutral button press
             }.setNegativeButton(getString(R.string.camera)) { _, _ ->
@@ -249,16 +243,12 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
 
     private fun requestStoragePermission(): Boolean {
         var permissionGranted = false
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val storagePermissionNotGranted = ContextCompat.checkSelfPermission(
-                this, readPermission
-            ) == PackageManager.PERMISSION_DENIED
-            if (storagePermissionNotGranted) {
-                val permission = arrayOf(readPermission)
-                requestPermissions(permission, READ_PERMISSION_CODE)
-            } else {
-                permissionGranted = true
-            }
+        val storagePermissionNotGranted = ContextCompat.checkSelfPermission(
+            this, readPermission
+        ) == PackageManager.PERMISSION_DENIED
+        if (storagePermissionNotGranted) {
+            val permission = arrayOf(readPermission)
+            requestPermissions(permission, READ_PERMISSION_CODE)
         } else {
             permissionGranted = true
         }
@@ -295,6 +285,36 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
             map["gender"] = it.gender
             map["emailaddress"] = it.emailAddress
             map
+        }
+
+        driverDataInHashMap?.let {
+            it["type"] = vehicleDetailsData.type
+            it["make"] = vehicleDetailsData.make
+            it["model"] = vehicleDetailsData.model
+            it["year"] = vehicleDetailsData.year
+            it["color"] = vehicleDetailsData.color
+            it["doors"] = vehicleDetailsData.doors
+            it["seats"] = vehicleDetailsData.seats
+        }
+
+        val documentId = StringBuilder()
+        val documentImages = StringBuilder()
+        for (i in 0 until documentList!!.size) {
+            documentId.append(documentList!![i].id + ",")
+            documentImages.append("https::" + ",")
+        }
+        var ids = documentId.toString()
+        if (ids.endsWith(",")) {
+            ids = ids.substring(0, ids.length - 1)
+        }
+
+        var documentimages = documentImages.toString()
+        if (documentimages.endsWith(",")) {
+            documentimages = documentimages.substring(0, documentimages.length - 1)
+        }
+        driverDataInHashMap?.let {
+            it["documentIds"] = ids
+            it["documentImages"] = documentimages
         }
 
         return driverDataInHashMap!!

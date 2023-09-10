@@ -53,7 +53,7 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
     private var cal = Calendar.getInstance()
     private var churchList: List<Church>? = emptyList()
     private var choosechruch: EditText? = null
-    private var profile_picture: CircleImageView? = null
+    private var profilePicture: CircleImageView? = null
     private val CAMERA_PERMISSION_CODE = 1000
     private val READ_PERMISSION_CODE = 1001
     private val IMAGE_CHOOSE = 1000
@@ -91,7 +91,7 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
         val city = findViewById<EditText>(R.id.city)
         val zipcode = findViewById<EditText>(R.id.zipcode)
         choosechruch = findViewById(R.id.choosechruch)
-        profile_picture = findViewById(R.id.profile_picture)
+        profilePicture = findViewById(R.id.profile_picture)
         dob = findViewById(R.id.dob)
         gender = findViewById(R.id.gender)
 
@@ -138,7 +138,7 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
             finish()
         }
 
-        profile_picture!!.setOnClickListener {
+        profilePicture!!.setOnClickListener {
             chooseCameraOrGallery()
         }
 
@@ -273,21 +273,16 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
         var permissionGranted = false
 
         // If system os is Marshmallow or Above, we need to request runtime permission
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val cameraPermissionNotGranted = ContextCompat.checkSelfPermission(
-                this, Manifest.permission.CAMERA
-            ) == PackageManager.PERMISSION_DENIED
-            if (cameraPermissionNotGranted) {
-                val permission = arrayOf(Manifest.permission.CAMERA)
+        val cameraPermissionNotGranted = ContextCompat.checkSelfPermission(
+            this, Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_DENIED
+        if (cameraPermissionNotGranted) {
+            val permission = arrayOf(Manifest.permission.CAMERA)
 
-                // Display permission dialog
-                requestPermissions(permission, CAMERA_PERMISSION_CODE)
-            } else {
-                // Permission already granted
-                permissionGranted = true
-            }
+            // Display permission dialog
+            requestPermissions(permission, CAMERA_PERMISSION_CODE)
         } else {
-            // Android version earlier than M -> no need to request permission
+            // Permission already granted
             permissionGranted = true
         }
 
@@ -321,15 +316,13 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
                 displayMessageInAlert(getString(R.string.camera_permission_was_denied_unable_to_take_a_picture))
             }
         } else if (requestCode == READ_PERMISSION_CODE) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val storagePermissionGranted = ContextCompat.checkSelfPermission(
-                    this, readPermission
-                ) == PackageManager.PERMISSION_GRANTED
-                if (storagePermissionGranted) {
-                    chooseImageGallery()
-                } else {
-                    displayMessageInAlert(getString(R.string.storage_permission_was_denied))
-                }
+            val storagePermissionGranted = ContextCompat.checkSelfPermission(
+                this, readPermission
+            ) == PackageManager.PERMISSION_GRANTED
+            if (storagePermissionGranted) {
+                chooseImageGallery()
+            } else {
+                displayMessageInAlert(getString(R.string.storage_permission_was_denied))
             }
         }
     }
@@ -338,10 +331,10 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_CAPTURE) {
-            profile_picture?.setImageURI(imageUri)
+            profilePicture?.setImageURI(imageUri)
             isProfileImage = true
         } else if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_CHOOSE) {
-            profile_picture?.setImageURI(data?.data)
+            profilePicture?.setImageURI(data?.data)
             isProfileImage = true
         }
     }
@@ -371,16 +364,12 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
 
     private fun requestStoragePermission(): Boolean {
         var permissionGranted = false
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val storagePermissionNotGranted = ContextCompat.checkSelfPermission(
-                this, readPermission
-            ) == PackageManager.PERMISSION_DENIED
-            if (storagePermissionNotGranted) {
-                val permission = arrayOf(readPermission)
-                requestPermissions(permission, READ_PERMISSION_CODE)
-            } else {
-                permissionGranted = true
-            }
+        val storagePermissionNotGranted = ContextCompat.checkSelfPermission(
+            this, readPermission
+        ) == PackageManager.PERMISSION_DENIED
+        if (storagePermissionNotGranted) {
+            val permission = arrayOf(readPermission)
+            requestPermissions(permission, READ_PERMISSION_CODE)
         } else {
             permissionGranted = true
         }
