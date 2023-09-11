@@ -3,6 +3,7 @@ package com.app.chruchridedriver.adapter
 import android.content.Context
 import android.content.Intent
 import android.graphics.Color
+import android.graphics.Paint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -35,7 +36,8 @@ class DocumentAdapter(
         holder.note.text = "${ctx.getString(R.string.note)} ${documentModel.content}"
         if (documentModel.uploaded == 1) {
             holder.filechoosen.text = ctx.getString(R.string.image_added)
-            holder.tickImage.visibility = View.VISIBLE
+            //holder.tickImage.visibility = View.VISIBLE
+            holder.filechoosen.paintFlags = Paint.UNDERLINE_TEXT_FLAG;
             holder.filechoosen.setTextColor(Color.parseColor("#304A27"))
             holder.overlay.setBackgroundResource(R.drawable.selectedbackgrounddoc)
         } else {

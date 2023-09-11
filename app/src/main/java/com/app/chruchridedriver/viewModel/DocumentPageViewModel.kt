@@ -1,5 +1,6 @@
 package com.app.chruchridedriver.viewModel
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,6 +9,7 @@ import com.app.chruchridedriver.data.model.DocumentsResponse
 import com.app.chruchridedriver.data.model.DriverRegisterationResponse
 import com.app.chruchridedriver.repository.MainRepository
 import com.app.chruchridedriver.util.NetworkState
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
@@ -71,6 +73,11 @@ class DocumentPageViewModel constructor(private val authCheckRepository: MainRep
         }
     }
 
+    fun uploadImageToFirebase(storageReference: StorageReference, imageUri: Uri) {
+        viewModelScope.launch {
+            authCheckRepository.uploadImageToFirebase(storageReference, imageUri)
+        }
+    }
 
     private fun stopLoader() {
         loading.value = false

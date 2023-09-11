@@ -7,5 +7,6 @@ data class Document(
     val id: String,
     val name: String,
     var uploaded: Int = 0,
+    var httpImage: String = "",
     var pathOfImage: Uri? = null
 )

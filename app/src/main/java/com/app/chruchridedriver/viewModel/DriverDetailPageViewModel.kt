@@ -1,5 +1,6 @@
 package com.app.chruchridedriver.viewModel
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -7,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.app.chruchridedriver.data.model.ChurchDetails
 import com.app.chruchridedriver.repository.MainRepository
 import com.app.chruchridedriver.util.NetworkState
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
@@ -43,6 +45,12 @@ class DriverDetailPageViewModel constructor(private val authCheckRepository: Mai
                         }
                     }
                 }
+        }
+    }
+
+    fun uploadImageToFirebase(storageReference: StorageReference, imageUri: Uri) {
+        viewModelScope.launch {
+            authCheckRepository.uploadImageToFirebase(storageReference, imageUri)
         }
     }
 

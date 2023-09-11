@@ -1,13 +1,17 @@
 package com.app.chruchridedriver.repository
 
+import android.net.Uri
 import com.app.chruchridedriver.data.model.ChurchDetails
 import com.app.chruchridedriver.data.model.DocumentsResponse
 import com.app.chruchridedriver.data.model.DriverRegisterationResponse
 import com.app.chruchridedriver.data.model.SendOTResponse
 import com.app.chruchridedriver.data.network.RetrofitClientAndEndPoints
 import com.app.chruchridedriver.util.NetworkState
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import org.greenrobot.eventbus.EventBus
+import java.util.UUID
 
 
 class MainRepository {
@@ -131,5 +135,24 @@ class MainRepository {
         }
     }
 
-
+    /* upload Image To Firebase */
+    suspend fun uploadImageToFirebase(
+        storageReference: StorageReference, imageUri: Uri
+    ) {
+        val ref: StorageReference = storageReference.child(
+            "images/" + UUID.randomUUID().toString()
+        )
+        ref.putFile(imageUri).addOnSuccessListener {
+            val result = it.metadata!!.reference!!.downloadUrl
+            result.addOnSuccessListener { uploadedImageURi ->
+                val imageLink = uploadedImageURi.toString()
+                EventBus.getDefault().post(imageLink)
+            }
+        }.addOnFailureListener { e ->
+            EventBus.getDefault().post("Failed$e")
+        }.addOnProgressListener { taskSnapshot ->
+            val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount)
+            EventBus.getDefault().post("isLoading" + progress.toInt() + "%")
+        }
+    }
 }

@@ -2,6 +2,7 @@ package com.app.chruchridedriver.view
 
 import android.Manifest
 import android.app.Activity
+import android.app.Dialog
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -11,9 +12,11 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
+import android.view.Window
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.LinearLayout
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -32,7 +35,16 @@ import com.app.chruchridedriver.util.CommonUtil
 import com.app.chruchridedriver.viewModel.DocumentPageViewModel
 import com.app.chruchridedriver.viewModel.DocumentViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
+import id.zelory.compressor.Compressor
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
+import java.io.File
 import java.util.Locale
 
 
@@ -52,6 +64,10 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
     private var readPermission = Manifest.permission.READ_EXTERNAL_STORAGE
     private var driverDetailsData: DriverDetailsData? = null
     private lateinit var vehicleDetailsData: VehiclesDetailsData
+    lateinit var imageLoader: Dialog
+    var storage: FirebaseStorage? = null
+    var storageReference: StorageReference? = null
+    var loadingValue: TextView? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.documentupload)
@@ -60,6 +76,19 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
         supportActionBar?.hide()
 
         driverDetailsData = intent.getSerializableExtra("driverDetails") as DriverDetailsData?
+
+        imageLoader = Dialog(this)
+        imageLoader.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val view = layoutInflater.inflate(R.layout.progressbarforimageuload, null)
+        imageLoader.setContentView(view)
+
+        loadingValue = view.findViewById(R.id.loadingValue)
+        imageLoader.window!!.setBackgroundDrawableResource(android.R.color.transparent)
+        imageLoader.setCanceledOnTouchOutside(false)
+        imageLoader.setCancelable(false)
+
+        storage = FirebaseStorage.getInstance()
+        storageReference = storage!!.reference
 
         vehicleDetailsData =
             (intent.getSerializableExtra("vehicleDetails") as VehiclesDetailsData?)!!
@@ -210,11 +239,10 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_CAPTURE) {
-            updateImage(imageUri)
-            isProfileImage = true
+            uploadImage()
         } else if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_CHOOSE) {
-            updateImage(data?.data)
-            isProfileImage = true
+            imageUri = data?.data
+            uploadImage()
         }
     }
 
@@ -261,11 +289,12 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
         chooseCameraOrGallery()
     }
 
-    private fun updateImage(uri: Uri?) {
+    private fun updateImage(uri: Uri?, imagePath: String) {
         uri?.let {
             val getData = documentList!![selectedPosition]
             getData.uploaded = 1
             getData.pathOfImage = uri
+            getData.httpImage = imagePath
             documentList!![selectedPosition] = getData
             adapter!!.notifyDataSetChanged()
         }
@@ -301,7 +330,7 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
         val documentImages = StringBuilder()
         for (i in 0 until documentList!!.size) {
             documentId.append(documentList!![i].id + ",")
-            documentImages.append("https::" + ",")
+            documentImages.append(documentList!![i].httpImage + ",")
         }
         var ids = documentId.toString()
         if (ids.endsWith(",")) {
@@ -320,4 +349,65 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
         return driverDataInHashMap!!
     }
 
+    private fun uploadImage() {
+        imageUri?.let { imageUri ->
+            storageReference?.let {
+                imageLoader.show()
+                GlobalScope.launch {
+                    val file = File(getPath(imageUri))
+                    if (file.exists()) {
+                        val compressedImageFile = Compressor.compress(this@DocumentUpload, file)
+                        documentPageViewModel.uploadImageToFirebase(
+                            it, Uri.fromFile(compressedImageFile)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onMessageEvent(event: String?) {
+        event?.let {
+            if (it.startsWith("isLoading")) {
+                if (imageLoader.isShowing) {
+                    loadingValue?.let { loadView ->
+                        loadView.text = event.replace("isLoading", "")
+                    }
+                }
+            } else if (it.startsWith("Failed")) {
+                imageLoader.dismiss()
+                hideImageLoader()
+            } else {
+                hideImageLoader()
+                updateImage(imageUri, event)
+            }
+        }
+    }
+
+    private fun hideImageLoader() {
+        if (imageLoader.isShowing) {
+            imageLoader.dismiss()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        EventBus.getDefault().register(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        EventBus.getDefault().unregister(this)
+    }
+
+    private fun getPath(uri: Uri?): String? {
+        val projection = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor = contentResolver.query(uri!!, projection, null, null, null) ?: return null
+        val column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+        cursor.moveToFirst()
+        val s = cursor.getString(column_index)
+        cursor.close()
+        return s
+    }
 }

@@ -3,6 +3,7 @@ package com.app.chruchridedriver.view
 import android.Manifest
 import android.app.Activity
 import android.app.DatePickerDialog
+import android.app.Dialog
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -15,6 +16,7 @@ import android.text.InputType
 import android.text.TextUtils
 import android.util.Patterns
 import android.view.View
+import android.view.Window
 import android.view.inputmethod.InputMethodManager
 import android.widget.EditText
 import android.widget.ImageView
@@ -36,8 +38,17 @@ import com.app.chruchridedriver.viewModel.DriverDetailPageViewModel
 import com.app.chruchridedriver.viewModel.DriverDetailsViewModelFactory
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.firebase.storage.FirebaseStorage
+import com.google.firebase.storage.StorageReference
 import de.hdodenhof.circleimageview.CircleImageView
+import id.zelory.compressor.Compressor
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
@@ -60,8 +71,12 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
     private val IMAGE_CAPTURE = 1001
     private var imageUri: Uri? = null
     private var dialog: BottomSheetDialog? = null
-    private var isProfileImage = false
+    private var isProfileImage = ""
     var readPermission = Manifest.permission.READ_EXTERNAL_STORAGE
+    lateinit var imageLoader: Dialog
+    var loadingValue: TextView? = null
+    var storage: FirebaseStorage? = null
+    var storageReference: StorageReference? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -70,9 +85,23 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
         /* Hiding ToolBar */
         supportActionBar?.hide()
 
+        imageLoader = Dialog(this)
+        imageLoader.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val view = layoutInflater.inflate(R.layout.progressbarforimageuload, null)
+        imageLoader.setContentView(view)
+
+        loadingValue = view.findViewById(R.id.loadingValue)
+        imageLoader.window!!.setBackgroundDrawableResource(android.R.color.transparent)
+        imageLoader.setCanceledOnTouchOutside(false)
+        imageLoader.setCancelable(false)
+
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             readPermission = Manifest.permission.READ_MEDIA_IMAGES
         }
+
+        storage = FirebaseStorage.getInstance()
+        storageReference = storage!!.reference
 
         /* ViewModel Initialization */
         driverDetailPageViewModel = ViewModelProvider(
@@ -109,12 +138,12 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
 
         val drivernext = findViewById<CircularProgressButton>(R.id.drivernext)
         drivernext.setOnClickListener {
-            if (name.text.toString() == "" || dob!!.text.toString() == "" || emailAddress.text.toString() == "" || address.text.toString() == "" || city.text.toString() == "" || choosechruch!!.text.toString() == "" || zipcode.text.toString() == "" || gender!!.text.toString() == "" || !isProfileImage) {
+            if (name.text.toString() == "" || dob!!.text.toString() == "" || emailAddress.text.toString() == "" || address.text.toString() == "" || city.text.toString() == "" || choosechruch!!.text.toString() == "" || zipcode.text.toString() == "" || gender!!.text.toString() == "" || isProfileImage.isEmpty()) {
                 displayMessageInAlert(getString(R.string.all_fields_need_to_be_filled))
             } else {
                 if (isValidEmail(emailAddress.text.toString())) {
                     val driverDetailsData = DriverDetailsData(
-                        imageUrl = "",
+                        imageUrl = isProfileImage,
                         name = name.text.toString(),
                         dob = dob!!.text.toString(),
                         emailAddress = emailAddress.text.toString(),
@@ -331,11 +360,10 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
         super.onActivityResult(requestCode, resultCode, data)
 
         if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_CAPTURE) {
-            profilePicture?.setImageURI(imageUri)
-            isProfileImage = true
+            uploadImage()
         } else if (resultCode == Activity.RESULT_OK && requestCode == IMAGE_CHOOSE) {
-            profilePicture?.setImageURI(data?.data)
-            isProfileImage = true
+            imageUri = data?.data
+            uploadImage()
         }
     }
 
@@ -376,4 +404,68 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
         return permissionGranted
     }
 
+
+    private fun uploadImage() {
+        imageUri?.let { imageUri ->
+            imageLoader.show()
+            storageReference?.let {
+                GlobalScope.launch {
+                    val file = File(getPath(imageUri))
+                    if (file.exists()) {
+                        val compressedImageFile = Compressor.compress(this@DriverDetails, file)
+                        driverDetailPageViewModel.uploadImageToFirebase(
+                            it, Uri.fromFile(compressedImageFile)
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onMessageEvent(event: String?) {
+        event?.let {
+            if (it.startsWith("isLoading")) {
+                if (imageLoader.isShowing) {
+                    loadingValue?.let { loadView ->
+                        loadView.text = event.replace("isLoading", "")
+                    }
+                }
+            } else if (it.startsWith("Failed")) {
+                imageLoader.dismiss()
+                hideImageLoader()
+            } else {
+                hideImageLoader()
+                profilePicture?.setImageURI(imageUri)
+                isProfileImage = event
+            }
+        }
+    }
+
+    private fun hideImageLoader() {
+        if (imageLoader.isShowing) {
+            imageLoader.dismiss()
+        }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        EventBus.getDefault().register(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        EventBus.getDefault().unregister(this)
+    }
+
+    private fun getPath(uri: Uri?): String? {
+        val projection = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor = contentResolver.query(uri!!, projection, null, null, null) ?: return null
+        val column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+        cursor.moveToFirst()
+        val s = cursor.getString(column_index)
+        cursor.close()
+        return s
+    }
 }
+
