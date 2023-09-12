@@ -1,22 +1,24 @@
 package com.app.chruchridedriver.util
 
-import android.app.AlertDialog
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
 import com.app.chruchridedriver.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 class CommonUtil {
 
     /* Show Message As An Alert Dialog */
     fun showAlert(message: String, context: Context?) {
-        val builder = AlertDialog.Builder(context)
-        builder.setMessage(message)
-        builder.setPositiveButton(context!!.getString(R.string.ok_text), null)
+        val builder = context?.let { MaterialAlertDialogBuilder(it, R.style.AlertDialogTheme) }
+        builder?.let {
+            it.setMessage(message)
+            it.setPositiveButton(context!!.getString(R.string.ok_text), null)
 
-        val dialog = builder.create()
-        dialog.show()
+            val dialog = it.create()
+            dialog.show()
+        }
     }
 
     /* Function For Checking Network Availability */

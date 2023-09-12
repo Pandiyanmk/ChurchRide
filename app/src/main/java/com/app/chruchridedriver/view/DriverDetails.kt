@@ -116,6 +116,7 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
         val backtap = findViewById<ImageView>(R.id.backtap)
         val name = findViewById<EditText>(R.id.name)
         val emailAddress = findViewById<EditText>(R.id.email_address)
+        val state = findViewById<EditText>(R.id.state)
         val address = findViewById<EditText>(R.id.address)
         val city = findViewById<EditText>(R.id.city)
         val zipcode = findViewById<EditText>(R.id.zipcode)
@@ -138,7 +139,9 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
 
         val drivernext = findViewById<CircularProgressButton>(R.id.drivernext)
         drivernext.setOnClickListener {
-            if (name.text.toString() == "" || dob!!.text.toString() == "" || emailAddress.text.toString() == "" || address.text.toString() == "" || city.text.toString() == "" || choosechruch!!.text.toString() == "" || zipcode.text.toString() == "" || gender!!.text.toString() == "" || isProfileImage.isEmpty()) {
+            if (name.text.toString() == "" || dob!!.text.toString() == "" || emailAddress.text.toString() == "" || address.text.toString() == "" || city.text.toString() == "" || choosechruch!!.text.toString() == "" || zipcode.text.toString() == "" || gender!!.text.toString() == "" || isProfileImage.isEmpty() || state.text.toString()
+                    .isEmpty()
+            ) {
                 displayMessageInAlert(getString(R.string.all_fields_need_to_be_filled))
             } else {
                 if (isValidEmail(emailAddress.text.toString())) {
@@ -152,7 +155,8 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
                         churchName = choosechruch!!.text.toString(),
                         zipCode = zipcode!!.text.toString(),
                         mobileNumber = currentMobileNumber,
-                        gender = gender!!.text.toString()
+                        gender = gender!!.text.toString(),
+                        state = state!!.text.toString()
                     )
                     val driverDetailsIntent = Intent(this, VehicleDetails::class.java)
                     driverDetailsIntent.putExtra("driverDetails", driverDetailsData)
@@ -368,7 +372,10 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
     }
 
     private fun chooseCameraOrGallery() {
-        MaterialAlertDialogBuilder(this).setTitle(getString(R.string.choose_profile_image))
+        MaterialAlertDialogBuilder(
+            this,
+            R.style.AlertDialogTheme
+        ).setTitle(getString(R.string.choose_profile_image))
             .setNeutralButton(getString(R.string.cancel)) { _, _ ->
                 // Respond to neutral button press
             }.setNegativeButton(getString(R.string.camera)) { _, _ ->

@@ -247,7 +247,10 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
     }
 
     private fun chooseCameraOrGallery() {
-        MaterialAlertDialogBuilder(this).setTitle(getString(R.string.choose_image_to_upload))
+        MaterialAlertDialogBuilder(
+            this,
+            R.style.AlertDialogTheme
+        ).setTitle(getString(R.string.choose_image_to_upload))
             .setNeutralButton(getString(R.string.cancel)) { _, _ ->
                 // Respond to neutral button press
             }.setNegativeButton(getString(R.string.camera)) { _, _ ->
@@ -313,6 +316,7 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
             map["mobileNumber"] = it.mobileNumber
             map["gender"] = it.gender
             map["emailaddress"] = it.emailAddress
+            map["state"] = it.state
             map
         }
 

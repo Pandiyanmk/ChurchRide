@@ -12,5 +12,6 @@ class DriverDetailsData(
     var churchName: String,
     var zipCode: String,
     var mobileNumber: String,
-    var gender: String
+    var gender: String,
+    var state: String
 ) : Serializable

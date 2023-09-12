@@ -65,4 +65,5 @@
     <string name="female">Female</string>
     <string name="transgender">TransGender</string>
     <string name="choose_image_to_upload">CHOOSE IMAGE TO UPLOAD</string>
+    <string name="enter_state">Enter State</string>
 </resources>
