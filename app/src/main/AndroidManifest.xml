@@ -44,6 +44,10 @@
             android:exported="false"
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
         <activity
+            android:name="com.app.chruchridedriver.view.DocumentUploadStatus"
+            android:exported="false"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
+        <activity
             android:name="com.app.chruchridedriver.view.GetStartedPage"
             android:exported="true">
             <intent-filter>

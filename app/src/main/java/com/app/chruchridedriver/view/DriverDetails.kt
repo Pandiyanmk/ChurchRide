@@ -441,6 +441,7 @@ class DriverDetails : AppCompatActivity(), ClickedAdapterInterface {
             } else if (it.startsWith("Failed")) {
                 imageLoader.dismiss()
                 hideImageLoader()
+                displayMessageInAlert(getString(R.string.failed_to_upload_image_try_again))
             } else {
                 hideImageLoader()
                 profilePicture?.setImageURI(imageUri)

@@ -19,11 +19,16 @@ class GetStartedPage : AppCompatActivity() {
 
         val sharedPreference = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
         val isLoggedIn = sharedPreference.getInt("isLoggedIn", 0)
+        val isDoc = sharedPreference.getInt("isDoc", 0)
+        val isLoggedInType = sharedPreference.getString("isLoggedInType", "")
+        val savedId = sharedPreference.getString("savedId", "")
+
         val isLan = sharedPreference.getString("isLanguage", "en")
         updateLanguage(isLan)
 
-        if (isLoggedIn == 1) {
-            val moveToAboutPage = Intent(this, OTPPage::class.java)
+        if (isLoggedIn == 1 && isLoggedInType == "driver" && isDoc == 1) {
+            val moveToAboutPage = Intent(this, DocumentUploadStatus::class.java)
+            moveToAboutPage.putExtra("driverId", savedId)
             startActivity(moveToAboutPage)
             finish()
         } else {

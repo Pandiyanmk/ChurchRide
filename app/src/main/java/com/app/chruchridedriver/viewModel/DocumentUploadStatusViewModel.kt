@@ -1,42 +1,45 @@
 package com.app.chruchridedriver.viewModel
 
+import android.net.Uri
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.app.chruchridedriver.data.model.DriverDetailsIdResponse
-import com.app.chruchridedriver.data.model.SendOTResponse
+import com.app.chruchridedriver.data.model.UploadedDocument
+import com.app.chruchridedriver.data.model.UploadedDocumentImage
 import com.app.chruchridedriver.repository.MainRepository
 import com.app.chruchridedriver.util.NetworkState
+import com.google.firebase.storage.StorageReference
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
-class LoginPageViewModel constructor(private val authCheckRepository: MainRepository) :
+class DocumentUploadStatusViewModel constructor(private val authCheckRepository: MainRepository) :
     ViewModel() {
 
 
     val loading = MutableLiveData<Boolean>()
 
-    private val _responseContent = MutableLiveData<SendOTResponse>()
-    val responseContent: LiveData<SendOTResponse>
+    private val _responseContent = MutableLiveData<UploadedDocument>()
+    val responseContent: LiveData<UploadedDocument>
         get() = _responseContent
 
-    private val _driverContent = MutableLiveData<DriverDetailsIdResponse>()
-    val driverContent: LiveData<DriverDetailsIdResponse>
-        get() = _driverContent
+
+    private val _registerContent = MutableLiveData<UploadedDocumentImage>()
+    val registerContent: LiveData<UploadedDocumentImage>
+        get() = _registerContent
 
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String>
         get() = _errorMessage
 
-    /* Get Login Content From Api */
-    fun getLoginResponse(mobileNumber: String) {
+    /* Get Uploaded Document Content From Api */
+    fun getUploadedDocument(driverId: String) {
         viewModelScope.launch {
-            authCheckRepository.getLoginResponse(mobileNumber).flowOn(Dispatchers.IO).catch { }
-                .collect { response ->
+            authCheckRepository.getUploadedDocumentResponse(driverId).flowOn(Dispatchers.IO)
+                .catch { }.collect { response ->
                     stopLoader()
                     when (response) {
                         is NetworkState.Success -> {
@@ -51,15 +54,15 @@ class LoginPageViewModel constructor(private val authCheckRepository: MainReposi
         }
     }
 
-    /* Get Login Content From Api */
-    fun getDriverId(mobileNumber: String) {
+    //Update Driver Document  Details
+    fun updateDocument(documentId: String, imageUrl: String) {
         viewModelScope.launch {
-            authCheckRepository.getDriverId(mobileNumber).flowOn(Dispatchers.IO).catch { }
-                .collect { response ->
+            authCheckRepository.updateDocument(documentId, imageUrl).flowOn(Dispatchers.IO)
+                .catch { }.collect { response ->
                     stopLoader()
                     when (response) {
                         is NetworkState.Success -> {
-                            _driverContent.value = response.data!!
+                            _registerContent.value = response.data!!
                         }
 
                         is NetworkState.Error -> {
@@ -70,6 +73,11 @@ class LoginPageViewModel constructor(private val authCheckRepository: MainReposi
         }
     }
 
+    fun uploadImageToFirebase(storageReference: StorageReference, imageUri: Uri) {
+        viewModelScope.launch {
+            authCheckRepository.uploadImageToFirebase(storageReference, imageUri)
+        }
+    }
 
     private fun stopLoader() {
         loading.value = false

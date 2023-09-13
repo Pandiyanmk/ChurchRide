@@ -2,8 +2,11 @@ package com.app.chruchridedriver.data.network
 
 import com.app.chruchridedriver.data.model.ChurchDetails
 import com.app.chruchridedriver.data.model.DocumentsResponse
+import com.app.chruchridedriver.data.model.DriverDetailsIdResponse
 import com.app.chruchridedriver.data.model.DriverRegisterationResponse
 import com.app.chruchridedriver.data.model.SendOTResponse
+import com.app.chruchridedriver.data.model.UploadedDocument
+import com.app.chruchridedriver.data.model.UploadedDocumentImage
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -20,6 +23,11 @@ interface RetrofitClientAndEndPoints {
         @Query("mobileNumber") mobileNumber: String
     ): Response<SendOTResponse>
 
+    @GET("login.php")
+    suspend fun getDriverId(
+        @Query("mobileNumber") mobileNumber: String
+    ): Response<DriverDetailsIdResponse>
+
     @GET("registerdetails.php")
     suspend fun registerDetails(
         @QueryMap params: Map<String, String>
@@ -32,6 +40,18 @@ interface RetrofitClientAndEndPoints {
     @GET("documentlist.php")
     suspend fun getDocumentResponse(
     ): Response<DocumentsResponse>
+
+    @GET("uploadeddocumentstatus.php")
+    suspend fun uploadeddocumentstatus(
+        @Query("driverId") driverId: String
+    ): Response<UploadedDocument>
+
+    @GET("updatedocumentimage.php")
+    suspend fun updateDocument(
+        @Query("documentId") documentId: String,
+        @Query("imageUrl") imageUrl: String
+    ): Response<UploadedDocumentImage>
+
 
     /* Building Retrofit with Base URL */
     companion object {

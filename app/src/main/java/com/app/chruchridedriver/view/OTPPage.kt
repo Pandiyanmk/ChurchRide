@@ -10,6 +10,7 @@ import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.apachat.loadingbutton.core.customViews.CircularProgressButton
@@ -78,6 +79,26 @@ class OTPPage : AppCompatActivity() {
             cu.showAlert(errorMessage, this)
             stopLoader()
         }
+        loginPageViewModel.driverContent.observe(this) { result ->
+            if (result.driverDetails.isNotEmpty()) {
+                if (result.driverDetails[0].verified == "2") {
+                    Toast.makeText(this, "Home Page", Toast.LENGTH_SHORT).show()
+                } else {
+                    updateLogin(result.driverDetails[0].id)
+                    val driverDocPage = Intent(this, DocumentUploadStatus::class.java)
+                    driverDocPage.putExtra("driverId", result.driverDetails[0].id)
+                    driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    startActivity(driverDocPage)
+                    finish()
+                }
+            } else {
+                val moveToReset = Intent(this, DriverDetails::class.java)
+                moveToReset.putExtra("mobileNumber", currentMobileNumber)
+                startActivity(moveToReset)
+                finish()
+            }
+        }
+
 
         loginPageViewModel.responseContent.observe(this) { result ->
             if (result.data.isNotEmpty()) {
@@ -104,11 +125,8 @@ class OTPPage : AppCompatActivity() {
 
         nextButton.setOnClickListener {
             if (otpView.otp!! == currentOTP) {
+                loginPageViewModel.getDriverId(currentMobileNumber)
                 closeKeyboard()
-                val moveToReset = Intent(this, DriverDetails::class.java)
-                moveToReset.putExtra("mobileNumber", currentMobileNumber)
-                startActivity(moveToReset)
-                finish()
             } else {
                 cu.showAlert(getString(R.string.invalid_otp_entered), this)
             }
@@ -140,5 +158,15 @@ class OTPPage : AppCompatActivity() {
             it.cancel()
             false
         }
+    }
+
+    private fun updateLogin(driverId: String) {
+        val sharedPreference = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
+        val editor = sharedPreference.edit()
+        editor.putString("savedId", driverId)
+        editor.putString("isLoggedInType", "driver")
+        editor.putInt("isLoggedIn", 1)
+        editor.putInt("isDoc", 1)
+        editor.commit()
     }
 }

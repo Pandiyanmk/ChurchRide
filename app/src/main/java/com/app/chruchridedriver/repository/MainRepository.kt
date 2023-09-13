@@ -3,8 +3,11 @@ package com.app.chruchridedriver.repository
 import android.net.Uri
 import com.app.chruchridedriver.data.model.ChurchDetails
 import com.app.chruchridedriver.data.model.DocumentsResponse
+import com.app.chruchridedriver.data.model.DriverDetailsIdResponse
 import com.app.chruchridedriver.data.model.DriverRegisterationResponse
 import com.app.chruchridedriver.data.model.SendOTResponse
+import com.app.chruchridedriver.data.model.UploadedDocument
+import com.app.chruchridedriver.data.model.UploadedDocumentImage
 import com.app.chruchridedriver.data.network.RetrofitClientAndEndPoints
 import com.app.chruchridedriver.util.NetworkState
 import com.google.firebase.storage.StorageReference
@@ -153,6 +156,97 @@ class MainRepository {
         }.addOnProgressListener { taskSnapshot ->
             val progress = (100.0 * taskSnapshot.bytesTransferred / taskSnapshot.totalByteCount)
             EventBus.getDefault().post("isLoading" + progress.toInt() + "%")
+        }
+    }
+
+    /* API CALL To Get Document Response */
+    suspend fun updateDocument(
+        documentId: String, imageUrl: String
+    ): Flow<NetworkState<UploadedDocumentImage>> {
+        try {
+            val response =
+                RetrofitClientAndEndPoints.getInstance().updateDocument(documentId, imageUrl)
+
+            return if (response.isSuccessful) {
+                val responseBody = response.body()
+                if (responseBody != null) {
+                    flow {
+                        emit(NetworkState.Success(responseBody))
+                    }
+                } else {
+                    flow {
+                        emit(NetworkState.Error(response.message()))
+                    }
+                }
+            } else {
+                flow {
+                    emit(NetworkState.Error(response.message()))
+                }
+            }
+        } catch (e: Exception) {
+            return flow {
+                emit(NetworkState.Error(e.toString()))
+            }
+        }
+    }
+
+    /* API CALL To Get Document Response */
+    suspend fun getUploadedDocumentResponse(
+        driverId: String
+    ): Flow<NetworkState<UploadedDocument>> {
+        try {
+            val response = RetrofitClientAndEndPoints.getInstance().uploadeddocumentstatus(driverId)
+
+            return if (response.isSuccessful) {
+                val responseBody = response.body()
+                if (responseBody != null) {
+                    flow {
+                        emit(NetworkState.Success(responseBody))
+                    }
+                } else {
+                    flow {
+                        emit(NetworkState.Error(response.message()))
+                    }
+                }
+            } else {
+                flow {
+                    emit(NetworkState.Error(response.message()))
+                }
+            }
+        } catch (e: Exception) {
+            return flow {
+                emit(NetworkState.Error(e.toString()))
+            }
+        }
+    }
+
+    /* API CALL To Get Login Response */
+    suspend fun getDriverId(
+        mobileNumber: String
+    ): Flow<NetworkState<DriverDetailsIdResponse>> {
+        try {
+            val response = RetrofitClientAndEndPoints.getInstance().getDriverId(mobileNumber)
+
+            return if (response.isSuccessful) {
+                val responseBody = response.body()
+                if (responseBody != null) {
+                    flow {
+                        emit(NetworkState.Success(responseBody))
+                    }
+                } else {
+                    flow {
+                        emit(NetworkState.Error(response.message()))
+                    }
+                }
+            } else {
+                flow {
+                    emit(NetworkState.Error(response.message()))
+                }
+            }
+        } catch (e: Exception) {
+            return flow {
+                emit(NetworkState.Error(e.toString()))
+            }
         }
     }
 }

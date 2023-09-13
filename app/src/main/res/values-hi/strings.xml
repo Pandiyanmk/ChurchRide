@@ -11,7 +11,7 @@
     <string name="please_enter_user_id">Veuillez saisir votre numéro de portable</string>
     <string name="invalid_login_details">अवैध लगइन विवरणहरू</string>
     <string name="dentz">डेन्ट्ज</string>
-    <string name="logout">बाहिर निस्कनु</string>
+    <string name="logout">CERRAR SESIÓN</string>
     <string name="choose_language">Choisir la langue de lapplication</string>
     <string name="choose_group">समूह छान्नुहोस्</string>
     <string name="questions">विकल्पहरू</string>
@@ -66,4 +66,15 @@
     <string name="transgender">Transgénero</string>
     <string name="choose_image_to_upload">ELEGIR IMAGEN PARA CARGAR</string>
     <string name="enter_state">Ingresar estado</string>
+    <string name="documents">Documentos</string>
+    <string name="comment">Comentario:</string>
+    <string name="verified">VERIFICADO</string>
+    <string name="rejected">RECHAZADO</string>
+    <string name="pending">PENDIENTE</string>
+    <string name="document_verification_status">Estado de verificación de documentos</string>
+    <string name="contact_us">Contacta con nosotros</string>
+    <string name="reupload_image">VOLVER A SUBIR IMAGEN</string>
+    <string name="view_added_image">VER IMAGEN AÑADIDA</string>
+    <string name="failed_to_upload_image_try_again">No se pudo cargar la imagen. Intentar otra vez</string>
+    <string name="are_you_sure_want_to_logout">¿Estás segura de que quieres cerrar sesión?</string>
 </resources>

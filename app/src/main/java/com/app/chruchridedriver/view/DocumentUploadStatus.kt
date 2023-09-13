@@ -12,11 +12,13 @@ import android.os.Build
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.View
+import android.view.View.VISIBLE
 import android.view.Window
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -24,18 +26,20 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.apachat.loadingbutton.core.customViews.CircularProgressButton
 import com.app.chruchridedriver.R
-import com.app.chruchridedriver.adapter.DocumentAdapter
-import com.app.chruchridedriver.data.model.Document
-import com.app.chruchridedriver.data.model.DriverDetailsData
-import com.app.chruchridedriver.data.model.VehiclesDetailsData
+import com.app.chruchridedriver.adapter.UploadedDocumentAdapter
+import com.app.chruchridedriver.data.model.UploadedDocumentX
 import com.app.chruchridedriver.interfaces.ClickedAdapterInterface
 import com.app.chruchridedriver.repository.MainRepository
 import com.app.chruchridedriver.util.CommonUtil
-import com.app.chruchridedriver.viewModel.DocumentPageViewModel
-import com.app.chruchridedriver.viewModel.DocumentViewModelFactory
+import com.app.chruchridedriver.viewModel.DocumentUploadStatusViewModel
+import com.app.chruchridedriver.viewModel.DocumentUploadViewModelFactory
+import com.bumptech.glide.Glide
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
+import de.hdodenhof.circleimageview.CircleImageView
+import dev.jahidhasanco.pulldownanimaterefresh.PullDownAnimateRefreshLayout
 import id.zelory.compressor.Compressor
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -47,8 +51,8 @@ import java.io.File
 import java.util.Locale
 
 
-class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
-    private lateinit var documentPageViewModel: DocumentPageViewModel
+class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
+    private lateinit var documentUploadStatusViewModel: DocumentUploadStatusViewModel
     private val cu = CommonUtil()
     private var loader: MaterialProgressBar? = null
     private val CAMERA_PERMISSION_CODE = 1000
@@ -56,30 +60,30 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
     private val IMAGE_CHOOSE = 1000
     private val IMAGE_CAPTURE = 1001
     private var imageUri: Uri? = null
-    private var isProfileImage = false
-    private var documentList: ArrayList<Document>? = null
-    private var adapter: DocumentAdapter? = null
+    private var documentList: ArrayList<UploadedDocumentX>? = null
+    private var adapter: UploadedDocumentAdapter? = null
     private var selectedPosition: Int = 0
     private var readPermission = Manifest.permission.READ_EXTERNAL_STORAGE
-    private var driverDetailsData: DriverDetailsData? = null
-    private lateinit var vehicleDetailsData: VehiclesDetailsData
-    lateinit var imageLoader: Dialog
-    var storage: FirebaseStorage? = null
-    var storageReference: StorageReference? = null
-    var loadingValue: TextView? = null
+    private lateinit var imageLoader: Dialog
+    private var storage: FirebaseStorage? = null
+    private var storageReference: StorageReference? = null
+    private var loadingValue: TextView? = null
+    var driverId = ""
+    private var documentDialog: BottomSheetDialog? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.documentupload)
+        setContentView(R.layout.documentuploadstatus)
 
         /* Hiding ToolBar */
         supportActionBar?.hide()
-
-        driverDetailsData = intent.getSerializableExtra("driverDetails") as DriverDetailsData?
-
+        driverId = intent.getStringExtra("driverId").toString()
         imageLoader = Dialog(this)
         imageLoader.requestWindowFeature(Window.FEATURE_NO_TITLE)
         val view = layoutInflater.inflate(R.layout.progressbarforimageuload, null)
         imageLoader.setContentView(view)
+
+        documentDialog = BottomSheetDialog(this)
+        documentDialog!!.setCancelable(true)
 
         loadingValue = view.findViewById(R.id.loadingValue)
         imageLoader.window!!.setBackgroundDrawableResource(android.R.color.transparent)
@@ -89,76 +93,102 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
         storage = FirebaseStorage.getInstance()
         storageReference = storage!!.reference
 
-        vehicleDetailsData =
-            (intent.getSerializableExtra("vehicleDetails") as VehiclesDetailsData?)!!
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             readPermission = Manifest.permission.READ_MEDIA_IMAGES
         }
 
         /* ViewModel Initialization */
-        documentPageViewModel = ViewModelProvider(
-            this, DocumentViewModelFactory(MainRepository())
-        )[DocumentPageViewModel::class.java]
+        documentUploadStatusViewModel = ViewModelProvider(
+            this, DocumentUploadViewModelFactory(MainRepository())
+        )[DocumentUploadStatusViewModel::class.java]
         loader = findViewById(R.id.loader)
         val backtap = findViewById<ImageView>(R.id.backtap)
-        val documentnext = findViewById<CircularProgressButton>(R.id.documentnext)
         val documentView = findViewById<RecyclerView>(R.id.documentView)
         val head = findViewById<LinearLayout>(R.id.head)
+        val name = findViewById<TextView>(R.id.name)
+        val mobileno = findViewById<TextView>(R.id.mobileno)
+        val email = findViewById<TextView>(R.id.email)
+        val contactus = findViewById<TextView>(R.id.contactus)
+        val logout = findViewById<ImageView>(R.id.logout)
+        val pullDownAnimateRefreshLayout =
+            findViewById<PullDownAnimateRefreshLayout>(R.id.pullDownAnimateRefreshLayout)
+        val profile_picture = findViewById<CircleImageView>(R.id.profile_picture)
         documentView.layoutManager = LinearLayoutManager(this)
         backtap.setOnClickListener {
             closeKeyboard()
             finish()
         }
+        logout.setOnClickListener {
+            MaterialAlertDialogBuilder(
+                this, R.style.AlertDialogTheme
+            ).setTitle(getString(R.string.are_you_sure_want_to_logout))
+                .setNeutralButton(getString(R.string.cancel)) { _, _ ->
+                    // Respond to neutral button press
+                }.setPositiveButton(getString(R.string.logout)) { _, _ ->
+                    moveToLoginpageWithDataClear()
+                    val moveToLoginPage = Intent(this, LoginPage::class.java)
+                    startActivity(moveToLoginPage)
+                    finish()
+                }.show()
 
-        documentnext.setOnClickListener {
-            var isValid = true
-            for (i in 0 until documentList!!.size) {
-                if (documentList!![i].uploaded == 0) {
-                    isValid = false
-                }
-            }
-            if (isValid) {
-                startLoader()
-                val driverDetails = getDriverDataInMap()
-                documentPageViewModel.registerDriverDetails(driverDetails)
-            } else {
-                displayMessageInAlert(getString(R.string.all_images_need_to_be_uploaded).uppercase())
-            }
         }
 
-
+        pullDownAnimateRefreshLayout.setOnRefreshListener(object :
+            PullDownAnimateRefreshLayout.OnRefreshListener {
+            override fun onRefresh() {
+                if (cu.isNetworkAvailable(this@DocumentUploadStatus)) {
+                    pullDownAnimateRefreshLayout.setRefreshing(true)
+                    documentUploadStatusViewModel.getUploadedDocument(driverId)
+                } else {
+                    pullDownAnimateRefreshLayout.setRefreshing(false)
+                    displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
+                }
+            }
+        })
         if (cu.isNetworkAvailable(this)) {
             startLoader()
-            documentPageViewModel.getDocumentResponse()
+            documentUploadStatusViewModel.getUploadedDocument(driverId)
         } else {
             displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
         }
 
-        documentPageViewModel.errorMessage.observe(this) { errorMessage ->
+        documentUploadStatusViewModel.errorMessage.observe(this) { errorMessage ->
+            pullDownAnimateRefreshLayout.setRefreshing(false)
             displayMessageInAlert(errorMessage)
             stopLoader()
         }
 
-        documentPageViewModel.responseContent.observe(this) { result ->
-            documentnext.visibility = View.VISIBLE
-            head.visibility = View.VISIBLE
+        documentUploadStatusViewModel.registerContent.observe(this) { response ->
             stopLoader()
-            documentList = result.documents as ArrayList<Document>
-            adapter = DocumentAdapter(documentList!!, this, this)
-            documentView.adapter = adapter
+            if (response.uploadedDocumentImage.isNotEmpty()) {
+                val getData = documentList!![selectedPosition]
+                getData.approvedstatus = "0"
+                getData.documentimage = response.uploadedDocumentImage[0].imageUrl
+                documentList!![selectedPosition] = getData
+                adapter!!.notifyDataSetChanged()
+            }
         }
 
-        documentPageViewModel.registerContent.observe(this) { result ->
-            if (result.data.isNotEmpty()) {
-                updateLogin(result.data[0].driverId)
-                val driverDocPage = Intent(this, DocumentUploadStatus::class.java)
-                driverDocPage.putExtra("driverId", result.data[0].driverId)
-                driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                startActivity(driverDocPage)
-                finish()
-            }
+        documentUploadStatusViewModel.responseContent.observe(this) { result ->
+            head.visibility = VISIBLE
             stopLoader()
+            pullDownAnimateRefreshLayout.setRefreshing(false)
+            if (result.driverProfile.isNotEmpty()) {
+                if (result.driverProfile[0].verified == "2") {
+                    Toast.makeText(this, "Home Page", Toast.LENGTH_SHORT).show()
+                } else {
+                    name.text = result.driverProfile[0].name
+                    mobileno.text = result.driverProfile[0].mobileno
+                    email.text = result.driverProfile[0].email
+                    contactus.text = result.driverProfile[0].contactus
+                    Glide.with(this).load(result.driverProfile[0].profilePic)
+                        .placeholder(R.drawable.uploadprofile).into(profile_picture)
+                }
+            }
+
+            documentList = result.uploadedDocuments as ArrayList<UploadedDocumentX>
+            adapter = UploadedDocumentAdapter(documentList!!, this, this)
+            documentView.adapter = adapter
         }
 
     }
@@ -168,7 +198,7 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
     }
 
     private fun startLoader() {
-        loader!!.visibility = View.VISIBLE
+        loader!!.visibility = VISIBLE
     }
 
     private fun stopLoader() {
@@ -291,70 +321,16 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
     }
 
     override fun selectedValue(position: String?) {
-        val pos = position!!.toInt()
-        selectedPosition = pos
-        chooseCameraOrGallery()
-    }
-
-    private fun updateImage(uri: Uri?, imagePath: String) {
-        uri?.let {
-            val getData = documentList!![selectedPosition]
-            getData.uploaded = 1
-            getData.pathOfImage = uri
-            getData.httpImage = imagePath
-            documentList!![selectedPosition] = getData
-            adapter!!.notifyDataSetChanged()
+        if (loader!!.visibility != VISIBLE) {
+            val pos = position!!.toInt()
+            selectedPosition = pos
+            documentDialog()
         }
     }
 
-    private fun getDriverDataInMap(): MutableMap<String, String> {
-        val driverDataInHashMap = driverDetailsData?.let {
-            val map: MutableMap<String, String> = HashMap()
-            map["profilepic"] = it.imageUrl
-            map["name"] = it.name
-            map["dob"] = it.dob
-            map["address"] = it.address
-            map["city"] = it.city
-            map["churuch"] = it.churchName
-            map["zipcode"] = it.zipCode
-            map["mobileNumber"] = it.mobileNumber
-            map["gender"] = it.gender
-            map["emailaddress"] = it.emailAddress
-            map["state"] = it.state
-            map
-        }
-
-        driverDataInHashMap?.let {
-            it["type"] = vehicleDetailsData.type
-            it["make"] = vehicleDetailsData.make
-            it["model"] = vehicleDetailsData.model
-            it["year"] = vehicleDetailsData.year
-            it["color"] = vehicleDetailsData.color
-            it["doors"] = vehicleDetailsData.doors
-            it["seats"] = vehicleDetailsData.seats
-        }
-
-        val documentId = StringBuilder()
-        val documentImages = StringBuilder()
-        for (i in 0 until documentList!!.size) {
-            documentId.append(documentList!![i].id + ",")
-            documentImages.append(documentList!![i].httpImage + ",")
-        }
-        var ids = documentId.toString()
-        if (ids.endsWith(",")) {
-            ids = ids.substring(0, ids.length - 1)
-        }
-
-        var documentimages = documentImages.toString()
-        if (documentimages.endsWith(",")) {
-            documentimages = documentimages.substring(0, documentimages.length - 1)
-        }
-        driverDataInHashMap?.let {
-            it["documentIds"] = ids
-            it["documentImages"] = documentimages
-        }
-
-        return driverDataInHashMap!!
+    private fun updateImage(imagePath: String) {
+        startLoader()
+        documentUploadStatusViewModel.updateDocument(documentList!![selectedPosition].id, imagePath)
     }
 
     private fun uploadImage() {
@@ -364,8 +340,9 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
                 GlobalScope.launch {
                     val file = File(getPath(imageUri))
                     if (file.exists()) {
-                        val compressedImageFile = Compressor.compress(this@DocumentUpload, file)
-                        documentPageViewModel.uploadImageToFirebase(
+                        val compressedImageFile =
+                            Compressor.compress(this@DocumentUploadStatus, file)
+                        documentUploadStatusViewModel.uploadImageToFirebase(
                             it, Uri.fromFile(compressedImageFile)
                         )
                     }
@@ -389,7 +366,7 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
                 displayMessageInAlert(getString(R.string.failed_to_upload_image_try_again))
             } else {
                 hideImageLoader()
-                updateImage(imageUri, event)
+                updateImage(event)
             }
         }
     }
@@ -420,13 +397,52 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
         return s
     }
 
-    private fun updateLogin(driverId: String) {
+    private fun documentDialog() {
+        documentList?.let { documentList ->
+            val headingData = documentList[selectedPosition].documentName
+            val approvedstatus = documentList[selectedPosition].approvedstatus
+
+            val view = layoutInflater.inflate(R.layout.document_dialog, null)
+            documentDialog!!.setContentView(view)
+            val close = view.findViewById<CircularProgressButton>(R.id.close)
+            val reupload = view.findViewById<TextView>(R.id.reupload)
+            val viewupload = view.findViewById<TextView>(R.id.viewupload)
+            val reuploadlay = view.findViewById<LinearLayout>(R.id.reuploadlay)
+            val heading = view.findViewById<TextView>(R.id.heading)
+            heading.text = headingData
+
+            if (approvedstatus == "1") {
+                reuploadlay.visibility = VISIBLE
+            } else {
+                reuploadlay.visibility = View.GONE
+            }
+
+            viewupload.setOnClickListener {
+                documentDialog!!.dismiss()
+                val image = documentList[selectedPosition].documentimage
+                val viewImagePage = Intent(this, ViewImage::class.java)
+                viewImagePage.putExtra("image", image)
+                viewImagePage.putExtra("heading", headingData)
+                startActivity(viewImagePage)
+            }
+            reupload.setOnClickListener {
+                chooseCameraOrGallery()
+            }
+
+            close.setOnClickListener {
+                documentDialog!!.dismiss()
+            }
+            documentDialog!!.show()
+        }
+    }
+
+    private fun moveToLoginpageWithDataClear() {
         val sharedPreference = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
         val editor = sharedPreference.edit()
-        editor.putString("savedId", driverId)
-        editor.putString("isLoggedInType", "driver")
-        editor.putInt("isLoggedIn", 1)
-        editor.putInt("isDoc", 1)
+        editor.putString("savedId", "")
+        editor.putString("isLoggedInType", "")
+        editor.putInt("isLoggedIn", 0)
+        editor.putInt("isDoc", 0)
         editor.commit()
     }
 }

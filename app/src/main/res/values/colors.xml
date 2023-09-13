@@ -18,4 +18,5 @@
     <color name="colorAccent">#CDD3D2</color>
     <color name="red">#ff0000</color>
     <color name="lighblack">#B7000000</color>
+    <color name="liblack">#43000000</color>
 </resources>

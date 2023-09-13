@@ -55,6 +55,7 @@
     <string name="step_3_of_3">STEP 3 OF 3</string>
     <string name="upload_all_below_mentioned_documents">Upload all below mentioned documents</string>
     <string name="note">Note:</string>
+    <string name="comment">Comment:</string>
     <string name="no_image_choosen">No Image Choosen</string>
     <string name="choose_image">Choose Image</string>
     <string name="image_added">Image Added</string>
@@ -66,4 +67,14 @@
     <string name="transgender">TransGender</string>
     <string name="choose_image_to_upload">CHOOSE IMAGE TO UPLOAD</string>
     <string name="enter_state">Enter State</string>
+    <string name="documents">Documents</string>
+    <string name="verified">VERIFIED</string>
+    <string name="rejected">REJECTED</string>
+    <string name="pending">PENDING</string>
+    <string name="document_verification_status">Document Verification Status</string>
+    <string name="contact_us">Contact Us</string>
+    <string name="reupload_image">REUPLOAD IMAGE</string>
+    <string name="view_added_image">VIEW ADDED IMAGE</string>
+    <string name="failed_to_upload_image_try_again">Failed To Upload Image. Try Again</string>
+    <string name="are_you_sure_want_to_logout">Are you sure want to logout?</string>
 </resources>
