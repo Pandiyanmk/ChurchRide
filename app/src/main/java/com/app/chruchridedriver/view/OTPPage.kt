@@ -76,10 +76,12 @@ class OTPPage : AppCompatActivity() {
         }
 
         loginPageViewModel.errorMessage.observe(this) { errorMessage ->
+            nextButton!!.revertAnimation()
             cu.showAlert(errorMessage, this)
             stopLoader()
         }
         loginPageViewModel.driverContent.observe(this) { result ->
+            nextButton!!.revertAnimation()
             if (result.driverDetails.isNotEmpty()) {
                 if (result.driverDetails[0].verified == "2") {
                     Toast.makeText(this, "Home Page", Toast.LENGTH_SHORT).show()
@@ -125,7 +127,10 @@ class OTPPage : AppCompatActivity() {
 
         nextButton.setOnClickListener {
             if (otpView.otp!! == currentOTP) {
-                loginPageViewModel.getDriverId(currentMobileNumber)
+                val sharedPreference = getSharedPreferences("FCMID", Context.MODE_PRIVATE)
+                val token = sharedPreference.getString("Token", "")
+                nextButton!!.startAnimation()
+                loginPageViewModel.getDriverId(currentMobileNumber, token!!)
                 closeKeyboard()
             } else {
                 cu.showAlert(getString(R.string.invalid_otp_entered), this)

@@ -15,6 +15,7 @@ import android.view.View
 import android.view.View.VISIBLE
 import android.view.Window
 import android.view.inputmethod.InputMethodManager
+import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -28,6 +29,7 @@ import com.apachat.loadingbutton.core.customViews.CircularProgressButton
 import com.app.chruchridedriver.R
 import com.app.chruchridedriver.adapter.UploadedDocumentAdapter
 import com.app.chruchridedriver.data.model.UploadedDocumentX
+import com.app.chruchridedriver.data.model.driverProfileX
 import com.app.chruchridedriver.interfaces.ClickedAdapterInterface
 import com.app.chruchridedriver.repository.MainRepository
 import com.app.chruchridedriver.util.CommonUtil
@@ -36,6 +38,7 @@ import com.app.chruchridedriver.viewModel.DocumentUploadViewModelFactory
 import com.bumptech.glide.Glide
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.StorageReference
 import de.hdodenhof.circleimageview.CircleImageView
@@ -61,6 +64,7 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
     private val IMAGE_CAPTURE = 1001
     private var imageUri: Uri? = null
     private var documentList: ArrayList<UploadedDocumentX>? = null
+    private var driverProfile: ArrayList<driverProfileX>? = null
     private var adapter: UploadedDocumentAdapter? = null
     private var selectedPosition: Int = 0
     private var readPermission = Manifest.permission.READ_EXTERNAL_STORAGE
@@ -70,6 +74,7 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
     private var loadingValue: TextView? = null
     var driverId = ""
     private var documentDialog: BottomSheetDialog? = null
+    private var profileDialog: BottomSheetDialog? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.documentuploadstatus)
@@ -84,6 +89,9 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
 
         documentDialog = BottomSheetDialog(this)
         documentDialog!!.setCancelable(true)
+
+        profileDialog = BottomSheetDialog(this)
+        profileDialog!!.setCancelable(true)
 
         loadingValue = view.findViewById(R.id.loadingValue)
         imageLoader.window!!.setBackgroundDrawableResource(android.R.color.transparent)
@@ -107,16 +115,39 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
         val head = findViewById<LinearLayout>(R.id.head)
         val name = findViewById<TextView>(R.id.name)
         val mobileno = findViewById<TextView>(R.id.mobileno)
+        val profileview = findViewById<FloatingActionButton>(R.id.profileview)
         val email = findViewById<TextView>(R.id.email)
         val contactus = findViewById<TextView>(R.id.contactus)
         val logout = findViewById<ImageView>(R.id.logout)
         val pullDownAnimateRefreshLayout =
             findViewById<PullDownAnimateRefreshLayout>(R.id.pullDownAnimateRefreshLayout)
+
+
+        val type = findViewById<EditText>(R.id.type)
+        val make = findViewById<EditText>(R.id.make)
+        val model = findViewById<EditText>(R.id.model)
+        val year = findViewById<EditText>(R.id.year)
+        val vcolor = findViewById<EditText>(R.id.vcolor)
+        val doors = findViewById<EditText>(R.id.doors)
+
+        type.isEnabled = false
+        make.isEnabled = false
+        model.isEnabled = false
+        year.isEnabled = false
+        vcolor.isEnabled = false
+        doors.isEnabled = false
+
+
         val profile_picture = findViewById<CircleImageView>(R.id.profile_picture)
         documentView.layoutManager = LinearLayoutManager(this)
         backtap.setOnClickListener {
             closeKeyboard()
             finish()
+        }
+        profileview.setOnClickListener {
+            if (driverProfile!!.isNotEmpty()) {
+                openProfileBottomSheetDialog(driverProfile!!)
+            }
         }
         logout.setOnClickListener {
             MaterialAlertDialogBuilder(
@@ -174,6 +205,7 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
             stopLoader()
             pullDownAnimateRefreshLayout.setRefreshing(false)
             if (result.driverProfile.isNotEmpty()) {
+                driverProfile = result.driverProfile as ArrayList<driverProfileX>
                 if (result.driverProfile[0].verified == "2") {
                     Toast.makeText(this, "Home Page", Toast.LENGTH_SHORT).show()
                 } else {
@@ -184,6 +216,12 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
                     Glide.with(this).load(result.driverProfile[0].profilePic)
                         .placeholder(R.drawable.uploadprofile).into(profile_picture)
                 }
+                type.setText(result.vehicleData[0].type.uppercase())
+                make.setText(result.vehicleData[0].make.uppercase())
+                model.setText(result.vehicleData[0].model.uppercase())
+                year.setText(result.vehicleData[0].year.uppercase())
+                vcolor.setText(result.vehicleData[0].color.uppercase())
+                doors.setText(result.vehicleData[0].doors + " & " + result.vehicleData[0].seats)
             }
 
             documentList = result.uploadedDocuments as ArrayList<UploadedDocumentX>
@@ -397,6 +435,51 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
         return s
     }
 
+    private fun openProfileBottomSheetDialog(driverProfile: ArrayList<driverProfileX>) {
+        val view = layoutInflater.inflate(R.layout.driverdetaildialog, null)
+        profileDialog!!.setContentView(view)
+        val name = view.findViewById<View>(R.id.name) as EditText
+        val dob = view.findViewById<View>(R.id.dob) as EditText
+        val gender = view.findViewById<View>(R.id.gender) as EditText
+        val email_address = view.findViewById<View>(R.id.email_address) as EditText
+        val address = view.findViewById<View>(R.id.address) as EditText
+        val city = view.findViewById<View>(R.id.city) as EditText
+        val state = view.findViewById<View>(R.id.state) as EditText
+        val choosechruch = view.findViewById<View>(R.id.choosechruch) as EditText
+        val zipcode = view.findViewById<View>(R.id.zipcode) as EditText
+        val closebutton = view.findViewById<View>(R.id.closebutton) as CircularProgressButton
+
+        name.isEnabled = false
+        dob.isEnabled = false
+        gender.isEnabled = false
+        email_address.isEnabled = false
+        address.isEnabled = false
+        city.isEnabled = false
+        state.isEnabled = false
+        choosechruch.isEnabled = false
+        zipcode.isEnabled = false
+
+        name.setText(driverProfile[0].name)
+        dob.setText(driverProfile[0].dob)
+        gender.setText(driverProfile[0].gender)
+        email_address.setText(driverProfile[0].email)
+        address.setText(driverProfile[0].address)
+        city.setText(driverProfile[0].city)
+        state.setText(driverProfile[0].state)
+        choosechruch.setText(driverProfile[0].church)
+        zipcode.setText(driverProfile[0].zipcode)
+
+
+        if (!profileDialog!!.isShowing) {
+            profileDialog!!.show()
+        }
+
+        closebutton.setOnClickListener {
+            profileDialog!!.dismiss()
+        }
+
+    }
+
     private fun documentDialog() {
         documentList?.let { documentList ->
             val headingData = documentList[selectedPosition].documentName
@@ -405,8 +488,8 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
             val view = layoutInflater.inflate(R.layout.document_dialog, null)
             documentDialog!!.setContentView(view)
             val close = view.findViewById<CircularProgressButton>(R.id.close)
-            val reupload = view.findViewById<TextView>(R.id.reupload)
-            val viewupload = view.findViewById<TextView>(R.id.viewupload)
+            val reupload = view.findViewById<FloatingActionButton>(R.id.reupload)
+            val viewupload = view.findViewById<FloatingActionButton>(R.id.viewupload)
             val reuploadlay = view.findViewById<LinearLayout>(R.id.reuploadlay)
             val heading = view.findViewById<TextView>(R.id.heading)
             heading.text = headingData

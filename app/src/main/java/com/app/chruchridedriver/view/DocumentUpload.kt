@@ -112,18 +112,22 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
         }
 
         documentnext.setOnClickListener {
-            var isValid = true
-            for (i in 0 until documentList!!.size) {
-                if (documentList!![i].uploaded == 0) {
-                    isValid = false
+            if (cu.isNetworkAvailable(this)) {
+                var isValid = true
+                for (i in 0 until documentList!!.size) {
+                    if (documentList!![i].uploaded == 0) {
+                        isValid = false
+                    }
                 }
-            }
-            if (isValid) {
-                startLoader()
-                val driverDetails = getDriverDataInMap()
-                documentPageViewModel.registerDriverDetails(driverDetails)
+                if (isValid) {
+                    startLoader()
+                    val driverDetails = getDriverDataInMap()
+                    documentPageViewModel.registerDriverDetails(driverDetails)
+                } else {
+                    displayMessageInAlert(getString(R.string.all_images_need_to_be_uploaded).uppercase())
+                }
             } else {
-                displayMessageInAlert(getString(R.string.all_images_need_to_be_uploaded).uppercase())
+                displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
             }
         }
 
@@ -332,6 +336,12 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
             it["color"] = vehicleDetailsData.color
             it["doors"] = vehicleDetailsData.doors
             it["seats"] = vehicleDetailsData.seats
+        }
+
+        val sharedPreference = getSharedPreferences("FCMID", Context.MODE_PRIVATE)
+        val token = sharedPreference.getString("Token", "")
+        driverDataInHashMap?.let {
+            it["fcmid"] = token!!
         }
 
         val documentId = StringBuilder()

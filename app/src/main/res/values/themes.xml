@@ -19,8 +19,6 @@
     <!--Login Page-->
 
     <style name="loginPageSubHeadingTextTheme" parent="android:style/Theme">
-        <item name="android:textColor">@color/grey</item>
-        <item name="android:textSize">16sp</item>
     </style>
 
     <style name="AlertDialogTheme" parent="ThemeOverlay.MaterialComponents.MaterialAlertDialog">

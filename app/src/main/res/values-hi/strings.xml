@@ -77,4 +77,23 @@
     <string name="view_added_image">VER IMAGEN AÑADIDA</string>
     <string name="failed_to_upload_image_try_again">No se pudo cargar la imagen. Intentar otra vez</string>
     <string name="are_you_sure_want_to_logout">¿Estás segura de que quieres cerrar sesión?</string>
+    <string name="driver_details">Détails du pilote</string>
+    <string name="driver_name">Nom du conducteur</string>
+    <string name="gender">Genre</string>
+    <string name="email_addresss">Adresse e-mail</string>
+    <string name="address">Adresse</string>
+    <string name="city">Ville</string>
+    <string name="state">État</string>
+    <string name="church_for_pickup_drop">Église pour ramassage/dépose</string>
+    <string name="zipcode">Code postal</string>
+    <string name="profile">Perfil</string>
+    <string name="reupload">Volver a cargar</string>
+    <string name="view">Vista</string>
+    <string name="vehicle_details">Detalles del vehículo</string>
+    <string name="make">Hacer</string>
+    <string name="type">Tipo</string>
+    <string name="model">Modelo</string>
+    <string name="year">Año</string>
+    <string name="color">Color</string>
+    <string name="doors_and_seats">Puertas y asientos</string>
 </resources>

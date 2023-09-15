@@ -6,5 +6,12 @@ data class driverProfileX(
     val email: String,
     val mobileno: String,
     val contactus: String,
-    val verified: String
+    val verified: String,
+    val dob: String,
+    val gender: String,
+    val address: String,
+    val city: String,
+    val church: String,
+    val zipcode: String,
+    val state: String
 )

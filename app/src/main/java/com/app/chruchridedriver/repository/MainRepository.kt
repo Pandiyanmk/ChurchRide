@@ -222,10 +222,10 @@ class MainRepository {
 
     /* API CALL To Get Login Response */
     suspend fun getDriverId(
-        mobileNumber: String
+        mobileNumber: String, token: String
     ): Flow<NetworkState<DriverDetailsIdResponse>> {
         try {
-            val response = RetrofitClientAndEndPoints.getInstance().getDriverId(mobileNumber)
+            val response = RetrofitClientAndEndPoints.getInstance().getDriverId(mobileNumber, token)
 
             return if (response.isSuccessful) {
                 val responseBody = response.body()

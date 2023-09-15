@@ -8,12 +8,14 @@
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
     <color name="grey">#A1494343</color>
+    <color name="darkgrey">#DF1B1A1A</color>
     <color name="lightgrey">#A1B1AEAE</color>
     <color name="blue">#0E3011</color>
     <color name="appColor">#EFEFEF</color>
     <color name="liappColor">#7EEFEFEF</color>
     <color name="bluecolor">#3935BD</color>
     <color name="green">#304A27</color>
+    <color name="darkgreen">#325015</color>
     <color name="lightgreen">#9DDF87</color>
     <color name="colorAccent">#CDD3D2</color>
     <color name="red">#ff0000</color>

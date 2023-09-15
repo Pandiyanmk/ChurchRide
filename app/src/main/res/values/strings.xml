@@ -77,4 +77,23 @@
     <string name="view_added_image">VIEW ADDED IMAGE</string>
     <string name="failed_to_upload_image_try_again">Failed To Upload Image. Try Again</string>
     <string name="are_you_sure_want_to_logout">Are you sure want to logout?</string>
+    <string name="driver_details">Driver Details</string>
+    <string name="driver_name">Driver Name</string>
+    <string name="gender">Gender</string>
+    <string name="email_addresss">Email Address</string>
+    <string name="address">Address</string>
+    <string name="city">City</string>
+    <string name="state">State</string>
+    <string name="church_for_pickup_drop">Church for Pickup/Drop</string>
+    <string name="zipcode">Zipcode</string>
+    <string name="profile">Profile</string>
+    <string name="reupload">ReUpload</string>
+    <string name="view">View</string>
+    <string name="vehicle_details">Vehicle Details</string>
+    <string name="make">Make</string>
+    <string name="type">Type</string>
+    <string name="model">Model</string>
+    <string name="year">Year</string>
+    <string name="color">Color</string>
+    <string name="doors_and_seats">Doors &amp; Seats</string>
 </resources>

@@ -47,7 +47,8 @@
             android:layout_weight="1"
             android:fontFamily="@font/monomedium"
             android:gravity="start"
-            android:text="@string/documents"
+            android:text="@string/profile"
+            android:textAllCaps="true"
             android:textColor="@color/white"
             android:textSize="20sp"
             android:textStyle="bold"
@@ -157,7 +158,7 @@
                                     android:layout_height="wrap_content"
                                     android:fontFamily="@font/regular"
                                     android:textColor="@color/colorAccent"
-                                    android:textSize="17sp"
+                                    android:textSize="15sp"
                                     android:theme="@style/loginPageSubHeadingTextTheme"
                                     tools:text="Church Ride" />
 
@@ -167,11 +168,24 @@
                                     android:layout_height="wrap_content"
                                     android:fontFamily="@font/regular"
                                     android:textColor="@color/colorAccent"
-                                    android:textSize="17sp"
+                                    android:textSize="15sp"
                                     android:theme="@style/loginPageSubHeadingTextTheme"
                                     tools:text="Church Ride" />
                             </LinearLayout>
 
+
+                            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                                android:id="@+id/profileview"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginEnd="20sp"
+                                android:src="@drawable/baseline_keyboard_arrow_right_24"
+                                app:backgroundTint="@color/black"
+                                app:fabSize="normal"
+                                app:layout_constraintBottom_toBottomOf="parent"
+                                app:layout_constraintEnd_toEndOf="parent"
+                                app:rippleColor="@color/lightgrey"
+                                app:tint="@color/white" />
                         </LinearLayout>
                     </LinearLayout>
 
@@ -194,6 +208,227 @@
                         android:layout_height="match_parent"
                         android:orientation="vertical">
 
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:background="@color/appColor"
+                            android:gravity="center|start"
+                            android:orientation="horizontal"
+                            android:padding="10sp">
+
+                            <ImageView
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:src="@drawable/baseline_directions_car_filled_24">
+
+                            </ImageView>
+
+                            <TextView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="10sp"
+                                android:fontFamily="@font/monomedium"
+                                android:gravity="start"
+                                android:text="@string/vehicle_details"
+                                android:textColor="@color/black"
+                                android:textSize="17sp"
+                                android:theme="@style/loginPageSubHeadingTextTheme" />
+
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_marginTop="10sp"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="20sp"
+                            android:layout_marginEnd="20sp"
+                            android:gravity="center"
+                            android:orientation="vertical">
+
+                            <ScrollView
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="vertical">
+
+
+                                    <androidx.appcompat.widget.LinearLayoutCompat
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginBottom="5sp"
+                                        android:orientation="horizontal"
+                                        android:weightSum="3">
+
+                                        <com.google.android.material.textfield.TextInputLayout
+                                            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginEnd="10sp"
+                                            android:layout_weight="1"
+                                            android:fontFamily="@font/monomedium"
+                                            android:hint="@string/type"
+                                            app:layout_constraintEnd_toEndOf="parent"
+                                            app:layout_constraintStart_toStartOf="parent"
+                                            app:layout_constraintTop_toTopOf="parent">
+
+                                            <com.google.android.material.textfield.TextInputEditText
+                                                android:id="@+id/type"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:fontFamily="@font/monomedium"
+                                                android:imeOptions="actionNext"
+                                                android:inputType="text"
+                                                android:maxLength="20"
+                                                android:textColor="@color/black"
+                                                android:textSize="13sp" />
+
+                                        </com.google.android.material.textfield.TextInputLayout>
+
+                                        <com.google.android.material.textfield.TextInputLayout
+                                            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginEnd="10sp"
+                                            android:layout_weight="1"
+                                            android:fontFamily="@font/monomedium"
+                                            android:hint="@string/make"
+                                            app:layout_constraintEnd_toEndOf="parent"
+                                            app:layout_constraintStart_toStartOf="parent"
+                                            app:layout_constraintTop_toTopOf="parent">
+
+                                            <com.google.android.material.textfield.TextInputEditText
+                                                android:id="@+id/make"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:fontFamily="@font/monomedium"
+                                                android:imeOptions="actionNext"
+                                                android:inputType="text"
+                                                android:maxLength="20"
+                                                android:textColor="@color/black"
+                                                android:textSize="13sp" />
+
+                                        </com.google.android.material.textfield.TextInputLayout>
+
+                                        <com.google.android.material.textfield.TextInputLayout
+                                            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_weight="1"
+                                            android:fontFamily="@font/monomedium"
+                                            android:hint="@string/model"
+                                            app:layout_constraintEnd_toEndOf="parent"
+                                            app:layout_constraintStart_toStartOf="parent"
+                                            app:layout_constraintTop_toTopOf="parent">
+
+                                            <com.google.android.material.textfield.TextInputEditText
+                                                android:id="@+id/model"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:fontFamily="@font/monomedium"
+                                                android:imeOptions="actionNext"
+                                                android:inputType="text"
+                                                android:maxLength="20"
+                                                android:textColor="@color/black"
+                                                android:textSize="13sp" />
+
+                                        </com.google.android.material.textfield.TextInputLayout>
+
+                                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+                                    <androidx.appcompat.widget.LinearLayoutCompat
+                                        android:layout_width="match_parent"
+                                        android:layout_height="wrap_content"
+                                        android:layout_marginBottom="5sp"
+                                        android:orientation="horizontal"
+                                        android:weightSum="3">
+
+                                        <com.google.android.material.textfield.TextInputLayout
+                                            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginEnd="10sp"
+                                            android:layout_weight="1"
+                                            android:fontFamily="@font/monomedium"
+                                            android:hint="@string/year"
+                                            app:layout_constraintEnd_toEndOf="parent"
+                                            app:layout_constraintStart_toStartOf="parent"
+                                            app:layout_constraintTop_toTopOf="parent">
+
+                                            <com.google.android.material.textfield.TextInputEditText
+                                                android:id="@+id/year"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:fontFamily="@font/monomedium"
+                                                android:imeOptions="actionNext"
+                                                android:inputType="text"
+                                                android:maxLength="40"
+                                                android:textColor="@color/black"
+                                                android:textSize="13sp" />
+
+                                        </com.google.android.material.textfield.TextInputLayout>
+
+                                        <com.google.android.material.textfield.TextInputLayout
+                                            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginEnd="10sp"
+                                            android:layout_weight="1"
+                                            android:fontFamily="@font/monomedium"
+                                            android:hint="@string/color"
+                                            app:layout_constraintEnd_toEndOf="parent"
+                                            app:layout_constraintStart_toStartOf="parent"
+                                            app:layout_constraintTop_toTopOf="parent">
+
+                                            <com.google.android.material.textfield.TextInputEditText
+                                                android:id="@+id/vcolor"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:fontFamily="@font/monomedium"
+                                                android:imeOptions="actionNext"
+                                                android:inputType="text"
+                                                android:maxLength="40"
+                                                android:textColor="@color/black"
+                                                android:textSize="13sp" />
+
+                                        </com.google.android.material.textfield.TextInputLayout>
+
+                                        <com.google.android.material.textfield.TextInputLayout
+                                            style="@style/Widget.MaterialComponents.TextInputLayout.FilledBox"
+                                            android:layout_width="wrap_content"
+                                            android:layout_height="wrap_content"
+                                            android:layout_marginBottom="5sp"
+                                            android:layout_weight="1"
+                                            android:fontFamily="@font/monomedium"
+                                            android:hint="@string/doors_and_seats"
+                                            app:layout_constraintEnd_toEndOf="parent"
+                                            app:layout_constraintStart_toStartOf="parent"
+                                            app:layout_constraintTop_toTopOf="parent">
+
+                                            <com.google.android.material.textfield.TextInputEditText
+                                                android:id="@+id/doors"
+                                                android:layout_width="match_parent"
+                                                android:layout_height="wrap_content"
+                                                android:fontFamily="@font/monomedium"
+                                                android:imeOptions="actionNext"
+                                                android:inputType="text"
+                                                android:maxLength="40"
+                                                android:textColor="@color/black"
+                                                android:textSize="13sp" />
+
+                                        </com.google.android.material.textfield.TextInputLayout>
+
+                                    </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+                                </LinearLayout>
+
+                            </ScrollView>
+
+                        </LinearLayout>
 
                         <LinearLayout
                             android:layout_width="match_parent"
@@ -205,12 +440,21 @@
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:background="@color/appColor">
+                                android:background="@color/appColor"
+                                android:gravity="center|start"
+                                android:orientation="horizontal"
+                                android:padding="10sp">
+
+                                <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:src="@drawable/baseline_pending_actions_24">
+
+                                </ImageView>
 
                                 <TextView
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_margin="10sp"
                                     android:layout_marginStart="10sp"
                                     android:fontFamily="@font/monomedium"
                                     android:gravity="start"
@@ -226,19 +470,29 @@
                                 android:id="@+id/documentView"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_margin="10sp"
+                                android:layout_marginStart="30sp"
+                                android:layout_marginTop="10sp"
+                                android:layout_marginEnd="10sp"
+                                android:layout_marginBottom="10sp"
                                 tools:itemCount="3"
                                 tools:listitem="@layout/item_uploaded_document" />
 
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:background="@color/appColor">
+                                android:background="@color/appColor"
+                                android:padding="10dp">
+
+                                <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:src="@drawable/baseline_contact_phone_24">
+
+                                </ImageView>
 
                                 <TextView
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_margin="10sp"
                                     android:layout_marginStart="10sp"
                                     android:fontFamily="@font/monomedium"
                                     android:gravity="start"
@@ -253,13 +507,14 @@
                                 android:id="@+id/contactus"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:layout_margin="20sp"
-                                android:layout_marginStart="10sp"
+                                android:layout_marginStart="40sp"
+                                android:layout_marginTop="10sp"
+                                android:layout_marginEnd="10sp"
+                                android:layout_marginBottom="10sp"
                                 android:fontFamily="@font/monomedium"
                                 android:gravity="start"
-                                android:textColor="@color/lighblack"
-                                android:textSize="17sp"
-                                android:theme="@style/loginPageSubHeadingTextTheme" />
+                                android:textColor="@color/grey"
+                                android:textSize="16sp" />
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.core.widget.NestedScrollView>

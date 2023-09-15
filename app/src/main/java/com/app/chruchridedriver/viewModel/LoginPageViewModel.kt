@@ -52,9 +52,9 @@ class LoginPageViewModel constructor(private val authCheckRepository: MainReposi
     }
 
     /* Get Login Content From Api */
-    fun getDriverId(mobileNumber: String) {
+    fun getDriverId(mobileNumber: String, token: String) {
         viewModelScope.launch {
-            authCheckRepository.getDriverId(mobileNumber).flowOn(Dispatchers.IO).catch { }
+            authCheckRepository.getDriverId(mobileNumber,token).flowOn(Dispatchers.IO).catch { }
                 .collect { response ->
                     stopLoader()
                     when (response) {

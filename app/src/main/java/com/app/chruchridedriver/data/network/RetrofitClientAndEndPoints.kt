@@ -25,7 +25,7 @@ interface RetrofitClientAndEndPoints {
 
     @GET("login.php")
     suspend fun getDriverId(
-        @Query("mobileNumber") mobileNumber: String
+        @Query("mobileNumber") mobileNumber: String, @Query("fcmid") token: String
     ): Response<DriverDetailsIdResponse>
 
     @GET("registerdetails.php")
@@ -48,8 +48,7 @@ interface RetrofitClientAndEndPoints {
 
     @GET("updatedocumentimage.php")
     suspend fun updateDocument(
-        @Query("documentId") documentId: String,
-        @Query("imageUrl") imageUrl: String
+        @Query("documentId") documentId: String, @Query("imageUrl") imageUrl: String
     ): Response<UploadedDocumentImage>
 
 
