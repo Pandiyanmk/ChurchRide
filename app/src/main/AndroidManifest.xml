@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.CAMERA"></uses-permission>
-    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES"/>
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"></uses-permission>
 
     <application
@@ -48,6 +48,14 @@
             android:exported="false"
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
         <activity
+            android:name="com.app.chruchridedriver.view.AdminDocumentUploadStatus"
+            android:exported="false"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
+        <activity
+            android:name="com.app.chruchridedriver.view.DriverSearchPage"
+            android:exported="false"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
+        <activity
             android:name="com.app.chruchridedriver.view.GetStartedPage"
             android:exported="true">
             <intent-filter>
@@ -56,6 +64,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service
             android:name=".firebaseService.FirebaseMessageReceiver"
             android:exported="false">

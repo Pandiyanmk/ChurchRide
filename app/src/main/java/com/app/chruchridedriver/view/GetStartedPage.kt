@@ -26,11 +26,18 @@ class GetStartedPage : AppCompatActivity() {
         val isLan = sharedPreference.getString("isLanguage", "en")
         updateLanguage(isLan)
 
-        if (isLoggedIn == 1 && isLoggedInType == "driver" && isDoc == 1) {
-            val moveToAboutPage = Intent(this, DocumentUploadStatus::class.java)
-            moveToAboutPage.putExtra("driverId", savedId)
-            startActivity(moveToAboutPage)
-            finish()
+        if (isLoggedIn == 1 && isDoc == 1) {
+            if (isLoggedInType == "driver") {
+                val moveToAboutPage = Intent(this, DocumentUploadStatus::class.java)
+                moveToAboutPage.putExtra("driverId", savedId)
+                startActivity(moveToAboutPage)
+                finish()
+            } else {
+                val moveToAboutPage = Intent(this, DriverSearchPage::class.java)
+                moveToAboutPage.putExtra("adminId", savedId)
+                startActivity(moveToAboutPage)
+                finish()
+            }
         } else {
             setContentView(R.layout.launch_page)
             Handler().postDelayed({

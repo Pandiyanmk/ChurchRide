@@ -104,7 +104,7 @@
                 android:layout_gravity="center"
                 android:layout_marginTop="20sp"
                 android:layout_margin="5sp"
-                android:fontFamily="@font/mediumitalic"
+                android:fontFamily="@font/monomedium"
                 android:gravity="start"
                 android:text="@string/by_logging_in_you_may_receive_an_sms_for_verification"
                 android:textColor="@color/black"

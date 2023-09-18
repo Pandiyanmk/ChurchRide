@@ -5,6 +5,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.app.chruchridedriver.data.model.UploadedDocStatus
 import com.app.chruchridedriver.data.model.UploadedDocument
 import com.app.chruchridedriver.data.model.UploadedDocumentImage
 import com.app.chruchridedriver.repository.MainRepository
@@ -29,6 +30,10 @@ class DocumentUploadStatusViewModel constructor(private val authCheckRepository:
     private val _registerContent = MutableLiveData<UploadedDocumentImage>()
     val registerContent: LiveData<UploadedDocumentImage>
         get() = _registerContent
+
+    private val _docStatus = MutableLiveData<UploadedDocStatus>()
+    val docStatus: LiveData<UploadedDocStatus>
+        get() = _docStatus
 
 
     private val _errorMessage = MutableLiveData<String>()
@@ -76,6 +81,25 @@ class DocumentUploadStatusViewModel constructor(private val authCheckRepository:
     fun uploadImageToFirebase(storageReference: StorageReference, imageUri: Uri) {
         viewModelScope.launch {
             authCheckRepository.uploadImageToFirebase(storageReference, imageUri)
+        }
+    }
+
+    //Update Driver Document  Details
+    fun updateDocStatus(documentId: String, docStatus: String, comment: String) {
+        viewModelScope.launch {
+            authCheckRepository.updateDocStatus(documentId, docStatus, comment)
+                .flowOn(Dispatchers.IO).catch { }.collect { response ->
+                    stopLoader()
+                    when (response) {
+                        is NetworkState.Success -> {
+                            _docStatus.value = response.data!!
+                        }
+
+                        is NetworkState.Error -> {
+                            _errorMessage.value = response.errorMessage
+                        }
+                    }
+                }
         }
     }
 

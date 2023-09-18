@@ -5,7 +5,9 @@ import com.app.chruchridedriver.data.model.ChurchDetails
 import com.app.chruchridedriver.data.model.DocumentsResponse
 import com.app.chruchridedriver.data.model.DriverDetailsIdResponse
 import com.app.chruchridedriver.data.model.DriverRegisterationResponse
+import com.app.chruchridedriver.data.model.RegisteredDriver
 import com.app.chruchridedriver.data.model.SendOTResponse
+import com.app.chruchridedriver.data.model.UploadedDocStatus
 import com.app.chruchridedriver.data.model.UploadedDocument
 import com.app.chruchridedriver.data.model.UploadedDocumentImage
 import com.app.chruchridedriver.data.network.RetrofitClientAndEndPoints
@@ -226,6 +228,66 @@ class MainRepository {
     ): Flow<NetworkState<DriverDetailsIdResponse>> {
         try {
             val response = RetrofitClientAndEndPoints.getInstance().getDriverId(mobileNumber, token)
+
+            return if (response.isSuccessful) {
+                val responseBody = response.body()
+                if (responseBody != null) {
+                    flow {
+                        emit(NetworkState.Success(responseBody))
+                    }
+                } else {
+                    flow {
+                        emit(NetworkState.Error(response.message()))
+                    }
+                }
+            } else {
+                flow {
+                    emit(NetworkState.Error(response.message()))
+                }
+            }
+        } catch (e: Exception) {
+            return flow {
+                emit(NetworkState.Error(e.toString()))
+            }
+        }
+    }
+
+    /* API CALL To Get Registered Driver Response */
+    suspend fun getRegisteredDriverRecent(
+    ): Flow<NetworkState<RegisteredDriver>> {
+        try {
+            val response = RetrofitClientAndEndPoints.getInstance().getRegisteredDriverRecent()
+
+            return if (response.isSuccessful) {
+                val responseBody = response.body()
+                if (responseBody != null) {
+                    flow {
+                        emit(NetworkState.Success(responseBody))
+                    }
+                } else {
+                    flow {
+                        emit(NetworkState.Error(response.message()))
+                    }
+                }
+            } else {
+                flow {
+                    emit(NetworkState.Error(response.message()))
+                }
+            }
+        } catch (e: Exception) {
+            return flow {
+                emit(NetworkState.Error(e.toString()))
+            }
+        }
+    }
+
+    /* API CALL To update Document Status */
+    suspend fun updateDocStatus(
+        documentId: String, docStatus: String, comment: String
+    ): Flow<NetworkState<UploadedDocStatus>> {
+        try {
+            val response = RetrofitClientAndEndPoints.getInstance()
+                .updateDocStatus(documentId, docStatus, comment)
 
             return if (response.isSuccessful) {
                 val responseBody = response.body()

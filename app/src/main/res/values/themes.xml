@@ -15,7 +15,10 @@
         <!-- Customize your theme here. -->
     </style>
 
-
+    <style name="fab_square" parent="android:style/Theme">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">0dp</item>
+    </style>
     <!--Login Page-->
 
     <style name="loginPageSubHeadingTextTheme" parent="android:style/Theme">

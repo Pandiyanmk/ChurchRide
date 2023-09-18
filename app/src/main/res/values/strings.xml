@@ -96,4 +96,9 @@
     <string name="year">Year</string>
     <string name="color">Color</string>
     <string name="doors_and_seats">Doors &amp; Seats</string>
+    <string name="enter_driver_mobile_number">Enter Driver Mobile Number</string>
+    <string name="search_now">SEARCH</string>
+    <string name="registered_driver_details_list">Registered Drivers</string>
+    <string name="enter_comment_if_any">Enter Comment(If Any)</string>
+    <string name="reject">REJECT</string>
 </resources>

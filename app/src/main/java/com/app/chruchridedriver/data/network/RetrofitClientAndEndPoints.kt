@@ -4,7 +4,9 @@ import com.app.chruchridedriver.data.model.ChurchDetails
 import com.app.chruchridedriver.data.model.DocumentsResponse
 import com.app.chruchridedriver.data.model.DriverDetailsIdResponse
 import com.app.chruchridedriver.data.model.DriverRegisterationResponse
+import com.app.chruchridedriver.data.model.RegisteredDriver
 import com.app.chruchridedriver.data.model.SendOTResponse
+import com.app.chruchridedriver.data.model.UploadedDocStatus
 import com.app.chruchridedriver.data.model.UploadedDocument
 import com.app.chruchridedriver.data.model.UploadedDocumentImage
 import retrofit2.Response
@@ -50,6 +52,17 @@ interface RetrofitClientAndEndPoints {
     suspend fun updateDocument(
         @Query("documentId") documentId: String, @Query("imageUrl") imageUrl: String
     ): Response<UploadedDocumentImage>
+
+    @GET("newregdriverlist.php")
+    suspend fun getRegisteredDriverRecent(
+    ): Response<RegisteredDriver>
+
+    @GET("updatedocstatus.php")
+    suspend fun updateDocStatus(
+        @Query("documentId") documentId: String,
+        @Query("docstatus") docstatus: String,
+        @Query("comment") comment: String
+    ): Response<UploadedDocStatus>
 
 
     /* Building Retrofit with Base URL */

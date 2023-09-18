@@ -83,15 +83,24 @@ class OTPPage : AppCompatActivity() {
         loginPageViewModel.driverContent.observe(this) { result ->
             nextButton!!.revertAnimation()
             if (result.driverDetails.isNotEmpty()) {
-                if (result.driverDetails[0].verified == "2") {
-                    Toast.makeText(this, "Home Page", Toast.LENGTH_SHORT).show()
-                } else {
-                    updateLogin(result.driverDetails[0].id)
-                    val driverDocPage = Intent(this, DocumentUploadStatus::class.java)
-                    driverDocPage.putExtra("driverId", result.driverDetails[0].id)
+                if (result.driverDetails[0].type == "admin") {
+                    updateLogin(result.driverDetails[0].id, "admin")
+                    val driverDocPage = Intent(this, DriverSearchPage::class.java)
+                    driverDocPage.putExtra("adminId", result.driverDetails[0].id)
                     driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
                     startActivity(driverDocPage)
                     finish()
+                } else {
+                    if (result.driverDetails[0].verified == "2") {
+                        Toast.makeText(this, "Home Page", Toast.LENGTH_SHORT).show()
+                    } else {
+                        updateLogin(result.driverDetails[0].id, "driver")
+                        val driverDocPage = Intent(this, DocumentUploadStatus::class.java)
+                        driverDocPage.putExtra("driverId", result.driverDetails[0].id)
+                        driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        startActivity(driverDocPage)
+                        finish()
+                    }
                 }
             } else {
                 val moveToReset = Intent(this, DriverDetails::class.java)
@@ -165,11 +174,11 @@ class OTPPage : AppCompatActivity() {
         }
     }
 
-    private fun updateLogin(driverId: String) {
+    private fun updateLogin(driverId: String, type: String) {
         val sharedPreference = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
         val editor = sharedPreference.edit()
         editor.putString("savedId", driverId)
-        editor.putString("isLoggedInType", "driver")
+        editor.putString("isLoggedInType", type)
         editor.putInt("isLoggedIn", 1)
         editor.putInt("isDoc", 1)
         editor.commit()

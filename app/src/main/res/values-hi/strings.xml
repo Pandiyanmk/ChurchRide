@@ -96,4 +96,9 @@
     <string name="year">Año</string>
     <string name="color">Color</string>
     <string name="doors_and_seats">Puertas y asientos</string>
+    <string name="enter_driver_mobile_number">Ingrese el número de móvil del conductor</string>
+    <string name="search_now">BUSCAR AHORA</string>
+    <string name="registered_driver_details_list">Lista de detalles</string>
+    <string name="enter_comment_if_any">Ingrese el comentario (si corresponde)</string>
+    <string name="reject">RECHAZAR</string>
 </resources>
