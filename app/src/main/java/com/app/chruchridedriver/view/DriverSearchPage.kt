@@ -19,7 +19,6 @@ import com.app.chruchridedriver.util.CommonUtil
 import com.app.chruchridedriver.viewModel.DriverSearchPageViewModel
 import com.app.chruchridedriver.viewModel.DriverSearchPageViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import java.util.Locale
 
@@ -31,26 +30,82 @@ class DriverSearchPage : AppCompatActivity(), ClickedAdapterInterface {
     private var loader: MaterialProgressBar? = null
     private var adapter: SearchDriverAdapter? = null
 
+    private var unapproved: TextView? = null
+    private var approved: TextView? = null
+    private var all: TextView? = null
+
+    private var allview: View? = null
+    private var approvedview: View? = null
+    private var unapprovedview: View? = null
+
+    var sortBy = "3"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.driver_search_page)
 
         /* Hiding ToolBar */
         supportActionBar?.hide()
-
-        /* ViewModel Initialization */
+        anyChangeMade()/* ViewModel Initialization */
         driverSearchPageViewModel = ViewModelProvider(
             this, DriverSearchPageViewModelFactory(MainRepository())
         )[DriverSearchPageViewModel::class.java]
         adminId = "" + intent.getStringExtra("adminId")
         loader = findViewById(R.id.loader)
 
-        val mobileNumber = findViewById<TextView>(R.id.mobile_number)
         val recentdriver = findViewById<RecyclerView>(R.id.recentdriver)
+        val errormessage = findViewById<TextView>(R.id.errormessage)
         val logout = findViewById<ImageView>(R.id.logout)
         val backtap = findViewById<ImageView>(R.id.backtap)
         recentdriver.layoutManager = LinearLayoutManager(this)
-        val search = findViewById<FloatingActionButton>(R.id.search)
+        val search = findViewById<ImageView>(R.id.search)
+
+        all = findViewById(R.id.all)
+        approved = findViewById(R.id.approved)
+        unapproved = findViewById(R.id.unapproved)
+
+        allview = findViewById(R.id.allview)
+        approvedview = findViewById(R.id.approvedview)
+        unapprovedview = findViewById(R.id.unapprovedview)
+
+        all!!.setOnClickListener {
+            if (cu.isNetworkAvailable(this)) {
+                if (loader!!.visibility != View.VISIBLE) {
+                    updateAllButtonClick()
+                    startLoader()
+                    sortBy = "3"
+                    driverSearchPageViewModel.getRegisteredDriverRecent(sortBy)
+                }
+            } else {
+                displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
+            }
+        }
+
+        approved!!.setOnClickListener {
+            if (cu.isNetworkAvailable(this)) {
+                if (loader!!.visibility != View.VISIBLE) {
+                    updateApprovedButtonClick()
+                    startLoader()
+                    sortBy = "1"
+                    driverSearchPageViewModel.getRegisteredDriverRecent(sortBy)
+                }
+            } else {
+                displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
+            }
+        }
+        unapproved!!.setOnClickListener {
+            if (cu.isNetworkAvailable(this)) {
+                if (loader!!.visibility != View.VISIBLE) {
+                    updateUnapprovedButtonClick()
+                    startLoader()
+                    sortBy = "0"
+                    driverSearchPageViewModel.getRegisteredDriverRecent(sortBy)
+                }
+            } else {
+                displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
+            }
+        }
+
         backtap.setOnClickListener {
             finish()
         }
@@ -61,31 +116,27 @@ class DriverSearchPage : AppCompatActivity(), ClickedAdapterInterface {
                 .setNeutralButton(getString(R.string.cancel)) { _, _ ->
                     // Respond to neutral button press
                 }.setPositiveButton(getString(R.string.logout)) { _, _ ->
-                    moveToLoginpageWithDataClear()
+                    cu.moveToLoginpageWithDataClear(this)
                     val moveToLoginPage = Intent(this, LoginPage::class.java)
                     startActivity(moveToLoginPage)
                     finish()
                 }.show()
         }
         search.setOnClickListener {
-            if (mobileNumber.text.isEmpty()) {
-                displayMessageInAlert(getString(R.string.please_enter_user_id).uppercase(Locale.ROOT))
-            } else {
-                if (cu.isNetworkAvailable(this)) {
-                    if (loader!!.visibility != View.VISIBLE) {
-                        startLoader()
-                        driverSearchPageViewModel.getRegisteredDriverRecent()
-                    }
-                } else {
-                    displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
+            if (cu.isNetworkAvailable(this)) {
+                if (loader!!.visibility != View.VISIBLE) {
+                    startLoader()
+                    driverSearchPageViewModel.getRegisteredDriverRecent(sortBy)
                 }
+            } else {
+                displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
             }
         }
 
         if (cu.isNetworkAvailable(this)) {
             if (loader!!.visibility != View.VISIBLE) {
                 startLoader()
-                driverSearchPageViewModel.getRegisteredDriverRecent()
+                driverSearchPageViewModel.getRegisteredDriverRecent(sortBy)
             }
         } else {
             displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
@@ -98,6 +149,11 @@ class DriverSearchPage : AppCompatActivity(), ClickedAdapterInterface {
 
         driverSearchPageViewModel.responseContent.observe(this) { result ->
             stopLoader()
+            if (result.registeredDriver.isEmpty()) {
+                errormessage.visibility = View.VISIBLE
+            } else {
+                errormessage.visibility = View.GONE
+            }
             adapter = SearchDriverAdapter(this, result.registeredDriver, this)
             recentdriver.adapter = adapter
         }
@@ -130,13 +186,60 @@ class DriverSearchPage : AppCompatActivity(), ClickedAdapterInterface {
     }
 
 
-    private fun moveToLoginpageWithDataClear() {
-        val sharedPreference = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
+
+
+    fun updateAllButtonClick() {
+        all!!.setTextColor(resources.getColor(R.color.white))
+        approved!!.setTextColor(resources.getColor(R.color.lightgrey))
+        unapproved!!.setTextColor(resources.getColor(R.color.lightgrey))
+
+        allview!!.setBackgroundColor(resources.getColor(R.color.white))
+        approvedview!!.setBackgroundColor(resources.getColor(R.color.grey))
+        unapprovedview!!.setBackgroundColor(resources.getColor(R.color.grey))
+    }
+
+    fun updateApprovedButtonClick() {
+        all!!.setTextColor(resources.getColor(R.color.lightgrey))
+        approved!!.setTextColor(resources.getColor(R.color.white))
+        unapproved!!.setTextColor(resources.getColor(R.color.lightgrey))
+
+        allview!!.setBackgroundColor(resources.getColor(R.color.grey))
+        approvedview!!.setBackgroundColor(resources.getColor(R.color.white))
+        unapprovedview!!.setBackgroundColor(resources.getColor(R.color.grey))
+    }
+
+    private fun updateUnapprovedButtonClick() {
+        all!!.setTextColor(resources.getColor(R.color.lightgrey))
+        approved!!.setTextColor(resources.getColor(R.color.lightgrey))
+        unapproved!!.setTextColor(resources.getColor(R.color.white))
+
+        allview!!.setBackgroundColor(resources.getColor(R.color.grey))
+        approvedview!!.setBackgroundColor(resources.getColor(R.color.grey))
+        unapprovedview!!.setBackgroundColor(resources.getColor(R.color.white))
+    }
+
+    private fun anyChangeMade() {
+        val sharedPreference = getSharedPreferences("ANYCHANGE", Context.MODE_PRIVATE)
         val editor = sharedPreference.edit()
-        editor.putString("savedId", "")
-        editor.putString("isLoggedInType", "")
-        editor.putInt("isLoggedIn", 0)
-        editor.putInt("isDoc", 0)
+        editor.putInt("isChange", 0)
         editor.commit()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val sharedPreference = getSharedPreferences("ANYCHANGE", Context.MODE_PRIVATE)
+        val isChange = sharedPreference.getInt("isChange", 0)
+        anyChangeMade()
+        if (isChange == 1) {
+            if (cu.isNetworkAvailable(this)) {
+                if (loader!!.visibility != View.VISIBLE) {
+                    startLoader()
+                    driverSearchPageViewModel.getRegisteredDriverRecent(sortBy)
+                }
+            } else {
+                displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
+            }
+        }
+
     }
 }

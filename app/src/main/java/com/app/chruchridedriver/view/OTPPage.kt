@@ -91,8 +91,13 @@ class OTPPage : AppCompatActivity() {
                     startActivity(driverDocPage)
                     finish()
                 } else {
-                    if (result.driverDetails[0].verified == "2") {
-                        Toast.makeText(this, "Home Page", Toast.LENGTH_SHORT).show()
+                    if (result.driverDetails[0].verified == "1") {
+                        updateHomeLogin(result.driverDetails[0].id, "driver")
+                        val driverDocPage = Intent(this, DriverHomePage::class.java)
+                        driverDocPage.putExtra("driverId", result.driverDetails[0].id)
+                        driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        startActivity(driverDocPage)
+                        finish()
                     } else {
                         updateLogin(result.driverDetails[0].id, "driver")
                         val driverDocPage = Intent(this, DocumentUploadStatus::class.java)
@@ -181,6 +186,15 @@ class OTPPage : AppCompatActivity() {
         editor.putString("isLoggedInType", type)
         editor.putInt("isLoggedIn", 1)
         editor.putInt("isDoc", 1)
+        editor.commit()
+    }
+    private fun updateHomeLogin(driverId: String, type: String) {
+        val sharedPreference = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
+        val editor = sharedPreference.edit()
+        editor.putString("savedId", driverId)
+        editor.putString("isLoggedInType", type)
+        editor.putInt("isLoggedIn", 1)
+        editor.putInt("isDoc", 2)
         editor.commit()
     }
 }

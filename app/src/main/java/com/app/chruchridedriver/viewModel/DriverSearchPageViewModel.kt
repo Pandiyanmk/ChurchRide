@@ -27,9 +27,9 @@ class DriverSearchPageViewModel constructor(private val authCheckRepository: Mai
         get() = _errorMessage
 
     /* Get Login Content From Api */
-    fun getRegisteredDriverRecent() {
+    fun getRegisteredDriverRecent(sortBy: String) {
         viewModelScope.launch {
-            authCheckRepository.getRegisteredDriverRecent().flowOn(Dispatchers.IO).catch { }
+            authCheckRepository.getRegisteredDriverRecent(sortBy).flowOn(Dispatchers.IO).catch { }
                 .collect { response ->
                     stopLoader()
                     when (response) {

@@ -4,10 +4,11 @@ import android.Manifest
 import android.app.Dialog
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.view.View
+import android.view.View.GONE
+import android.view.View.INVISIBLE
 import android.view.View.VISIBLE
 import android.view.Window
 import android.view.inputmethod.InputMethodManager
@@ -31,6 +32,8 @@ import com.app.chruchridedriver.util.CommonUtil
 import com.app.chruchridedriver.viewModel.DocumentUploadStatusViewModel
 import com.app.chruchridedriver.viewModel.DocumentUploadViewModelFactory
 import com.bumptech.glide.Glide
+import com.chinalwb.slidetoconfirmlib.ISlideListener
+import com.chinalwb.slidetoconfirmlib.SlideToConfirm
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -46,11 +49,6 @@ class AdminDocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
     private lateinit var documentUploadStatusViewModel: DocumentUploadStatusViewModel
     private val cu = CommonUtil()
     private var loader: MaterialProgressBar? = null
-    private val CAMERA_PERMISSION_CODE = 1000
-    private val READ_PERMISSION_CODE = 1001
-    private val IMAGE_CHOOSE = 1000
-    private val IMAGE_CAPTURE = 1001
-    private var imageUri: Uri? = null
     private var documentList: ArrayList<UploadedDocumentX>? = null
     private var driverProfile: ArrayList<driverProfileX>? = null
     private var adapter: UploadedDocumentAdapter? = null
@@ -109,6 +107,9 @@ class AdminDocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
         val pullDownAnimateRefreshLayout =
             findViewById<PullDownAnimateRefreshLayout>(R.id.pullDownAnimateRefreshLayout)
 
+        val slideToConfirm: SlideToConfirm = findViewById(R.id.slide_to_confirm)
+        val slideToLock: SlideToConfirm = findViewById(R.id.slide_to_lock)
+
 
         val type = findViewById<EditText>(R.id.type)
         val make = findViewById<EditText>(R.id.make)
@@ -143,7 +144,7 @@ class AdminDocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
                 .setNeutralButton(getString(R.string.cancel)) { _, _ ->
                     // Respond to neutral button press
                 }.setPositiveButton(getString(R.string.logout)) { _, _ ->
-                    moveToLoginpageWithDataClear()
+                    cu.moveToLoginpageWithDataClear(this)
                     val moveToLoginPage = Intent(this, LoginPage::class.java)
                     startActivity(moveToLoginPage)
                     finish()
@@ -187,6 +188,52 @@ class AdminDocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
             }
         }
 
+
+        slideToConfirm.slideListener = object : ISlideListener {
+            override fun onSlideStart() {
+            }
+
+            override fun onSlideMove(percent: Float) {
+            }
+
+            override fun onSlideCancel() {
+            }
+
+            override fun onSlideDone() {
+                slideToConfirm.reset()
+                if (cu.isNetworkAvailable(this@AdminDocumentUploadStatus)) {
+                    startLoader()
+                    pullDownAnimateRefreshLayout.setRefreshing(true)
+                    documentUploadStatusViewModel.getDriverVerifiedStatus(driverId, "1")
+                } else {
+                    pullDownAnimateRefreshLayout.setRefreshing(false)
+                    displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
+                }
+            }
+        }
+        slideToLock.slideListener = object : ISlideListener {
+            override fun onSlideStart() {
+            }
+
+            override fun onSlideMove(percent: Float) {
+            }
+
+            override fun onSlideCancel() {
+            }
+
+            override fun onSlideDone() {
+                slideToLock.reset()
+                if (cu.isNetworkAvailable(this@AdminDocumentUploadStatus)) {
+                    pullDownAnimateRefreshLayout.setRefreshing(true)
+                    startLoader()
+                    documentUploadStatusViewModel.getDriverVerifiedStatus(driverId, "0")
+                } else {
+                    pullDownAnimateRefreshLayout.setRefreshing(false)
+                    displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
+                }
+            }
+        }
+
         documentUploadStatusViewModel.responseContent.observe(this) { result ->
             head.visibility = VISIBLE
             stopLoader()
@@ -196,6 +243,13 @@ class AdminDocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
                 if (result.driverProfile[0].verified == "2") {
                     Toast.makeText(this, "Home Page", Toast.LENGTH_SHORT).show()
                 } else {
+                    if (result.driverProfile[0].verified == "1") {
+                        slideToConfirm.visibility = GONE
+                        slideToLock.visibility = VISIBLE
+                    } else {
+                        slideToConfirm.visibility = VISIBLE
+                        slideToLock.visibility = GONE
+                    }
                     name.text = result.driverProfile[0].name
                     mobileno.text = result.driverProfile[0].mobileno
                     email.text = result.driverProfile[0].email
@@ -207,12 +261,27 @@ class AdminDocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
                 model.setText(result.vehicleData[0].model.uppercase())
                 year.setText(result.vehicleData[0].year.uppercase())
                 vcolor.setText(result.vehicleData[0].color.uppercase())
-                doors.setText(result.vehicleData[0].doors + " & " + result.vehicleData[0].seats)
+                doors.setText("${result.vehicleData[0].doors} & ${result.vehicleData[0].seats}")
             }
 
             documentList = result.uploadedDocuments as ArrayList<UploadedDocumentX>
             adapter = UploadedDocumentAdapter(documentList!!, this, this)
             documentView.adapter = adapter
+        }
+
+        documentUploadStatusViewModel.verifiedStatus.observe(this) { result ->
+            stopLoader()
+            pullDownAnimateRefreshLayout.setRefreshing(false)
+            if (result.verifiedStatus.isNotEmpty()) {
+                anyChangeMade()
+                if (result.verifiedStatus[0].verified == "1") {
+                    slideToConfirm.visibility = GONE
+                    slideToLock.visibility = VISIBLE
+                } else {
+                    slideToConfirm.visibility = VISIBLE
+                    slideToLock.visibility = GONE
+                }
+            }
         }
 
     }
@@ -226,7 +295,7 @@ class AdminDocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
     }
 
     private fun stopLoader() {
-        loader!!.visibility = View.INVISIBLE
+        loader!!.visibility = INVISIBLE
     }
 
     private fun closeKeyboard() {
@@ -292,8 +361,6 @@ class AdminDocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
     private fun documentDialog() {
         documentList?.let { documentList ->
             val headingData = documentList[selectedPosition].documentName
-            val approvedstatus = documentList[selectedPosition].approvedstatus
-
             val view = layoutInflater.inflate(R.layout.admindocumentdialog, null)
             documentDialog!!.setContentView(view)
             val close = view.findViewById<ImageView>(R.id.close)
@@ -318,7 +385,7 @@ class AdminDocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
                 if (cu.isNetworkAvailable(this)) {
                     startLoader()
                     documentUploadStatusViewModel.updateDocStatus(
-                        documentList!![selectedPosition].id, "2", comment.text.toString()
+                        documentList[selectedPosition].id, "2", comment.text.toString()
                     )
                     documentUploadStatusViewModel.getUploadedDocument(driverId)
                 } else {
@@ -330,7 +397,7 @@ class AdminDocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
                 if (cu.isNetworkAvailable(this)) {
                     startLoader()
                     documentUploadStatusViewModel.updateDocStatus(
-                        documentList!![selectedPosition].id, "1", comment.text.toString()
+                        documentList[selectedPosition].id, "1", comment.text.toString()
                     )
                     documentUploadStatusViewModel.getUploadedDocument(driverId)
                 } else {
@@ -344,13 +411,11 @@ class AdminDocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
         }
     }
 
-    private fun moveToLoginpageWithDataClear() {
-        val sharedPreference = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
+
+    private fun anyChangeMade() {
+        val sharedPreference = getSharedPreferences("ANYCHANGE", Context.MODE_PRIVATE)
         val editor = sharedPreference.edit()
-        editor.putString("savedId", "")
-        editor.putString("isLoggedInType", "")
-        editor.putInt("isLoggedIn", 0)
-        editor.putInt("isDoc", 0)
+        editor.putInt("isChange", 1)
         editor.commit()
     }
 }

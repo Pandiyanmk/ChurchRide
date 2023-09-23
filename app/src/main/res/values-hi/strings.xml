@@ -98,7 +98,16 @@
     <string name="doors_and_seats">Puertas y asientos</string>
     <string name="enter_driver_mobile_number">Ingrese el número de móvil del conductor</string>
     <string name="search_now">BUSCAR AHORA</string>
-    <string name="registered_driver_details_list">Lista de detalles</string>
+    <string name="registered_driver_details_list">Lista de controladores</string>
     <string name="enter_comment_if_any">Ingrese el comentario (si corresponde)</string>
     <string name="reject">RECHAZAR</string>
+    <string name="newly_registered">TODO registrado</string>
+    <string name="approved_drivers">Conductores</string>
+    <string name="unapproved_drivers">Controladores no</string>
+    <string name="sorry_no_drivers_are_availble_on_the_selected_category">Lo sentimos No hay controladores disponibles en la categoría seleccionada</string>
+    <string name="unlock_driver_to_take_trips">Bloquear o desbloquear el controlador</string>
+    <string name="locked">BLOQUEADO</string>
+    <string name="slide_to_lock">DESLIZAR PARA BLOQUEAR</string>
+    <string name="unlocked">DESBLOQUEADO</string>
+    <string name="slide_to_unlock">DESLICE PARA DESBLOQUEAR</string>
 </resources>

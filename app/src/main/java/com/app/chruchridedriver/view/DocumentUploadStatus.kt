@@ -156,7 +156,7 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
                 .setNeutralButton(getString(R.string.cancel)) { _, _ ->
                     // Respond to neutral button press
                 }.setPositiveButton(getString(R.string.logout)) { _, _ ->
-                    moveToLoginpageWithDataClear()
+                    cu.moveToLoginpageWithDataClear(this)
                     val moveToLoginPage = Intent(this, LoginPage::class.java)
                     startActivity(moveToLoginPage)
                     finish()
@@ -206,8 +206,13 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
             pullDownAnimateRefreshLayout.setRefreshing(false)
             if (result.driverProfile.isNotEmpty()) {
                 driverProfile = result.driverProfile as ArrayList<driverProfileX>
-                if (result.driverProfile[0].verified == "2") {
-                    Toast.makeText(this, "Home Page", Toast.LENGTH_SHORT).show()
+                if (result.driverProfile[0].verified == "1") {
+                    updateLogin(driverId, "driver")
+                    val driverDocPage = Intent(this, DriverHomePage::class.java)
+                    driverDocPage.putExtra("driverId", driverId)
+                    driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    startActivity(driverDocPage)
+                    finish()
                 } else {
                     name.text = result.driverProfile[0].name
                     mobileno.text = result.driverProfile[0].mobileno
@@ -519,13 +524,13 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
         }
     }
 
-    private fun moveToLoginpageWithDataClear() {
+    private fun updateLogin(driverId: String, type: String) {
         val sharedPreference = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
         val editor = sharedPreference.edit()
-        editor.putString("savedId", "")
-        editor.putString("isLoggedInType", "")
-        editor.putInt("isLoggedIn", 0)
-        editor.putInt("isDoc", 0)
+        editor.putString("savedId", driverId)
+        editor.putString("isLoggedInType", type)
+        editor.putInt("isLoggedIn", 1)
+        editor.putInt("isDoc", 2)
         editor.commit()
     }
 }

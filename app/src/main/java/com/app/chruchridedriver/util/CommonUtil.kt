@@ -21,6 +21,16 @@ class CommonUtil {
         }
     }
 
+    fun moveToLoginpageWithDataClear(ctx: Context) {
+        val sharedPreference = ctx.getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
+        val editor = sharedPreference.edit()
+        editor.putString("savedId", "")
+        editor.putString("isLoggedInType", "")
+        editor.putInt("isLoggedIn", 0)
+        editor.putInt("isDoc", 0)
+        editor.commit()
+    }
+
     /* Function For Checking Network Availability */
     fun isNetworkAvailable(context: Context?): Boolean {
         if (context == null) return false

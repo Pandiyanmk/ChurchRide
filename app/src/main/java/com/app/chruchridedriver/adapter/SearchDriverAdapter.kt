@@ -58,7 +58,7 @@ class SearchDriverAdapter(
 
     private fun getDate(date: String): String {
         val calendar: Calendar = Calendar.getInstance()
-        val simpleDateFormat = SimpleDateFormat("EE, dd-MMM-yyyy hh-mm a")
-        return simpleDateFormat.format(calendar.time)
+        val simpleDateFormat = SimpleDateFormat("EE, dd-MMM-yyyy hh:mm a")
+        return simpleDateFormat.format(calendar.time).replace("am", "AM").replace("pm","PM")
     }
 }

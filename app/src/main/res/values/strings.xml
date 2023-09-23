@@ -98,7 +98,16 @@
     <string name="doors_and_seats">Doors &amp; Seats</string>
     <string name="enter_driver_mobile_number">Enter Driver Mobile Number</string>
     <string name="search_now">SEARCH</string>
-    <string name="registered_driver_details_list">Registered Drivers</string>
+    <string name="registered_driver_details_list">Drivers List</string>
     <string name="enter_comment_if_any">Enter Comment(If Any)</string>
     <string name="reject">REJECT</string>
+    <string name="newly_registered">ALL Registered</string>
+    <string name="approved_drivers">Approved</string>
+    <string name="unapproved_drivers">Unapproved</string>
+    <string name="sorry_no_drivers_are_availble_on_the_selected_category">Sorry No drivers are availble on the selected category</string>
+    <string name="unlock_driver_to_take_trips">Lock Or Unlock Driver</string>
+    <string name="locked">LOCKED</string>
+    <string name="slide_to_lock">SLIDE TO LOCK</string>
+    <string name="unlocked">UNLOCKED</string>
+    <string name="slide_to_unlock">SLIDE TO UNLOCK</string>
 </resources>

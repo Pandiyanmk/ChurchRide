@@ -96,6 +96,6 @@ dependencies {
     annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
 
     implementation 'com.github.JahidHasanCO:PullDownAnimateRefresh:1.0.0'
-
-
+    implementation 'com.github.chinalwb:slidetoconfirm:1.0.2'
+    implementation 'com.gauravbhola.ripplepulsebackground:library:1.0.0'
 }

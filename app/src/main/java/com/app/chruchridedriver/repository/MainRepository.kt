@@ -10,6 +10,7 @@ import com.app.chruchridedriver.data.model.SendOTResponse
 import com.app.chruchridedriver.data.model.UploadedDocStatus
 import com.app.chruchridedriver.data.model.UploadedDocument
 import com.app.chruchridedriver.data.model.UploadedDocumentImage
+import com.app.chruchridedriver.data.model.VerifiedStatus
 import com.app.chruchridedriver.data.network.RetrofitClientAndEndPoints
 import com.app.chruchridedriver.util.NetworkState
 import com.google.firebase.storage.StorageReference
@@ -254,9 +255,11 @@ class MainRepository {
 
     /* API CALL To Get Registered Driver Response */
     suspend fun getRegisteredDriverRecent(
+        sortBy: String
     ): Flow<NetworkState<RegisteredDriver>> {
         try {
-            val response = RetrofitClientAndEndPoints.getInstance().getRegisteredDriverRecent()
+            val response =
+                RetrofitClientAndEndPoints.getInstance().getRegisteredDriverRecent(sortBy)
 
             return if (response.isSuccessful) {
                 val responseBody = response.body()
@@ -288,6 +291,36 @@ class MainRepository {
         try {
             val response = RetrofitClientAndEndPoints.getInstance()
                 .updateDocStatus(documentId, docStatus, comment)
+
+            return if (response.isSuccessful) {
+                val responseBody = response.body()
+                if (responseBody != null) {
+                    flow {
+                        emit(NetworkState.Success(responseBody))
+                    }
+                } else {
+                    flow {
+                        emit(NetworkState.Error(response.message()))
+                    }
+                }
+            } else {
+                flow {
+                    emit(NetworkState.Error(response.message()))
+                }
+            }
+        } catch (e: Exception) {
+            return flow {
+                emit(NetworkState.Error(e.toString()))
+            }
+        }
+    }
+
+    /* API CALL To Get Document Response */
+    suspend fun getDriverVerifiedStatus(
+        driverId: String, verified: String
+    ): Flow<NetworkState<VerifiedStatus>> {
+        try {
+            val response = RetrofitClientAndEndPoints.getInstance().getVerified(driverId, verified)
 
             return if (response.isSuccessful) {
                 val responseBody = response.body()

@@ -6,7 +6,7 @@
     android:layout_height="wrap_content"
     android:gravity="center_vertical"
     android:orientation="horizontal"
-    android:padding="5dp">
+    android:padding="1dp">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -63,10 +63,10 @@
                     android:id="@+id/mobileno"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/regular"
+                    android:fontFamily="@font/monomedium"
                     android:textAllCaps="true"
                     android:textColor="@color/grey"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:theme="@style/loginPageSubHeadingTextTheme"
                     tools:text="Church Ride" />
 
@@ -85,10 +85,10 @@
                     android:id="@+id/date"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="@font/regular"
-                    android:textAllCaps="true"
+                    android:fontFamily="@font/monomedium"
                     android:textColor="@color/grey"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
+                    android:textAllCaps="true"
                     android:theme="@style/loginPageSubHeadingTextTheme"
                     tools:text="Church Ride" />
             </LinearLayout>

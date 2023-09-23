@@ -59,8 +59,8 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="10sp"
-            android:visibility="invisible"
-            android:src="@drawable/baseline_logout_24">
+            android:src="@drawable/baseline_logout_24"
+            android:visibility="invisible">
 
         </ImageView>
     </LinearLayout>
@@ -479,6 +479,91 @@
                                 tools:listitem="@layout/item_uploaded_document" />
 
 
+                        </LinearLayout>
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:background="@color/white"
+                            android:orientation="vertical">
+
+                            <LinearLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:background="@color/appColor"
+                                android:gravity="center|start"
+                                android:orientation="horizontal"
+                                android:padding="10sp">
+
+                                <ImageView
+                                    android:layout_width="wrap_content"
+                                    android:layout_height="wrap_content"
+                                    android:src="@drawable/baseline_lock_24">
+
+                                </ImageView>
+
+                                <TextView
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:layout_marginStart="10sp"
+                                    android:fontFamily="@font/monomedium"
+                                    android:gravity="start"
+                                    android:text="@string/unlock_driver_to_take_trips"
+                                    android:textColor="@color/black"
+                                    android:textSize="17sp"
+                                    android:theme="@style/loginPageSubHeadingTextTheme" />
+
+                            </LinearLayout>
+
+                            <com.chinalwb.slidetoconfirmlib.SlideToConfirm
+                                android:id="@+id/slide_to_confirm"
+                                android:layout_width="match_parent"
+                                android:layout_height="60dp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_margin="20dp"
+                                app:border_radius="30dp"
+                                app:border_width="2dp"
+                                app:completed_text="@string/unlocked"
+                                app:completed_text_color="@android:color/white"
+                                app:completed_text_size="20sp"
+                                app:engage_text="@string/slide_to_unlock"
+                                app:engage_text_color="@android:color/white"
+                                app:engage_text_size="17sp"
+                                app:engaged_text_font="@font/monomedium"
+                                app:slider_background_color="@color/red"
+                                app:slider_color="@color/black"
+                                app:slider_image="@drawable/arrow_right_white"
+                                app:slider_lottie="lottie_x.json"
+                                app:slider_reset_duration="1000"
+                                app:slider_threshold="1dp"
+                                app:slider_vibration_duration="50"
+                                app:slider_width="50dp" />
+
+                            <com.chinalwb.slidetoconfirmlib.SlideToConfirm
+                                android:id="@+id/slide_to_lock"
+                                android:layout_width="match_parent"
+                                android:layout_height="60dp"
+                                android:layout_gravity="center_vertical"
+                                android:layout_margin="20dp"
+                                android:visibility="gone"
+                                app:border_radius="30dp"
+                                app:border_width="2dp"
+                                app:completed_text="@string/locked"
+                                app:completed_text_color="@android:color/white"
+                                app:completed_text_size="20sp"
+                                app:engage_text="@string/slide_to_lock"
+                                app:engage_text_color="@android:color/white"
+                                app:engage_text_size="17sp"
+                                app:engaged_text_font="@font/monomedium"
+                                app:slider_background_color="@color/teal_700"
+                                app:slider_color="@color/black"
+                                app:slider_image="@drawable/arrow_right_white"
+                                app:slider_lottie="lottie_x.json"
+                                app:slider_reset_duration="1000"
+                                app:slider_threshold="1dp"
+                                app:slider_vibration_duration="50"
+                                app:slider_width="50dp"></com.chinalwb.slidetoconfirmlib.SlideToConfirm>
                         </LinearLayout>
                     </LinearLayout>
                 </androidx.core.widget.NestedScrollView>

@@ -9,6 +9,7 @@ import com.app.chruchridedriver.data.model.SendOTResponse
 import com.app.chruchridedriver.data.model.UploadedDocStatus
 import com.app.chruchridedriver.data.model.UploadedDocument
 import com.app.chruchridedriver.data.model.UploadedDocumentImage
+import com.app.chruchridedriver.data.model.VerifiedStatus
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
@@ -55,6 +56,7 @@ interface RetrofitClientAndEndPoints {
 
     @GET("newregdriverlist.php")
     suspend fun getRegisteredDriverRecent(
+        @Query("sortBy") sortBy: String
     ): Response<RegisteredDriver>
 
     @GET("updatedocstatus.php")
@@ -63,6 +65,12 @@ interface RetrofitClientAndEndPoints {
         @Query("docstatus") docstatus: String,
         @Query("comment") comment: String
     ): Response<UploadedDocStatus>
+
+    @GET("updatedrivertripstatus.php")
+    suspend fun getVerified(
+        @Query("driverId") driverId: String,
+        @Query("verified") verified: String
+    ): Response<VerifiedStatus>
 
 
     /* Building Retrofit with Base URL */

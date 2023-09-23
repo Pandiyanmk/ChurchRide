@@ -36,6 +36,10 @@
             android:exported="false"
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
         <activity
+            android:name="com.app.chruchridedriver.view.DriverHomePage"
+            android:exported="false"
+            android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
+        <activity
             android:name="com.app.chruchridedriver.view.DocumentUpload"
             android:exported="false"
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />

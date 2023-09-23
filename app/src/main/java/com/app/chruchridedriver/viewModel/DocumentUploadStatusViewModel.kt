@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.app.chruchridedriver.data.model.UploadedDocStatus
 import com.app.chruchridedriver.data.model.UploadedDocument
 import com.app.chruchridedriver.data.model.UploadedDocumentImage
+import com.app.chruchridedriver.data.model.VerifiedStatus
 import com.app.chruchridedriver.repository.MainRepository
 import com.app.chruchridedriver.util.NetworkState
 import com.google.firebase.storage.StorageReference
@@ -25,6 +26,11 @@ class DocumentUploadStatusViewModel constructor(private val authCheckRepository:
     private val _responseContent = MutableLiveData<UploadedDocument>()
     val responseContent: LiveData<UploadedDocument>
         get() = _responseContent
+
+
+    private val _verifiedStatus = MutableLiveData<VerifiedStatus>()
+    val verifiedStatus: LiveData<VerifiedStatus>
+        get() = _verifiedStatus
 
 
     private val _registerContent = MutableLiveData<UploadedDocumentImage>()
@@ -93,6 +99,25 @@ class DocumentUploadStatusViewModel constructor(private val authCheckRepository:
                     when (response) {
                         is NetworkState.Success -> {
                             _docStatus.value = response.data!!
+                        }
+
+                        is NetworkState.Error -> {
+                            _errorMessage.value = response.errorMessage
+                        }
+                    }
+                }
+        }
+    }
+
+    /* Get Uploaded Document Content From Api */
+    fun getDriverVerifiedStatus(driverId: String, verified: String) {
+        viewModelScope.launch {
+            authCheckRepository.getDriverVerifiedStatus(driverId, verified).flowOn(Dispatchers.IO)
+                .catch { }.collect { response ->
+                    stopLoader()
+                    when (response) {
+                        is NetworkState.Success -> {
+                            _verifiedStatus.value = response.data!!
                         }
 
                         is NetworkState.Error -> {
