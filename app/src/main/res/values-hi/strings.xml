@@ -110,4 +110,10 @@
     <string name="slide_to_lock">DESLIZAR PARA BLOQUEAR</string>
     <string name="unlocked">DESBLOQUEADO</string>
     <string name="slide_to_unlock">DESLICE PARA DESBLOQUEAR</string>
+    <string name="go">IR</string>
+    <string name="off">APAGADO</string>
+    <string name="click_go_to_make_you_online">Haga clic en Ir para estar en línea</string>
+    <string name="you_re_offline">Estás desconectado</string>
+    <string name="you_re_online">Estás en línea</string>
+    <string name="turn_location_on_on_settings_page">ACTIVAR LA UBICACIÓN EN LA PÁGINA DE CONFIGURACIÓN</string>
 </resources>

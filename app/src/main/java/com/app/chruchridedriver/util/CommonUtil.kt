@@ -1,9 +1,12 @@
 package com.app.chruchridedriver.util
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.os.Build
+import androidx.core.content.ContextCompat
 import com.app.chruchridedriver.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
@@ -61,5 +64,18 @@ class CommonUtil {
             }
         }
         return false
+    }
+
+    fun getDriverId(ctx: Context): String? {
+        val sharedPreference = ctx.getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
+        return sharedPreference.getString("savedId", "")
+    }
+
+    fun hasLocationPermission(ctx: Context): Boolean {
+        return ContextCompat.checkSelfPermission(
+            ctx, Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+            ctx, Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
     }
 }
