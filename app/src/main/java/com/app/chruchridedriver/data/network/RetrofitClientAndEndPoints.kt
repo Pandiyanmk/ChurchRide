@@ -4,6 +4,7 @@ import com.app.chruchridedriver.data.model.ChurchDetails
 import com.app.chruchridedriver.data.model.DocumentsResponse
 import com.app.chruchridedriver.data.model.DriverDetailsIdResponse
 import com.app.chruchridedriver.data.model.DriverRegisterationResponse
+import com.app.chruchridedriver.data.model.LocationUpdatedData
 import com.app.chruchridedriver.data.model.RegisteredDriver
 import com.app.chruchridedriver.data.model.SendOTResponse
 import com.app.chruchridedriver.data.model.UploadedDocStatus
@@ -68,9 +69,17 @@ interface RetrofitClientAndEndPoints {
 
     @GET("updatedrivertripstatus.php")
     suspend fun getVerified(
-        @Query("driverId") driverId: String,
-        @Query("verified") verified: String
+        @Query("driverId") driverId: String, @Query("verified") verified: String
     ): Response<VerifiedStatus>
+
+
+    @GET("insertorupdatelocation.php")
+    suspend fun updateCurrentLocation(
+        @Query("driverid") driverid: String,
+        @Query("latitude") latitude: String,
+        @Query("longitude") longitude: String,
+        @Query("activestatus") activestatus: String
+    ): Response<LocationUpdatedData>
 
 
     /* Building Retrofit with Base URL */

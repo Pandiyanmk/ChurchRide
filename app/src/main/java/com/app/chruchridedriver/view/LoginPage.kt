@@ -3,7 +3,10 @@ package com.app.chruchridedriver.view
 
 import android.content.Context
 import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
+import android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.View
@@ -11,6 +14,7 @@ import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.Spinner
 import android.widget.TextView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.apachat.loadingbutton.core.customViews.CircularProgressButton
@@ -22,6 +26,7 @@ import com.app.chruchridedriver.repository.MainRepository
 import com.app.chruchridedriver.util.CommonUtil
 import com.app.chruchridedriver.viewModel.LoginPageViewModel
 import com.app.chruchridedriver.viewModel.LoginPageViewModelFactory
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import java.util.Locale
 
 
@@ -32,6 +37,7 @@ class LoginPage : BaseActivity(), CustomSpinner.OnSpinnerEventsListener, Clicked
     private var spinnerLang: CustomSpinner? = null
     private var loginButton: CircularProgressButton? = null
     private var adapter: LanguageAdapter? = null
+    private var hasNotificationPermissionGranted = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -56,6 +62,9 @@ class LoginPage : BaseActivity(), CustomSpinner.OnSpinnerEventsListener, Clicked
         if (mobileNumber.requestFocus()) {
             window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
         }
+
+        requestNotificationPermission()
+
         clear.setOnClickListener {
             mobileNumber.text = ""
         }
@@ -179,5 +188,52 @@ class LoginPage : BaseActivity(), CustomSpinner.OnSpinnerEventsListener, Clicked
 
         adapter = LanguageAdapter(this, addLanguage, this)
         spinnerLang!!.adapter = adapter
+    }
+
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= 33) {
+            notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+        } else {
+            hasNotificationPermissionGranted = true
+        }
+    }
+
+
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            hasNotificationPermissionGranted = isGranted
+            if (!isGranted) {
+                if (Build.VERSION.SDK_INT >= 33) {
+                    if (shouldShowRequestPermissionRationale(android.Manifest.permission.POST_NOTIFICATIONS)) {
+                        showNotificationPermissionRationale()
+                    } else {
+                        showSettingDialog()
+                    }
+                }
+            }
+        }
+
+    private fun showSettingDialog() {
+        MaterialAlertDialogBuilder(
+            this, com.google.android.material.R.style.MaterialAlertDialog_Material3
+        ).setTitle(getString(R.string.notification_permission))
+            .setMessage(getString(R.string.notification_permission_is_required_please_allow_notification_permission_from_setting))
+            .setPositiveButton("Ok") { _, _ ->
+                val intent = Intent(ACTION_APPLICATION_DETAILS_SETTINGS)
+                intent.data = Uri.parse("package:$packageName")
+                startActivity(intent)
+            }.setNegativeButton(getString(R.string.cancel), null).show()
+    }
+
+    private fun showNotificationPermissionRationale() {
+        MaterialAlertDialogBuilder(
+            this, com.google.android.material.R.style.MaterialAlertDialog_Material3
+        ).setTitle(getString(R.string.alert))
+            .setMessage(getString(R.string.notification_permission_is_required_to_show_notification))
+            .setPositiveButton(getString(R.string.ok_text)) { _, _ ->
+                if (Build.VERSION.SDK_INT >= 33) {
+                    notificationPermissionLauncher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                }
+            }.setNegativeButton("Cancel", null).show()
     }
 }

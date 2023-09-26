@@ -5,6 +5,8 @@ import android.Manifest
 import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.animation.TypeEvaluator
+import android.app.AlertDialog
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
@@ -13,8 +15,6 @@ import android.location.Location
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.os.CountDownTimer
-import android.os.Handler
 import android.provider.Settings
 import android.util.Property
 import android.view.View
@@ -23,9 +23,15 @@ import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.ViewModelProvider
 import com.app.chruchridedriver.R
 import com.app.chruchridedriver.location.LocationService
+import com.app.chruchridedriver.repository.MainRepository
 import com.app.chruchridedriver.util.CommonUtil
+import com.app.chruchridedriver.util.DynamicCountdownTimer
+import com.app.chruchridedriver.util.DynamicCountdownTimer.DynamicCountdownCallback
+import com.app.chruchridedriver.viewModel.DriverHomePageViewModel
+import com.app.chruchridedriver.viewModel.DriverHomePageViewModelFactory
 import com.gauravbhola.ripplepulsebackground.RipplePulseLayout
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
@@ -43,27 +49,33 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import kotlin.math.abs
+import kotlin.math.sign
 
 
 class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
+    private lateinit var driverHomePageViewModel: DriverHomePageViewModel
     private val cu = CommonUtil()
-    lateinit var mGoogleMap: GoogleMap
-    var onlinestatus = 0
-    var timer: CountDownTimer? = null
+    private lateinit var mGoogleMap: GoogleMap
+    private var onlinestatus = 0
+    var timer: DynamicCountdownTimer? = null
     var loader: MaterialProgressBar? = null
-    lateinit var mRipplePulseLayout: RipplePulseLayout
-    lateinit var onandofflayout: FloatingActionButton
-    lateinit var gosettings: FloatingActionButton
-    lateinit var onandofftext: TextView
-    lateinit var onlinetext: TextView
-    lateinit var onlinesubtext: TextView
-    lateinit var menulay: LinearLayout
-    lateinit var locationoff: LinearLayout
-    var carMarker: Marker? = null
-    var bearing = 0f
-    val MY_PERMISSIONS_REQUEST_LOCATION = 99
-    var mapLoaded = false
-    var oldLocation: Location? = null
+    private lateinit var mRipplePulseLayout: RipplePulseLayout
+    private lateinit var onandofflayout: FloatingActionButton
+    private lateinit var gosettings: FloatingActionButton
+    private lateinit var onandofftext: TextView
+    private lateinit var onlinetext: TextView
+    private lateinit var onlinesubtext: TextView
+    private lateinit var menulay: LinearLayout
+    private lateinit var locationoff: LinearLayout
+    private var carMarker: Marker? = null
+    private var bearing = 0f
+    private val MY_PERMISSIONS_REQUEST_LOCATION = 99
+    private var mapLoaded = false
+    private var oldLocation: Location? = null
+    private var sendLoaction: Location? = null
+    private var updateTime: Long = 10000
+    private val BACKGROUND_LOCATION_PERMISSION_CODE = 2
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -71,6 +83,11 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
 
         /* Hiding ToolBar */
         supportActionBar?.hide()
+
+        /* ViewModel Initialization */
+        driverHomePageViewModel = ViewModelProvider(
+            this, DriverHomePageViewModelFactory(MainRepository())
+        )[DriverHomePageViewModel::class.java]
 
         mRipplePulseLayout = findViewById(R.id.layout_ripplepulse)
         val logout: FloatingActionButton = findViewById(R.id.logout)
@@ -120,56 +137,73 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
             driverDocPage.putExtra("driverId", cu.getDriverId(this))
             startActivity(driverDocPage)
         }
+
+        driverHomePageViewModel.responseContent.observe(this) { result ->
+            if (result.locationUpdatedData.isNotEmpty()) {
+                if (result.locationUpdatedData[0].verified == "0") {
+                    movToDocumentUploadStatusPage()
+                    return@observe
+                }
+                val serverUpdatedTime: Int =
+                    result.locationUpdatedData[0].locationUpdateTime.toInt() * 1000
+                if (updateTime != serverUpdatedTime.toLong()) {
+                    updateTime = serverUpdatedTime.toLong()
+                    timer?.updateSeconds(updateTime)
+                }
+            }
+
+
+            loader!!.visibility = View.GONE
+        }
+        driverHomePageViewModel.errorMessage.observe(this) {
+            loader!!.visibility = View.GONE
+        }
+    }
+
+    private fun movToDocumentUploadStatusPage() {
+        updateLogin(cu.getDriverId(this)!!, "driver")
+        val driverDocPage = Intent(this, DocumentUploadStatus::class.java)
+        driverDocPage.putExtra("driverId", cu.getDriverId(this))
+        driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        startActivity(driverDocPage)
+        finish()
     }
 
     override fun onMapReady(p0: GoogleMap?) {
         mGoogleMap = p0!!
         mapLoaded = true
         try {
-            val success: Boolean = mGoogleMap.setMapStyle(
+            mGoogleMap.setMapStyle(
                 MapStyleOptions.loadRawResourceStyle(
                     this, R.raw.church_style
                 )
             )
-        } catch (e: Exception) {
+        } catch (_: Exception) {
 
         }
-    }
-
-    private fun addCarMarker(location: Location) {
-        val height = 100
-        val width = 60
-        val bitmap = resources.getDrawable(R.drawable.car_driver) as BitmapDrawable
-        val b = bitmap.bitmap
-        val smallMarker = Bitmap.createScaledBitmap(b, width, height, false)
-
-        val latLng = LatLng(location.latitude, location.longitude)
-        val markerOptions = MarkerOptions()
-        markerOptions.position(latLng)
-        markerOptions.icon(BitmapDescriptorFactory.fromBitmap(smallMarker))
-        mGoogleMap.clear()
-        mGoogleMap.animateCamera(CameraUpdateFactory.newLatLng(latLng))
-        mGoogleMap.addMarker(markerOptions)
-        val cameraPosition =
-            CameraPosition.Builder().target(LatLng(latLng.latitude, latLng.longitude)).zoom(18f)
-                .build()
-        mGoogleMap.animateCamera(CameraUpdateFactory.newCameraPosition(cameraPosition))
     }
 
     override fun onDestroy() {
         super.onDestroy()
         timer?.let {
-            it.cancel()
+            it.Cancel()
             timer = null
         }
         stopLocationService()
     }
 
     fun updateLocation() {
-        val handler = Handler()
-        handler.postDelayed(
-            Runnable { loader!!.visibility = View.GONE }, 2000
-        )
+        sendLoaction?.let {
+            if (cu.isNetworkAvailable(this)) {
+                loader!!.visibility = View.VISIBLE
+                driverHomePageViewModel.updateCurrentLocation(
+                    driverId = cu.getDriverId(this)!!,
+                    latitude = "${it.latitude}",
+                    longitude = "${it.longitude}",
+                    activestatus = "$onlinestatus"
+                )
+            }
+        }
     }
 
     override fun onResume() {
@@ -189,9 +223,9 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
             goOnline()
         } else {
             ActivityCompat.requestPermissions(
-                this,
-                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION),
-                MY_PERMISSIONS_REQUEST_LOCATION
+                this, arrayOf(
+                    Manifest.permission.ACCESS_FINE_LOCATION
+                ), MY_PERMISSIONS_REQUEST_LOCATION
             )
         }
     }
@@ -201,17 +235,21 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
     ) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
         if (requestCode == MY_PERMISSIONS_REQUEST_LOCATION) {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                val permissionGranted = ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
-                    this, Manifest.permission.ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED
-                if (permissionGranted) {
-                    goOnline()
-                } else {
-                    showSnackBarForLocationSettings()
-                }
+            val permissionGranted = ContextCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_COARSE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+            if (permissionGranted) {
+                goOnline()
+            } else {
+                showSnackBarForLocationSettings()
+            }
+        } else if (requestCode == MY_PERMISSIONS_REQUEST_LOCATION) {
+            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                goOn()
+            } else {
+                askPermissionForBackgroundUsage()
             }
         }
     }
@@ -226,10 +264,11 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         onlinesubtext.visibility = View.VISIBLE
         loader!!.visibility = View.GONE
         timer?.let {
-            it.cancel()
+            it.Cancel()
             timer = null
         }
         stopLocationService()
+        updateLocation()
     }
 
     private fun startLocationService() {
@@ -247,24 +286,28 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun goOnline() {
+        checkBackgroudLocationPermission()
+    }
+
+    private fun goOn() {
         startLocationService()
         onlinestatus = 1
         mRipplePulseLayout.stopRippleAnimation()
         onandofftext.text = getString(R.string.off)
         onlinetext.text = getString(R.string.you_re_online)
         onlinesubtext.visibility = View.GONE
-        timer = object : CountDownTimer(6000, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-
+        timer = DynamicCountdownTimer(updateTime, 1000)
+        timer!!.setDynamicCountdownCallback(object : DynamicCountdownCallback {
+            override fun onTick(l: Long) {
             }
 
             override fun onFinish() {
-                loader!!.visibility = View.VISIBLE
                 updateLocation()
-                timer!!.start()
+                timer!!.Cancel()
+                timer!!.Start()
             }
-        }
-        timer!!.start()
+        })
+        timer!!.Start()
     }
 
     private fun showSnackBarForLocationSettings() {
@@ -292,10 +335,10 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onMessageEvent(location: Location?) {
         location?.let {
+            sendLoaction = it
             updateMarker(it)
         }
     }
-
 
     private fun animateMarkerToICS(marker: Marker, finalPosition: LatLng) {
         val typeEvaluator = TypeEvaluator<LatLng> { fraction, startValue, endValue ->
@@ -321,15 +364,11 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun interpolate(fraction: Float, a: LatLng, b: LatLng): LatLng {
-        // function to calculate the in between values of old latlng and new latlng.
-        // To get more accurate tracking(Car will always be in the road even when the latlng falls away from road), use roads api from Google apis.
-        // As it has quota limits I didn't have used that method.
         val lat = (b.latitude - a.latitude) * fraction + a.latitude
         var lngDelta = b.longitude - a.longitude
 
-        // Take the shortest path across the 180th meridian.
-        if (Math.abs(lngDelta) > 180) {
-            lngDelta -= Math.signum(lngDelta) * 360
+        if (abs(x = lngDelta) > 180) {
+            lngDelta -= sign(lngDelta) * 360
         }
         val lng = lngDelta * fraction + a.longitude
         return LatLng(lat, lng)
@@ -338,7 +377,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
 
     private fun anima(point: CameraUpdate) {
         if (mapLoaded) {
-            mGoogleMap?.let {
+            mGoogleMap.let {
                 runOnUiThread { it.animateCamera(point) }
             }
         }
@@ -348,7 +387,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         if (location == null) {
             return
         }
-        if (mGoogleMap != null && mapLoaded) {
+        if (mapLoaded) {
             if (carMarker == null) {
                 oldLocation = location
                 val height = 100
@@ -397,4 +436,63 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun checkBackgroudLocationPermission() {
+        if (ContextCompat.checkSelfPermission(
+                this, Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                if (ContextCompat.checkSelfPermission(
+                        this, Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                    ) == PackageManager.PERMISSION_GRANTED
+                ) {
+                    goOn()
+                } else {
+                    askPermissionForBackgroundUsage()
+                }
+            }
+        } else {
+            goOn()
+        }
+    }
+
+
+    private fun askPermissionForBackgroundUsage() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(
+                this, Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            )
+        ) {
+            AlertDialog.Builder(this).setTitle(getString(R.string.permission_needed))
+                .setMessage(getString(R.string.background_location_permission_needed_tap_allow_all_time_in_the_next_screen))
+                .setPositiveButton(getString(R.string.ok_text)) { _, _ ->
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        ActivityCompat.requestPermissions(
+                            this, arrayOf(
+                                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+                            ), BACKGROUND_LOCATION_PERMISSION_CODE
+                        )
+                    }
+                }.setNegativeButton(getString(R.string.cancel)) { _, _ ->
+
+                }.create().show()
+        } else {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.ACCESS_BACKGROUND_LOCATION),
+                    BACKGROUND_LOCATION_PERMISSION_CODE
+                )
+            }
+        }
+    }
+
+    private fun updateLogin(driverId: String, type: String) {
+        val sharedPreference = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
+        val editor = sharedPreference.edit()
+        editor.putString("savedId", driverId)
+        editor.putString("isLoggedInType", type)
+        editor.putInt("isLoggedIn", 1)
+        editor.putInt("isDoc", 1)
+        editor.commit()
+    }
 }

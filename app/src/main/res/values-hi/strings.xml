@@ -111,9 +111,15 @@
     <string name="unlocked">DESBLOQUEADO</string>
     <string name="slide_to_unlock">DESLICE PARA DESBLOQUEAR</string>
     <string name="go">IR</string>
-    <string name="off">APAGADO</string>
+    <string name="off">cerrar</string>
     <string name="click_go_to_make_you_online">Haga clic en Ir para estar en línea</string>
     <string name="you_re_offline">Estás desconectado</string>
     <string name="you_re_online">Estás en línea</string>
     <string name="turn_location_on_on_settings_page">ACTIVAR LA UBICACIÓN EN LA PÁGINA DE CONFIGURACIÓN</string>
+    <string name="notification_permission">Permiso de notificación</string>
+    <string name="notification_permission_is_required_please_allow_notification_permission_from_setting">Se requiere permiso de notificación. Permita el permiso de notificación desde la configuración.</string>
+    <string name="notification_permission_is_required_to_show_notification">Se requiere permiso de notificación para mostrar la notificación.</string>
+    <string name="alert">Alerta</string>
+    <string name="permission_needed">¡Se necesita permiso!</string>
+    <string name="background_location_permission_needed_tap_allow_all_time_in_the_next_screen">¡Se necesita permiso de ubicación en segundo plano!, toque \"Permitir todo el tiempo en la siguiente pantalla\"</string>
 </resources>

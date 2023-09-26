@@ -116,4 +116,10 @@
     <string name="you_re_offline">You\'re Offline</string>
     <string name="you_re_online">You\'re Online</string>
     <string name="turn_location_on_on_settings_page">TURN LOCATION ON IN SETTINGS PAGE</string>
+    <string name="notification_permission">Notification Permission</string>
+    <string name="notification_permission_is_required_please_allow_notification_permission_from_setting">Notification permission is required, Please allow notification permission from setting</string>
+    <string name="notification_permission_is_required_to_show_notification">Notification permission is required, to show notification</string>
+    <string name="alert">Alert</string>
+    <string name="permission_needed">Permission Needed!</string>
+    <string name="background_location_permission_needed_tap_allow_all_time_in_the_next_screen">Background Location Permission Needed!, Tap \"Allow all time\" in the next screen</string>
 </resources>

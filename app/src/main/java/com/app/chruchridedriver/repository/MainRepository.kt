@@ -5,6 +5,7 @@ import com.app.chruchridedriver.data.model.ChurchDetails
 import com.app.chruchridedriver.data.model.DocumentsResponse
 import com.app.chruchridedriver.data.model.DriverDetailsIdResponse
 import com.app.chruchridedriver.data.model.DriverRegisterationResponse
+import com.app.chruchridedriver.data.model.LocationUpdatedData
 import com.app.chruchridedriver.data.model.RegisteredDriver
 import com.app.chruchridedriver.data.model.SendOTResponse
 import com.app.chruchridedriver.data.model.UploadedDocStatus
@@ -321,6 +322,37 @@ class MainRepository {
     ): Flow<NetworkState<VerifiedStatus>> {
         try {
             val response = RetrofitClientAndEndPoints.getInstance().getVerified(driverId, verified)
+
+            return if (response.isSuccessful) {
+                val responseBody = response.body()
+                if (responseBody != null) {
+                    flow {
+                        emit(NetworkState.Success(responseBody))
+                    }
+                } else {
+                    flow {
+                        emit(NetworkState.Error(response.message()))
+                    }
+                }
+            } else {
+                flow {
+                    emit(NetworkState.Error(response.message()))
+                }
+            }
+        } catch (e: Exception) {
+            return flow {
+                emit(NetworkState.Error(e.toString()))
+            }
+        }
+    }
+
+    /* API CALL To Get Document Response */
+    suspend fun updateCurrentLocation(
+        driverId: String, latitude: String, longitude: String, activestatus: String
+    ): Flow<NetworkState<LocationUpdatedData>> {
+        try {
+            val response = RetrofitClientAndEndPoints.getInstance()
+                .updateCurrentLocation(driverId, latitude, longitude, activestatus)
 
             return if (response.isSuccessful) {
                 val responseBody = response.body()
