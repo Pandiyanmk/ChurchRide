@@ -112,7 +112,7 @@
     <string name="slide_to_unlock">SLIDE TO UNLOCK</string>
     <string name="go">GO</string>
     <string name="off">OFF</string>
-    <string name="click_go_to_make_you_online">Click Go To Make You Online</string>
+    <string name="click_go_to_make_you_online">Click <font color='#FF3700B3'>GO</font> To Make You Online</string>
     <string name="you_re_offline">You\'re Offline</string>
     <string name="you_re_online">You\'re Online</string>
     <string name="turn_location_on_on_settings_page">TURN LOCATION ON IN SETTINGS PAGE</string>

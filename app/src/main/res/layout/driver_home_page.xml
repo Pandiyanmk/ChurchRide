@@ -282,16 +282,20 @@
 
                     <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="20sp"
+                        android:layout_height="match_parent"
+                        android:layout_gravity="top"
+                        android:layout_marginStart="10sp"
+                        android:layout_marginBottom="5sp"
                         android:layout_weight="1"
-                        android:gravity="left"
-                        android:orientation="vertical">
+                        android:gravity="center|left"
+                        android:orientation="vertical"
+                        android:weightSum="1">
 
                         <TextView
                             android:id="@+id/onlinetext"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
+                            android:layout_weight="1"
                             android:fontFamily="@font/monomedium"
                             android:gravity="center"
                             android:text="@string/you_re_offline"
@@ -308,8 +312,10 @@
                             android:fontFamily="@font/monomedium"
                             android:gravity="center"
                             android:text="@string/click_go_to_make_you_online"
+                            android:textAllCaps="true"
                             android:textColor="@color/grey"
-                            android:textSize="16sp"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
                             android:theme="@style/loginPageSubHeadingTextTheme" />
 
 

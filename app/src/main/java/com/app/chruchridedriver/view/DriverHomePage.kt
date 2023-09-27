@@ -308,7 +308,6 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         mRipplePulseLayout.startRippleAnimation()
         onandofftext.text = getString(R.string.go)
         onlinetext.text = getString(R.string.you_re_offline)
-        onlinesubtext.text = getString(R.string.click_go_to_make_you_online)
         onlinesubtext.visibility = View.VISIBLE
         loader!!.visibility = View.GONE
         timer?.let {
