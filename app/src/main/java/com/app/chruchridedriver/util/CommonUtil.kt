@@ -2,9 +2,11 @@ package com.app.chruchridedriver.util
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import android.net.Uri
 import android.os.Build
 import androidx.core.content.ContextCompat
 import com.app.chruchridedriver.R
@@ -83,5 +85,11 @@ class CommonUtil {
         ) == PackageManager.PERMISSION_GRANTED && ContextCompat.checkSelfPermission(
             ctx, Manifest.permission.ACCESS_FINE_LOCATION
         ) == PackageManager.PERMISSION_GRANTED
+    }
+
+    fun dialPad(ctx: Context, phoneNumber: String) {
+        val intent = Intent(Intent.ACTION_DIAL)
+        intent.data = Uri.parse("tel:$phoneNumber")
+        ctx.startActivity(intent)
     }
 }

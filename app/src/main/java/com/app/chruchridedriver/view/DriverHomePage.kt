@@ -29,6 +29,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import com.apachat.loadingbutton.core.customViews.CircularProgressButton
 import com.app.chruchridedriver.R
 import com.app.chruchridedriver.location.LocationService
 import com.app.chruchridedriver.repository.MainRepository
@@ -55,6 +56,7 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
+import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import org.greenrobot.eventbus.EventBus
@@ -89,6 +91,10 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
     private var updateTime: Long = 10000
     private val BACKGROUND_LOCATION_PERMISSION_CODE = 2
     private val ENABLED_LOCATION_PERMISSION_CODE = 5
+    private var contactUs: BottomSheetDialog? = null
+    var supportEmail = ""
+    var supportAddress = ""
+    var supportContactUs = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -102,10 +108,14 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
             this, DriverHomePageViewModelFactory(MainRepository())
         )[DriverHomePageViewModel::class.java]
 
+        contactUs = BottomSheetDialog(this)
+        contactUs!!.setCancelable(true)
+
         mRipplePulseLayout = findViewById(R.id.layout_ripplepulse)
         val logout: FloatingActionButton = findViewById(R.id.logout)
         val mylocation: FloatingActionButton = findViewById(R.id.mylocation)
         val profile: FloatingActionButton = findViewById(R.id.profile)
+        val callsupport: FloatingActionButton = findViewById(R.id.callsupport)
         onandofflayout = findViewById(R.id.onandofflayout)
         onandofftext = findViewById(R.id.onandofftext)
         onlinetext = findViewById(R.id.onlinetext)
@@ -116,6 +126,8 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         gosettings = findViewById(R.id.gosettings)
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
+
+        getContactUs()
 
         mRipplePulseLayout.startRippleAnimation()
         logout.setOnClickListener {
@@ -129,6 +141,10 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
             } else {
                 goToOffline()
             }
+        }
+
+        callsupport.setOnClickListener {
+            openContactUs()
         }
 
         mylocation.setOnClickListener {
@@ -150,6 +166,10 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
 
         driverHomePageViewModel.responseContent.observe(this) { result ->
             if (result.locationUpdatedData.isNotEmpty()) {
+                supportEmail = result.locationUpdatedData[0].supportTeamEmail
+                supportContactUs = result.locationUpdatedData[0].supportTeamCall
+                supportAddress = result.locationUpdatedData[0].supportTeamAddress
+
                 if (result.locationUpdatedData[0].verified == "0") {
                     stopLocationService()
                     movToDocumentUploadStatusPage()
@@ -575,5 +595,37 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         Handler(Looper.getMainLooper()).postDelayed(Runnable {
             doubleBackToExitPressedOnce = false
         }, 2000)
+    }
+
+    private fun openContactUs() {
+        val view = layoutInflater.inflate(R.layout.contactus, null)
+        contactUs!!.setContentView(view)
+        val phonenumber = view.findViewById(R.id.phonenumber) as TextView
+        val email = view.findViewById(R.id.email) as TextView
+        val address = view.findViewById(R.id.address) as TextView
+        val closebutton = view.findViewById(R.id.closebutton) as CircularProgressButton
+        phonenumber.text = supportContactUs
+        email.text = supportEmail
+        address.text = supportAddress
+        phonenumber.paint?.isUnderlineText = true
+        closebutton.setOnClickListener {
+            contactUs!!.dismiss()
+        }
+        phonenumber.setOnClickListener {
+            cu.dialPad(this, phonenumber.text.toString())
+        }
+        contactUs!!.show()
+    }
+
+    private fun getContactUs() {
+        if (cu.isNetworkAvailable(this)) {
+            loader!!.visibility = View.VISIBLE
+            driverHomePageViewModel.updateCurrentLocation(
+                driverId = cu.getDriverId(this)!!,
+                latitude = "",
+                longitude = "",
+                activestatus = "$onlinestatus"
+            )
+        }
     }
 }

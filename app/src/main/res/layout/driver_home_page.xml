@@ -46,28 +46,6 @@
             android:orientation="horizontal"
             android:weightSum="1">
 
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_gravity="bottom|right"
-                android:background="@drawable/driverhomepagemenus">
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:layout_width="40sp"
-                    android:layout_height="40sp"
-                    android:backgroundTint="@color/black"
-                    android:src="@android:color/transparent"
-                    app:fabSize="normal"
-                    app:rippleColor="@color/white" />
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="center"
-                    android:elevation="16dp"
-                    android:src="@drawable/baseline_menu_24" />
-            </FrameLayout>
 
             <LinearLayout
                 android:layout_width="wrap_content"
@@ -77,11 +55,11 @@
                 android:orientation="horizontal">
 
                 <LinearLayout
-                    android:visibility="invisible"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:background="@drawable/amountrect"
-                    android:padding="15sp">
+                    android:padding="15sp"
+                    android:visibility="invisible">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -109,30 +87,6 @@
                 </LinearLayout>
 
             </LinearLayout>
-
-            <FrameLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_centerInParent="true"
-                android:layout_gravity="bottom|right"
-                android:background="@drawable/driverhomepagemenus">
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:layout_width="40sp"
-                    android:layout_height="40sp"
-                    android:backgroundTint="@color/black"
-                    android:src="@android:color/transparent"
-                    app:fabSize="normal"
-                    app:rippleColor="@color/white" />
-
-                <ImageView
-                    android:layout_width="20sp"
-                    android:layout_height="20sp"
-                    android:layout_gravity="center"
-                    android:elevation="16dp"
-                    android:src="@drawable/baseline_call_24"
-                    android:tint="@color/white" />
-            </FrameLayout>
         </LinearLayout>
 
     </LinearLayout>
@@ -173,6 +127,7 @@
                     android:background="@drawable/driverhomepagemenus">
 
                     <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/callsupport"
                         android:layout_width="40sp"
                         android:layout_height="40sp"
                         android:backgroundTint="@color/black"
@@ -185,7 +140,7 @@
                         android:layout_height="20sp"
                         android:layout_gravity="center"
                         android:elevation="16dp"
-                        android:src="@drawable/ic_safety_fill"
+                        android:src="@drawable/baseline_call_24"
                         android:tint="@color/white" />
                 </FrameLayout>
 
@@ -221,7 +176,8 @@
                                 android:layout_height="80sp"
                                 android:backgroundTint="@color/purple_700"
                                 android:src="@android:color/transparent"
-                                app:fabSize="normal" />
+                                app:fabSize="normal"
+                                app:rippleColor="@color/white" />
 
                             <TextView
                                 android:id="@+id/onandofftext"

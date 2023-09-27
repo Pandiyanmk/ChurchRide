@@ -6,7 +6,6 @@ import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
-import android.graphics.BitmapFactory
 import android.os.Build
 import com.app.chruchridedriver.R
 import com.app.chruchridedriver.view.GetStartedPage
@@ -55,11 +54,8 @@ class FirebaseMessageReceiver : FirebaseMessagingService() {
                 title
             ).setStyle(
                 Notification.BigTextStyle().bigText(message)
-            ).setContentText(message).setSmallIcon(R.drawable.homepagedental).setLargeIcon(
-                BitmapFactory.decodeResource(
-                    this.resources, R.drawable.homepagedental
-                )
-            ).setContentIntent(pendingIntent)
+            ).setContentText(message).setSmallIcon(R.drawable.baseline_car_crash_24)
+                .setContentIntent(pendingIntent)
         }
         notificationManager.notify(12345, builder.build())
     }
