@@ -10,6 +10,8 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.view.View
 import android.view.Window
@@ -17,6 +19,7 @@ import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -67,6 +70,7 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
     var storage: FirebaseStorage? = null
     var storageReference: StorageReference? = null
     var loadingValue: TextView? = null
+    private var doubleBackToExitPressedOnce = false
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.documentupload)
@@ -438,5 +442,19 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
         editor.putInt("isLoggedIn", 1)
         editor.putInt("isDoc", 1)
         editor.commit()
+    }
+
+    override fun onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed()
+            return
+        }
+        this.doubleBackToExitPressedOnce = true
+        Toast.makeText(this, getString(R.string.click_back_again_to_exit), Toast.LENGTH_SHORT)
+            .show()
+
+        Handler(Looper.getMainLooper()).postDelayed(Runnable {
+            doubleBackToExitPressedOnce = false
+        }, 2000)
     }
 }

@@ -8,18 +8,23 @@ import android.animation.TypeEvaluator
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
+import android.content.IntentSender.SendIntentException
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.location.Location
+import android.location.LocationManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.provider.Settings
 import android.util.Property
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -33,6 +38,12 @@ import com.app.chruchridedriver.util.DynamicCountdownTimer.DynamicCountdownCallb
 import com.app.chruchridedriver.viewModel.DriverHomePageViewModel
 import com.app.chruchridedriver.viewModel.DriverHomePageViewModelFactory
 import com.gauravbhola.ripplepulsebackground.RipplePulseLayout
+import com.google.android.gms.common.api.ApiException
+import com.google.android.gms.common.api.ResolvableApiException
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.LocationSettingsRequest
+import com.google.android.gms.location.LocationSettingsStatusCodes
 import com.google.android.gms.maps.CameraUpdate
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
@@ -59,6 +70,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mGoogleMap: GoogleMap
     private var onlinestatus = 0
     var timer: DynamicCountdownTimer? = null
+    private var doubleBackToExitPressedOnce = false
     var loader: MaterialProgressBar? = null
     private lateinit var mRipplePulseLayout: RipplePulseLayout
     private lateinit var onandofflayout: FloatingActionButton
@@ -76,6 +88,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
     private var sendLoaction: Location? = null
     private var updateTime: Long = 10000
     private val BACKGROUND_LOCATION_PERMISSION_CODE = 2
+    private val ENABLED_LOCATION_PERMISSION_CODE = 5
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -107,10 +120,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         mRipplePulseLayout.startRippleAnimation()
         logout.setOnClickListener {
             stopLocationService()
-            cu.moveToLoginpageWithDataClear(this)
-            val moveToLoginPage = Intent(this, LoginPage::class.java)
-            startActivity(moveToLoginPage)
-            finish()
+            moveToLoginPageWithDataClear()
         }
 
         onandofflayout.setOnClickListener {
@@ -141,7 +151,13 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         driverHomePageViewModel.responseContent.observe(this) { result ->
             if (result.locationUpdatedData.isNotEmpty()) {
                 if (result.locationUpdatedData[0].verified == "0") {
+                    stopLocationService()
                     movToDocumentUploadStatusPage()
+                    return@observe
+                }
+                if (result.locationUpdatedData[0].fcmid != cu.getFcmId(this)) {
+                    stopLocationService()
+                    moveToLoginPageWithDataClear()
                     return@observe
                 }
                 val serverUpdatedTime: Int =
@@ -160,8 +176,15 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun moveToLoginPageWithDataClear() {
+        cu.moveToLoginpageWithDataClear(this)
+        val moveToLoginPage = Intent(this, LoginPage::class.java)
+        startActivity(moveToLoginPage)
+        finish()
+    }
+
     private fun movToDocumentUploadStatusPage() {
-        updateLogin(cu.getDriverId(this)!!, "driver")
+        updateLogin(cu.getDriverId(this)!!)
         val driverDocPage = Intent(this, DocumentUploadStatus::class.java)
         driverDocPage.putExtra("driverId", cu.getDriverId(this))
         driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
@@ -230,6 +253,17 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        super.onActivityResult(requestCode, resultCode, data)
+        if (requestCode == ENABLED_LOCATION_PERMISSION_CODE) {
+            when (resultCode) {
+                RESULT_OK -> {
+                    goOn()
+                }
+            }
+        }
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int, permissions: Array<out String>, grantResults: IntArray
     ) {
@@ -244,12 +278,6 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
                 goOnline()
             } else {
                 showSnackBarForLocationSettings()
-            }
-        } else if (requestCode == MY_PERMISSIONS_REQUEST_LOCATION) {
-            if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                goOn()
-            } else {
-                askPermissionForBackgroundUsage()
             }
         }
     }
@@ -286,28 +314,11 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
     }
 
     private fun goOnline() {
-        checkBackgroudLocationPermission()
+        checkBackgroundLocationPermission()
     }
 
     private fun goOn() {
-        startLocationService()
-        onlinestatus = 1
-        mRipplePulseLayout.stopRippleAnimation()
-        onandofftext.text = getString(R.string.off)
-        onlinetext.text = getString(R.string.you_re_online)
-        onlinesubtext.visibility = View.GONE
-        timer = DynamicCountdownTimer(updateTime, 1000)
-        timer!!.setDynamicCountdownCallback(object : DynamicCountdownCallback {
-            override fun onTick(l: Long) {
-            }
-
-            override fun onFinish() {
-                updateLocation()
-                timer!!.Cancel()
-                timer!!.Start()
-            }
-        })
-        timer!!.Start()
+        locationStatusCheck()
     }
 
     private fun showSnackBarForLocationSettings() {
@@ -392,7 +403,8 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
                 oldLocation = location
                 val height = 100
                 val width = 60
-                val bitmap = resources.getDrawable(R.drawable.car_driver) as BitmapDrawable
+                val bitmap =
+                    ContextCompat.getDrawable(this, R.drawable.car_driver) as BitmapDrawable
                 val b = bitmap.bitmap
                 val smallMarker = Bitmap.createScaledBitmap(b, width, height, false)
                 val markerOptions = MarkerOptions()
@@ -436,7 +448,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun checkBackgroudLocationPermission() {
+    private fun checkBackgroundLocationPermission() {
         if (ContextCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_FINE_LOCATION
             ) == PackageManager.PERMISSION_GRANTED
@@ -486,13 +498,82 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
-    private fun updateLogin(driverId: String, type: String) {
+    private fun updateLogin(driverId: String) {
         val sharedPreference = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
         val editor = sharedPreference.edit()
         editor.putString("savedId", driverId)
-        editor.putString("isLoggedInType", type)
+        editor.putString("isLoggedInType", "driver")
         editor.putInt("isLoggedIn", 1)
         editor.putInt("isDoc", 1)
         editor.commit()
+    }
+
+    private fun locationStatusCheck() {
+        val manager = getSystemService(LOCATION_SERVICE) as LocationManager
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            enableLocation()
+        } else {
+            startLocationService()
+            onlinestatus = 1
+            mRipplePulseLayout.stopRippleAnimation()
+            onandofftext.text = getString(R.string.off)
+            onlinetext.text = getString(R.string.you_re_online)
+            onlinesubtext.visibility = View.GONE
+            timer = DynamicCountdownTimer(updateTime, 1000)
+            timer!!.setDynamicCountdownCallback(object : DynamicCountdownCallback {
+                override fun onTick(l: Long) {
+                }
+
+                override fun onFinish() {
+                    updateLocation()
+                    timer!!.Cancel()
+                    timer!!.Start()
+                }
+            })
+            timer!!.Start()
+        }
+    }
+
+    private fun enableLocation() {
+        val locationRequest: LocationRequest = LocationRequest.create()
+        locationRequest.priority = LocationRequest.PRIORITY_HIGH_ACCURACY
+        locationRequest.interval = 30 * 1000
+        locationRequest.fastestInterval = 5 * 1000
+        val builder = LocationSettingsRequest.Builder().addLocationRequest(locationRequest)
+        builder.setAlwaysShow(true)
+        val result = LocationServices.getSettingsClient(this).checkLocationSettings(builder.build())
+        result.addOnCompleteListener { task ->
+            try {
+                val response = task.getResult(ApiException::class.java)
+            } catch (exception: ApiException) {
+                when (exception.statusCode) {
+                    LocationSettingsStatusCodes.RESOLUTION_REQUIRED -> try {
+                        val resolvable = exception as ResolvableApiException
+                        resolvable.startResolutionForResult(
+                            this, ENABLED_LOCATION_PERMISSION_CODE
+                        )
+                    } catch (_: SendIntentException) {
+                    } catch (_: ClassCastException) {
+                    }
+
+                    LocationSettingsStatusCodes.SETTINGS_CHANGE_UNAVAILABLE -> {}
+                }
+            }
+        }
+    }
+
+    override fun onBackPressed() {
+        if (doubleBackToExitPressedOnce) {
+            super.onBackPressed()
+            return
+        }
+        this.doubleBackToExitPressedOnce = true
+        Toast.makeText(
+            this, getString(R.string.please_click_back_again_to_exit), Toast.LENGTH_SHORT
+        ).show()
+
+        Handler(Looper.getMainLooper()).postDelayed(Runnable {
+            doubleBackToExitPressedOnce = false
+        }, 2000)
     }
 }

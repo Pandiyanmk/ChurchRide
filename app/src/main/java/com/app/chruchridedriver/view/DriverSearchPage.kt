@@ -19,6 +19,7 @@ import com.app.chruchridedriver.util.CommonUtil
 import com.app.chruchridedriver.viewModel.DriverSearchPageViewModel
 import com.app.chruchridedriver.viewModel.DriverSearchPageViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import dev.jahidhasanco.pulldownanimaterefresh.PullDownAnimateRefreshLayout
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import java.util.Locale
 
@@ -59,6 +60,8 @@ class DriverSearchPage : AppCompatActivity(), ClickedAdapterInterface {
         val backtap = findViewById<ImageView>(R.id.backtap)
         recentdriver.layoutManager = LinearLayoutManager(this)
         val search = findViewById<ImageView>(R.id.search)
+        val pullDownAnimateRefreshLayout =
+            findViewById<PullDownAnimateRefreshLayout>(R.id.pullDownAnimateRefreshLayout)
 
         all = findViewById(R.id.all)
         approved = findViewById(R.id.approved)
@@ -80,6 +83,21 @@ class DriverSearchPage : AppCompatActivity(), ClickedAdapterInterface {
                 displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
             }
         }
+
+        pullDownAnimateRefreshLayout.setOnRefreshListener(object :
+            PullDownAnimateRefreshLayout.OnRefreshListener {
+            override fun onRefresh() {
+                if (cu.isNetworkAvailable(this@DriverSearchPage)) {
+                    if (loader!!.visibility != View.VISIBLE) {
+                        pullDownAnimateRefreshLayout.setRefreshing(true)
+                        startLoader()
+                        driverSearchPageViewModel.getRegisteredDriverRecent(sortBy)
+                    }
+                } else {
+                    displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
+                }
+            }
+        })
 
         approved!!.setOnClickListener {
             if (cu.isNetworkAvailable(this)) {
@@ -144,10 +162,12 @@ class DriverSearchPage : AppCompatActivity(), ClickedAdapterInterface {
 
         driverSearchPageViewModel.errorMessage.observe(this) { errorMessage ->
             cu.showAlert(errorMessage, this)
+            pullDownAnimateRefreshLayout.setRefreshing(false)
             stopLoader()
         }
 
         driverSearchPageViewModel.responseContent.observe(this) { result ->
+            pullDownAnimateRefreshLayout.setRefreshing(false)
             stopLoader()
             if (result.registeredDriver.isEmpty()) {
                 errormessage.visibility = View.VISIBLE
@@ -184,8 +204,6 @@ class DriverSearchPage : AppCompatActivity(), ClickedAdapterInterface {
         driverDocPage.putExtra("driverId", id)
         startActivity(driverDocPage)
     }
-
-
 
 
     fun updateAllButtonClick() {

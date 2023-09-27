@@ -122,4 +122,9 @@
     <string name="alert">Alert</string>
     <string name="permission_needed">Permission Needed!</string>
     <string name="background_location_permission_needed_tap_allow_all_time_in_the_next_screen">Background Location Permission Needed!, Tap \"Allow all time\" in the next screen</string>
+    <string name="location_is_not_enabled">Location is not enabled</string>
+    <string name="open_location_settings_and_turn_it_on">Open Location Settings And Turn It On</string>
+    <string name="yes">YES</string>
+    <string name="please_click_back_again_to_exit">click BACK again to exit and go to offline mode.</string>
+    <string name="click_back_again_to_exit">click BACK again to exit</string>
 </resources>

@@ -10,6 +10,7 @@ import androidx.core.content.ContextCompat
 import com.app.chruchridedriver.R
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
+
 class CommonUtil {
 
     /* Show Message As An Alert Dialog */
@@ -69,6 +70,11 @@ class CommonUtil {
     fun getDriverId(ctx: Context): String? {
         val sharedPreference = ctx.getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
         return sharedPreference.getString("savedId", "")
+    }
+
+    fun getFcmId(ctx: Context): String? {
+        val sharedPreference = ctx.getSharedPreferences("FCMID", Context.MODE_PRIVATE)
+        return sharedPreference.getString("Token", "")
     }
 
     fun hasLocationPermission(ctx: Context): Boolean {

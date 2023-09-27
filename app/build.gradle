@@ -102,4 +102,6 @@ dependencies {
     //gmaps
     implementation 'com.google.android.gms:play-services-maps:16.0.0'
     implementation 'com.google.android.gms:play-services-location:16.0.0'
+
+    implementation 'com.saadahmedev.popup-dialog:popup-dialog:1.0.5'
 }

@@ -216,12 +216,17 @@
             android:theme="@style/loginPageSubHeadingTextTheme"
             android:visibility="gone" />
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/recentdriver"
+        <dev.jahidhasanco.pulldownanimaterefresh.PullDownAnimateRefreshLayout
+            android:id="@+id/pullDownAnimateRefreshLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-        </androidx.recyclerview.widget.RecyclerView>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recentdriver"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"></androidx.recyclerview.widget.RecyclerView>
+
+        </dev.jahidhasanco.pulldownanimaterefresh.PullDownAnimateRefreshLayout>
     </LinearLayout>
 
 </LinearLayout>

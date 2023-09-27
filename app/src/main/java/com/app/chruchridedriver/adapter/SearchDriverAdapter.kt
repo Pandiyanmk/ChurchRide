@@ -12,8 +12,8 @@ import com.app.chruchridedriver.data.model.RegisteredDriverX
 import com.app.chruchridedriver.interfaces.ClickedAdapterInterface
 import com.bumptech.glide.Glide
 import de.hdodenhof.circleimageview.CircleImageView
+import java.text.ParseException
 import java.text.SimpleDateFormat
-import java.util.Calendar
 
 class SearchDriverAdapter(
     private val context: Context,
@@ -34,7 +34,7 @@ class SearchDriverAdapter(
             holder.name.text = item.name
             holder.mobileno.text = item.mobileno
             holder.email.text = item.emailaddress
-            holder.date.text = getDate("Sat Jun 01 12:53:10 IST 2013")
+            holder.date.text = getDate(item.regdate)
             Glide.with(context).load(item.profilepic).placeholder(R.drawable.uploadprofile)
                 .into(holder.profile_picture)
             holder.open.setOnClickListener {
@@ -57,8 +57,13 @@ class SearchDriverAdapter(
     }
 
     private fun getDate(date: String): String {
-        val calendar: Calendar = Calendar.getInstance()
-        val simpleDateFormat = SimpleDateFormat("EE, dd-MMM-yyyy hh:mm a")
-        return simpleDateFormat.format(calendar.time).replace("am", "AM").replace("pm","PM")
+        val input = SimpleDateFormat("dd-MM-yyyy HH:mm:ss")
+        val output = SimpleDateFormat("MMMM dd, yyyy - hh:mm aa")
+        return try {
+            output.format(input.parse(date))
+        } catch (e: ParseException) {
+            e.printStackTrace()
+            date
+        }
     }
 }

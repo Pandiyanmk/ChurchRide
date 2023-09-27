@@ -122,4 +122,9 @@
     <string name="alert">Alerta</string>
     <string name="permission_needed">¡Se necesita permiso!</string>
     <string name="background_location_permission_needed_tap_allow_all_time_in_the_next_screen">¡Se necesita permiso de ubicación en segundo plano!, toque \"Permitir todo el tiempo en la siguiente pantalla\"</string>
+    <string name="location_is_not_enabled">La ubicación no está habilitada</string>
+    <string name="open_location_settings_and_turn_it_on">Abra la configuración de ubicación y actívela</string>
+    <string name="yes">SÍ</string>
+    <string name="please_click_back_again_to_exit">haga clic en ATRÁS nuevamente para salir e ir al modo fuera de línea.</string>
+    <string name="click_back_again_to_exit">haga clic en ATRÁS nuevamente para salir</string>
 </resources>
