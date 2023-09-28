@@ -127,4 +127,5 @@
     <string name="yes">SÍ</string>
     <string name="please_click_back_again_to_exit">haga clic en ATRÁS nuevamente para salir e ir al modo fuera de línea.</string>
     <string name="click_back_again_to_exit">haga clic en ATRÁS nuevamente para salir</string>
+    <string name="failed_fetching_contact_information_try_again_later">No se pudo obtener la información de contacto. Vuelva a intentarlo más tarde.</string>
 </resources>

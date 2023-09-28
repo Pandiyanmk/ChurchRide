@@ -30,24 +30,15 @@ public class DynamicCountdownTimer {
     public void setTimer(Long seconds, int ticks) {
         this.seconds = seconds;
         this.ticks = ticks;
-        timer = new CountDownTimer(DynamicCountdownTimer.this.seconds, ticks) {
+        timer = new CountDownTimer(DynamicCountdownTimer.this.seconds, 1000) {
             @Override
             public void onTick(long l) {
-                negativeBias = DynamicCountdownTimer.this.seconds - l;
-                long calculatedTime = l - (long) addingBias;
-                if (calculatedTime <= 0) {
-                    onFinish();
-                } else {
-                    callback.onTick(calculatedTime);
-                }
+                callback.onTick();
             }
 
             @Override
             public void onFinish() {
-                if (!supressFinish) {
-                    callback.onFinish();
-                }
-                supressFinish = false;
+                callback.onFinish();
             }
         };
     }
@@ -72,7 +63,7 @@ public class DynamicCountdownTimer {
 
 
     public interface DynamicCountdownCallback {
-        void onTick(long l);
+        void onTick();
 
         void onFinish();
     }

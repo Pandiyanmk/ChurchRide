@@ -62,6 +62,7 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.sign
 
@@ -102,6 +103,8 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
 
         /* Hiding ToolBar */
         supportActionBar?.hide()
+
+        EventBus.getDefault().register(this)
 
         /* ViewModel Initialization */
         driverHomePageViewModel = ViewModelProvider(
@@ -144,12 +147,17 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         }
 
         callsupport.setOnClickListener {
-            openContactUs()
+            if (supportEmail.isNotEmpty()) {
+                openContactUs()
+            } else {
+                displayMessageInAlert(getString(R.string.failed_fetching_contact_information_try_again_later))
+            }
+
         }
 
         mylocation.setOnClickListener {
             if (mapLoaded) {
-                oldLocation?.let {
+                sendLoaction?.let {
                     val cameraPosition =
                         CameraPosition.Builder().target(LatLng(it.latitude, it.longitude)).zoom(18f)
                             .build()
@@ -184,7 +192,9 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
                     result.locationUpdatedData[0].locationUpdateTime.toInt() * 1000
                 if (updateTime != serverUpdatedTime.toLong()) {
                     updateTime = serverUpdatedTime.toLong()
-                    timer?.updateSeconds(updateTime)
+                    if (onlinestatus == 1) {
+                        timer?.updateSeconds(updateTime)
+                    }
                 }
             }
 
@@ -232,6 +242,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
             it.Cancel()
             timer = null
         }
+        EventBus.getDefault().unregister(this)
         stopLocationService()
     }
 
@@ -350,16 +361,6 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
             intent.data = uri
             startActivity(intent)
         }
-    }
-
-    override fun onStart() {
-        super.onStart()
-        EventBus.getDefault().register(this)
-    }
-
-    override fun onStop() {
-        super.onStop()
-        EventBus.getDefault().unregister(this)
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
@@ -540,7 +541,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
             onlinesubtext.visibility = View.GONE
             timer = DynamicCountdownTimer(updateTime, 1000)
             timer!!.setDynamicCountdownCallback(object : DynamicCountdownCallback {
-                override fun onTick(l: Long) {
+                override fun onTick() {
                 }
 
                 override fun onFinish() {
@@ -625,6 +626,12 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
                 longitude = "",
                 activestatus = "$onlinestatus"
             )
+        } else {
+            displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
         }
+    }
+
+    private fun displayMessageInAlert(message: String) {
+        cu.showAlert(message, this)
     }
 }

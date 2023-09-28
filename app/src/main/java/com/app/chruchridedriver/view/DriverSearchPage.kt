@@ -21,6 +21,9 @@ import com.app.chruchridedriver.viewModel.DriverSearchPageViewModelFactory
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dev.jahidhasanco.pulldownanimaterefresh.PullDownAnimateRefreshLayout
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
+import org.greenrobot.eventbus.EventBus
+import org.greenrobot.eventbus.Subscribe
+import org.greenrobot.eventbus.ThreadMode
 import java.util.Locale
 
 
@@ -47,6 +50,7 @@ class DriverSearchPage : AppCompatActivity(), ClickedAdapterInterface {
 
         /* Hiding ToolBar */
         supportActionBar?.hide()
+
         anyChangeMade()/* ViewModel Initialization */
         driverSearchPageViewModel = ViewModelProvider(
             this, DriverSearchPageViewModelFactory(MainRepository())
@@ -259,5 +263,29 @@ class DriverSearchPage : AppCompatActivity(), ClickedAdapterInterface {
             }
         }
 
+    }
+
+    override fun onStart() {
+        super.onStart()
+        EventBus.getDefault().register(this)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        EventBus.getDefault().unregister(this)
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onMessageEvent(refresh: String?) {
+        if (refresh == "new_register") {
+            if (cu.isNetworkAvailable(this)) {
+                if (loader!!.visibility != View.VISIBLE) {
+                    startLoader()
+                    driverSearchPageViewModel.getRegisteredDriverRecent(sortBy)
+                }
+            } else {
+                displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
+            }
+        }
     }
 }

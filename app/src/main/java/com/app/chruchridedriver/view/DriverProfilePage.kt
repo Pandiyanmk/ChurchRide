@@ -118,10 +118,12 @@ class DriverProfilePage : AppCompatActivity(), ClickedAdapterInterface {
         val email = findViewById<TextView>(R.id.email)
         val contactus = findViewById<TextView>(R.id.contactus)
         val logout = findViewById<ImageView>(R.id.logout)
+        val contactlay = findViewById<LinearLayout>(R.id.contactlay)
         val pullDownAnimateRefreshLayout =
             findViewById<PullDownAnimateRefreshLayout>(R.id.pullDownAnimateRefreshLayout)
         logout.visibility = View.GONE
-
+        contactus.visibility = View.GONE
+        contactlay.visibility = View.GONE
         val type = findViewById<EditText>(R.id.type)
         val make = findViewById<EditText>(R.id.make)
         val model = findViewById<EditText>(R.id.model)

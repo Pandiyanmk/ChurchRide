@@ -11,6 +11,7 @@ import com.app.chruchridedriver.R
 import com.app.chruchridedriver.view.GetStartedPage
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import org.greenrobot.eventbus.EventBus
 
 
 class FirebaseMessageReceiver : FirebaseMessagingService() {
@@ -30,18 +31,26 @@ class FirebaseMessageReceiver : FirebaseMessagingService() {
         notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (remoteMessage.notification != null) {
             showNotification(
-                remoteMessage.notification!!.title, remoteMessage.notification!!.body
+                remoteMessage.notification!!.title,
+                remoteMessage.notification!!.body,
+                remoteMessage.notification!!.tag
             )
         }
     }
 
     private fun showNotification(
-        title: String?, message: String?
+        title: String?, message: String?, type: String?
     ) {
+        if (type == "new_register") {
+            EventBus.getDefault().post("new_register")
+        } else if (type == "doc_status") {
+            EventBus.getDefault().post("doc_status")
+        }
         val intent = Intent(this, GetStartedPage::class.java)
-        var pendingIntent = null
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+        var pendingIntent: PendingIntent? = null
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_MUTABLE)
         } else {
             PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
@@ -57,6 +66,7 @@ class FirebaseMessageReceiver : FirebaseMessagingService() {
             ).setContentText(message).setSmallIcon(R.drawable.baseline_car_crash_24)
                 .setContentIntent(pendingIntent)
         }
+        builder.notification.flags = builder.notification.flags or Notification.FLAG_AUTO_CANCEL
         notificationManager.notify(12345, builder.build())
     }
 }

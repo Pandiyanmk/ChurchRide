@@ -19,7 +19,6 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -75,6 +74,7 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
     var driverId = ""
     private var documentDialog: BottomSheetDialog? = null
     private var profileDialog: BottomSheetDialog? = null
+    lateinit var pullDownAnimateRefreshLayout: PullDownAnimateRefreshLayout
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.documentuploadstatus)
@@ -119,8 +119,7 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
         val email = findViewById<TextView>(R.id.email)
         val contactus = findViewById<TextView>(R.id.contactus)
         val logout = findViewById<ImageView>(R.id.logout)
-        val pullDownAnimateRefreshLayout =
-            findViewById<PullDownAnimateRefreshLayout>(R.id.pullDownAnimateRefreshLayout)
+        pullDownAnimateRefreshLayout = findViewById(R.id.pullDownAnimateRefreshLayout)
 
 
         val type = findViewById<EditText>(R.id.type)
@@ -168,6 +167,7 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
             PullDownAnimateRefreshLayout.OnRefreshListener {
             override fun onRefresh() {
                 if (cu.isNetworkAvailable(this@DocumentUploadStatus)) {
+                    startLoader()
                     pullDownAnimateRefreshLayout.setRefreshing(true)
                     documentUploadStatusViewModel.getUploadedDocument(driverId)
                 } else {
@@ -407,6 +407,12 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
                 imageLoader.dismiss()
                 hideImageLoader()
                 displayMessageInAlert(getString(R.string.failed_to_upload_image_try_again))
+            } else if (it == "doc_status") {
+                if (cu.isNetworkAvailable(this@DocumentUploadStatus)) {
+                    startLoader()
+                    pullDownAnimateRefreshLayout.setRefreshing(true)
+                    documentUploadStatusViewModel.getUploadedDocument(driverId)
+                }
             } else {
                 hideImageLoader()
                 updateImage(event)
@@ -514,6 +520,7 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
                 startActivity(viewImagePage)
             }
             reupload.setOnClickListener {
+                documentDialog!!.dismiss()
                 chooseCameraOrGallery()
             }
 
