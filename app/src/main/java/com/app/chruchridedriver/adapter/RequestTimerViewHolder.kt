@@ -54,6 +54,7 @@ class RequestTimerViewHolder(
                     listener.delete(stopwatch.id)
                 }
 
+                binding.name.text = "UberX" + stopwatch.id
                 binding.stopwatchTimer.text = "" + ti
             }
 
