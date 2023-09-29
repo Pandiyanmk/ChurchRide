@@ -10,6 +10,7 @@ import android.net.Uri
 import android.os.Build
 import androidx.core.content.ContextCompat
 import com.app.chruchridedriver.R
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 
 
@@ -91,5 +92,20 @@ class CommonUtil {
         val intent = Intent(Intent.ACTION_DIAL)
         intent.data = Uri.parse("tel:$phoneNumber")
         ctx.startActivity(intent)
+    }
+
+    fun saveLocation(ctx: Context, latitude: Double, longitude: Double) {
+        val sharedPreference = ctx.getSharedPreferences("LOCATION", Context.MODE_PRIVATE)
+        val editor = sharedPreference.edit()
+        editor.putString("latitude", "" + latitude)
+        editor.putString("longitude", "" + longitude)
+        editor.commit()
+    }
+
+    fun getDriverLocation(ctx: Context): LatLng {
+        val sharedPreference = ctx.getSharedPreferences("LOCATION", Context.MODE_PRIVATE)
+        val latitude = sharedPreference.getString("latitude", "0.0")
+        val longitude = sharedPreference.getString("longitude", "0.0")
+        return LatLng(latitude!!.toDouble(), longitude!!.toDouble())
     }
 }

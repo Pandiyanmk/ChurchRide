@@ -167,7 +167,8 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         }
 
         profile.setOnClickListener {
-            val driverDocPage = Intent(this, DriverProfilePage::class.java)
+            //val driverDocPage = Intent(this, DriverProfilePage::class.java)
+            val driverDocPage = Intent(this, TimerRequestPage::class.java)
             driverDocPage.putExtra("driverId", cu.getDriverId(this))
             startActivity(driverDocPage)
         }
@@ -368,6 +369,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         location?.let {
             sendLoaction = it
             updateMarker(it)
+            cu.saveLocation(this, it.latitude, it.longitude)
         }
     }
 
