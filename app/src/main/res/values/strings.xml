@@ -128,4 +128,8 @@
     <string name="please_click_back_again_to_exit">click BACK again to exit and go to offline mode.</string>
     <string name="click_back_again_to_exit">click BACK again to exit</string>
     <string name="failed_fetching_contact_information_try_again_later">Failed Fetching Contact Information.Try Again Later.</string>
+    <string name="accept_ride">ACCEPT RIDE</string>
+    <string name="estimated_pick_up_time">Estimated Pick Up Time</string>
+    <string name="allow_overlay_permission_for_displaying_ride_request">ALLOW OVERLAY PERMISSION FOR DISPLAYING RIDE REQUEST</string>
+    <string name="new_ride_request_received">New Ride Request Received</string>
 </resources>

@@ -9,6 +9,7 @@ import android.content.Intent
 import android.os.Build
 import com.app.chruchridedriver.R
 import com.app.chruchridedriver.view.GetStartedPage
+import com.app.chruchridedriver.view.TimerRequestPage
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import org.greenrobot.eventbus.EventBus
@@ -41,10 +42,25 @@ class FirebaseMessageReceiver : FirebaseMessagingService() {
     private fun showNotification(
         title: String?, message: String?, type: String?
     ) {
-        if (type == "new_register") {
-            EventBus.getDefault().post("new_register")
-        } else if (type == "doc_status") {
-            EventBus.getDefault().post("doc_status")
+        when (type) {
+            "new_register" -> {
+                EventBus.getDefault().post("new_register")
+            }
+
+            "doc_status" -> {
+                EventBus.getDefault().post("doc_status")
+            }
+
+            "ride_request" -> {
+                if (!TimerRequestPage.isTimerRequestPageActive) {
+                    val intent = Intent(this, TimerRequestPage::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                    startActivity(intent)
+                } else {
+                    EventBus.getDefault().post("ride_request")
+                }
+                return
+            }
         }
         val intent = Intent(this, GetStartedPage::class.java)
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)

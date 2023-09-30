@@ -29,7 +29,7 @@ class TimerRequestAdapter(
             override fun areItemsTheSame(
                 oldItem: RequestDetails, newItem: RequestDetails
             ): Boolean {
-                return oldItem.id == newItem.id
+                return oldItem.bookingId == newItem.bookingId
             }
 
             override fun areContentsTheSame(

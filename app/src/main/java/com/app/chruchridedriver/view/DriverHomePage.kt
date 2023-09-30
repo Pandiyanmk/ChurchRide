@@ -78,11 +78,13 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var mRipplePulseLayout: RipplePulseLayout
     private lateinit var onandofflayout: FloatingActionButton
     private lateinit var gosettings: FloatingActionButton
+    private lateinit var gotooverlay: FloatingActionButton
     private lateinit var onandofftext: TextView
     private lateinit var onlinetext: TextView
     private lateinit var onlinesubtext: TextView
     private lateinit var menulay: LinearLayout
     private lateinit var locationoff: LinearLayout
+    private lateinit var alertlayout: LinearLayout
     private var carMarker: Marker? = null
     private var bearing = 0f
     private val MY_PERMISSIONS_REQUEST_LOCATION = 99
@@ -126,7 +128,9 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         menulay = findViewById(R.id.menulay)
         loader = findViewById(R.id.loader)
         locationoff = findViewById(R.id.locationoff)
+        alertlayout = findViewById(R.id.alertlayout)
         gosettings = findViewById(R.id.gosettings)
+        gotooverlay = findViewById(R.id.gotooverlay)
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
@@ -170,6 +174,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
             //val driverDocPage = Intent(this, DriverProfilePage::class.java)
             val driverDocPage = Intent(this, TimerRequestPage::class.java)
             driverDocPage.putExtra("driverId", cu.getDriverId(this))
+            driverDocPage.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
             startActivity(driverDocPage)
         }
 
@@ -204,6 +209,10 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         }
         driverHomePageViewModel.errorMessage.observe(this) {
             loader!!.visibility = View.GONE
+        }
+
+        gotooverlay.setOnClickListener {
+            checkOverlayPermission()
         }
     }
 
@@ -265,6 +274,11 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         super.onResume()
         if (!cu.hasLocationPermission(this)) {
             goToOffline()
+        }
+        if (!Settings.canDrawOverlays(this)) {
+            alertlayout.visibility = View.VISIBLE
+        } else {
+            alertlayout.visibility = View.GONE
         }
     }
 
@@ -635,5 +649,16 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
 
     private fun displayMessageInAlert(message: String) {
         cu.showAlert(message, this)
+    }
+
+    private fun checkOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(this)) {
+                val intent = Intent(
+                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")
+                )
+                startActivityForResult(intent, 134)
+            }
+        }
     }
 }

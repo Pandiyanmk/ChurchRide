@@ -28,9 +28,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginStart="20sp"
-                android:layout_marginTop="20sp"
                 android:layout_marginEnd="20sp"
-                android:layout_marginBottom="20sp"
                 android:layout_weight="1"
                 android:gravity="center"
                 android:orientation="horizontal"
@@ -38,15 +36,16 @@
 
                 <TextView
                     android:id="@+id/name"
-                    android:layout_width="wrap_content"
+                    android:layout_width="100sp"
                     android:layout_height="wrap_content"
                     android:layout_marginRight="10sp"
                     android:fontFamily="@font/monomedium"
                     android:gravity="center"
-                    android:text="UberX"
+                    android:text=""
                     android:textColor="@color/lightwhit"
                     android:textSize="20sp"
-                    android:theme="@style/loginPageSubHeadingTextTheme" />
+                    android:theme="@style/loginPageSubHeadingTextTheme"
+                    android:visibility="gone" />
 
                 <LinearLayout
                     android:layout_width="wrap_content"
@@ -86,15 +85,16 @@
                 </LinearLayout>
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/rating"
+                    android:layout_width="100sp"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="10sp"
                     android:fontFamily="@font/monomedium"
                     android:gravity="center"
-                    android:text="4.83*"
                     android:textColor="@color/lightwhit"
                     android:textSize="20sp"
-                    android:theme="@style/loginPageSubHeadingTextTheme" />
+                    android:theme="@style/loginPageSubHeadingTextTheme"
+                    android:visibility="gone" />
 
             </LinearLayout>
 
@@ -115,17 +115,17 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/monomedium"
                     android:gravity="center"
-                    android:text="Estimated Pick Up Time"
+                    android:text="@string/estimated_pick_up_time"
                     android:textColor="@color/lightwhit"
                     android:textSize="17sp"
                     android:theme="@style/loginPageSubHeadingTextTheme" />
 
                 <TextView
+                    android:id="@+id/estimatedtimes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/monomedium"
                     android:gravity="center"
-                    android:text="3 min - 0.4 mi"
                     android:textColor="@color/appColor"
                     android:textSize="24sp"
                     android:theme="@style/loginPageSubHeadingTextTheme" />
@@ -153,12 +153,12 @@
                     </ImageView>
 
                     <TextView
+                        android:id="@+id/pickup"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:fontFamily="@font/monomedium"
                         android:gravity="center"
-                        android:text="Lorem Ipsum has been the industry's standard dummy text ever since the 1500s"
                         android:textColor="@color/lightwhit"
                         android:textSize="17sp"
                         android:theme="@style/loginPageSubHeadingTextTheme" />
@@ -181,17 +181,34 @@
                     </ImageView>
 
                     <TextView
+                        android:id="@+id/drop"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:fontFamily="@font/monomedium"
                         android:gravity="center"
-                        android:text="Lorem Ipsum has been the industry's standard dummy text ever since the 1500s"
                         android:textColor="@color/lightwhit"
                         android:textSize="17sp"
                         android:theme="@style/loginPageSubHeadingTextTheme" />
 
                 </LinearLayout>
+
+                <com.apachat.loadingbutton.core.customViews.CircularProgressButton
+                    android:id="@+id/acceptride"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="right"
+                    android:layout_marginTop="20sp"
+                    android:background="@drawable/buttonback"
+                    android:fontFamily="@font/regular"
+                    android:gravity="center"
+                    android:padding="10sp"
+                    android:text="@string/accept_ride"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold">
+
+                </com.apachat.loadingbutton.core.customViews.CircularProgressButton>
             </LinearLayout>
 
 

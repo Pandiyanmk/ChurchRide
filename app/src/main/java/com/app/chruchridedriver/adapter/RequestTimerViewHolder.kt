@@ -18,6 +18,11 @@ class RequestTimerViewHolder(
 
     fun bind(stopwatch: RequestDetails) {
         binding.stopwatchTimer.text = stopwatch.currentMs.displayTime()
+        binding.name.text = stopwatch.userName
+        binding.rating.text = stopwatch.userRating
+        binding.pickup.text = stopwatch.pickupAddress
+        binding.drop.text = stopwatch.dropAddress
+        binding.estimatedtimes.text = "${stopwatch.estimatedTime} - ${stopwatch.estimatedMiles}"
 
         if (stopwatch.isStarted) {
         } else {
@@ -51,10 +56,9 @@ class RequestTimerViewHolder(
                 val ti = requestTime - time.toInt()
                 if (ti == 0) {
                     stopTimer(stopwatch)
-                    listener.delete(stopwatch.id)
+                    listener.delete(stopwatch.bookingId)
                 }
 
-                binding.name.text = "UberX" + stopwatch.id
                 binding.stopwatchTimer.text = "" + ti
             }
 

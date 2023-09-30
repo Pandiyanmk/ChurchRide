@@ -111,7 +111,7 @@
     <string name="unlocked">DESBLOQUEADO</string>
     <string name="slide_to_unlock">DESLICE PARA DESBLOQUEAR</string>
     <string name="go">IR</string>
-    <string name="off">cerrar</string>
+    <string name="off">CERAR</string>
     <string name="click_go_to_make_you_online">Haga clic en <font color='#FF3700B3'>IR</font> para estar en línea</string>
     <string name="you_re_offline">Estás desconectado</string>
     <string name="you_re_online">Estás en línea</string>
@@ -128,4 +128,8 @@
     <string name="please_click_back_again_to_exit">haga clic en ATRÁS nuevamente para salir e ir al modo fuera de línea.</string>
     <string name="click_back_again_to_exit">haga clic en ATRÁS nuevamente para salir</string>
     <string name="failed_fetching_contact_information_try_again_later">No se pudo obtener la información de contacto. Vuelva a intentarlo más tarde.</string>
+    <string name="accept_ride">ACEPTAR VIAJE</string>
+    <string name="estimated_pick_up_time">Hora estimada de recogida</string>
+    <string name="allow_overlay_permission_for_displaying_ride_request">PERMITIR PERMISO DE SUPERPOSICIÓN PARA MOSTRAR SOLICITUD DE VIAJE</string>
+    <string name="new_ride_request_received">Nueva solicitud de viaje recibida</string>
 </resources>
