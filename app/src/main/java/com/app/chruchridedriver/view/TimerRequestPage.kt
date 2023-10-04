@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.media.MediaPlayer
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -37,6 +36,8 @@ import com.google.android.gms.maps.model.MarkerOptions
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
+import org.json.JSONObject
+import org.json.JSONTokener
 
 
 class TimerRequestPage : AppCompatActivity(), RequestListener, OnMapReadyCallback {
@@ -66,6 +67,11 @@ class TimerRequestPage : AppCompatActivity(), RequestListener, OnMapReadyCallbac
 
         isTimerRequestPageActive = true
 
+        val bookingDetails = intent.getStringExtra("bookingDetails")
+        if (bookingDetails != null) {
+            splitBookingDetails(bookingDetails)
+        }
+
         EventBus.getDefault().register(this)
 
         /* ViewModel Initialization */
@@ -76,6 +82,10 @@ class TimerRequestPage : AppCompatActivity(), RequestListener, OnMapReadyCallbac
         mediaPlayer = MediaPlayer.create(applicationContext, R.raw.car_horn)
         mediaPlayer.start()
         mediaPlayer.isLooping = true
+
+        binding.currentlocation.setOnClickListener {
+            plotMarker()
+        }
 
         binding.recycler.apply {
             layoutManager =
@@ -90,24 +100,6 @@ class TimerRequestPage : AppCompatActivity(), RequestListener, OnMapReadyCallbac
             deleteTimer(requestDetails[newPosition].bookingId)
         }
 
-        requestDetails.add(
-            RequestDetails(
-                bookingId = 1,
-                currentMs = 0,
-                isStarted = false,
-                pickupLat = 13.1267709,
-                pickupLong = 80.1438799,
-                dropLat = 13.0500,
-                dropLong = 80.2121,
-                userName = "Pandiyan",
-                userRating = "4.52*",
-                estimatedTime = "3 min",
-                estimatedMiles = "0.4 mi",
-                pickupAddress = "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-                dropAddress = "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s"
-            )
-        )
-        timerRequestAdapter.submitList(requestDetails.toList())
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
@@ -157,7 +149,7 @@ class TimerRequestPage : AppCompatActivity(), RequestListener, OnMapReadyCallbac
         TODO("Not yet implemented")
     }
 
-    override fun delete(id: Int) {
+    override fun delete(id: String) {
         deleteTimer(id)
     }
 
@@ -221,7 +213,7 @@ class TimerRequestPage : AppCompatActivity(), RequestListener, OnMapReadyCallbac
         layoutManager?.startSmoothScroll(smoothScroller)
     }
 
-    private fun deleteTimer(id: Int) {
+    private fun deleteTimer(id: String) {
         requestDetails.remove(requestDetails.find { it.bookingId == id })
         timerRequestAdapter.submitList(requestDetails.toList())
         if (requestDetails.size == 1) {
@@ -273,33 +265,62 @@ class TimerRequestPage : AppCompatActivity(), RequestListener, OnMapReadyCallbac
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)
-    fun onMessageEvent(message: String?) {
+    fun onMessageEvent(message: String) {
         if (requestDetails.size >= 3) {
             return
         }
-        message?.let {
-            val myRandomValues = (100..500).random()
-            Toast.makeText(this, getString(R.string.new_ride_request_received), Toast.LENGTH_SHORT)
-                .show()
-            requestDetails.add(
-                RequestDetails(
-                    bookingId = myRandomValues,
-                    currentMs = 0,
-                    isStarted = false,
-                    pickupLat = 13.1143,
-                    pickupLong = 80.1548,
-                    dropLat = 13.1322822,
-                    dropLong = 80.1510225,
-                    userName = "Prakash",
-                    userRating = "4.32*",
-                    estimatedTime = "5 min",
-                    estimatedMiles = "0.7 mi",
-                    pickupAddress = "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
-                    dropAddress = "Lorem Ipsum has been the industry's standard dummy text ever since the 1500s"
+        splitBookingDetails(message)
+    }
+
+    private fun splitBookingDetails(bookingData: String) {
+        val jsonObject = JSONTokener(bookingData).nextValue() as JSONObject
+        try {
+            val jsonArray = jsonObject.getJSONArray("driverFcmIds")
+            val estTime = jsonObject.getJSONArray("estTime")
+            var distanceTime = ""
+            var distanceMiles = ""
+            for (i in 0 until estTime.length()) {
+                val driver = estTime.getJSONObject(i).getString("driverid")
+                if (driver == cu.getDriverId(this)) {
+                    distanceTime = estTime.getJSONObject(i).getString("distanceTime")
+                    distanceMiles = estTime.getJSONObject(i).getString("distanceKM")
+                }
+            }
+            for (i in 0 until jsonArray.length()) {
+                val id = jsonArray.getJSONObject(i).getString("ride_id")
+                val pickUpLat = jsonArray.getJSONObject(i).getString("pickpup_lat")
+                val pickupLong = jsonArray.getJSONObject(i).getString("pickup_long")
+                val pickupAddress = jsonArray.getJSONObject(i).getString("pickup_address")
+                val dropLat = jsonArray.getJSONObject(i).getString("drop_lat")
+                val dropLong = jsonArray.getJSONObject(i).getString("drop_long")
+                val dropAddress = jsonArray.getJSONObject(i).getString("drop_address")
+                val bookingTime = jsonArray.getJSONObject(i).getString("booking_time")
+                if (requestDetails.size != 0) {
+                    cu.defaultToast(this, getString(R.string.new_ride_request_received))
+                }
+                requestDetails.add(
+                    RequestDetails(
+                        bookingId = id,
+                        currentMs = 0,
+                        isStarted = false,
+                        pickupLat = pickUpLat.toDouble(),
+                        pickupLong = pickupLong.toDouble(),
+                        dropLat = dropLat.toDouble(),
+                        dropLong = dropLong.toDouble(),
+                        userName = "Prakash",
+                        userRating = "4.32*",
+                        estimatedTime = distanceTime,
+                        estimatedMiles = distanceMiles,
+                        pickupAddress = pickupAddress,
+                        dropAddress = dropAddress
+                    )
                 )
-            )
-            timerRequestAdapter.submitList(requestDetails.toList())
-            binding.recycler.smoothSnapToPosition((requestDetails.size - 1))
+                timerRequestAdapter.submitList(requestDetails.toList())
+                binding.recycler.smoothSnapToPosition((requestDetails.size - 1))
+                plotMarker()
+            }
+        } catch (e: Exception) {
         }
+
     }
 }

@@ -24,7 +24,6 @@ import android.util.Property
 import android.view.View
 import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -116,6 +115,9 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         contactUs = BottomSheetDialog(this)
         contactUs!!.setCancelable(true)
 
+        onlinestatus = cu.getOnlineStatus(this)
+
+
         mRipplePulseLayout = findViewById(R.id.layout_ripplepulse)
         val logout: FloatingActionButton = findViewById(R.id.logout)
         val mylocation: FloatingActionButton = findViewById(R.id.mylocation)
@@ -171,8 +173,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         }
 
         profile.setOnClickListener {
-            //val driverDocPage = Intent(this, DriverProfilePage::class.java)
-            val driverDocPage = Intent(this, TimerRequestPage::class.java)
+            val driverDocPage = Intent(this, DriverProfilePage::class.java)
             driverDocPage.putExtra("driverId", cu.getDriverId(this))
             driverDocPage.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
             startActivity(driverDocPage)
@@ -213,6 +214,10 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
 
         gotooverlay.setOnClickListener {
             checkOverlayPermission()
+        }
+
+        if (onlinestatus == 1) {
+            goOnline()
         }
     }
 
@@ -341,6 +346,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
             timer = null
         }
         stopLocationService()
+        cu.saveOnlineStatus(this, onlinestatus)
         updateLocation()
     }
 
@@ -380,11 +386,19 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     fun onMessageEvent(location: Location?) {
+        if (sendLoaction == null) {
+            location?.let {
+                sendLoaction = it
+                updateLocation()
+            }
+        }
         location?.let {
             sendLoaction = it
             updateMarker(it)
             cu.saveLocation(this, it.latitude, it.longitude)
         }
+
+
     }
 
     private fun animateMarkerToICS(marker: Marker, finalPosition: LatLng) {
@@ -551,6 +565,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         } else {
             startLocationService()
             onlinestatus = 1
+            cu.saveOnlineStatus(this, onlinestatus)
             mRipplePulseLayout.stopRippleAnimation()
             onandofftext.text = getString(R.string.off)
             onlinetext.text = getString(R.string.you_re_online)
@@ -567,6 +582,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
                 }
             })
             timer!!.Start()
+            updateLocation()
         }
     }
 
@@ -604,9 +620,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
             return
         }
         this.doubleBackToExitPressedOnce = true
-        Toast.makeText(
-            this, getString(R.string.please_click_back_again_to_exit), Toast.LENGTH_SHORT
-        ).show()
+        cu.defaultToast(this, getString(R.string.please_click_back_again_to_exit))
 
         Handler(Looper.getMainLooper()).postDelayed(Runnable {
             doubleBackToExitPressedOnce = false

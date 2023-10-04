@@ -8,10 +8,12 @@ import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Build
+import android.view.Gravity
 import androidx.core.content.ContextCompat
 import com.app.chruchridedriver.R
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.shashank.sony.fancytoastlib.FancyToast
 
 
 class CommonUtil {
@@ -36,6 +38,7 @@ class CommonUtil {
         editor.putInt("isLoggedIn", 0)
         editor.putInt("isDoc", 0)
         editor.commit()
+        clearOnlineStatus(ctx)
     }
 
     /* Function For Checking Network Availability */
@@ -107,5 +110,34 @@ class CommonUtil {
         val latitude = sharedPreference.getString("latitude", "0.0")
         val longitude = sharedPreference.getString("longitude", "0.0")
         return LatLng(latitude!!.toDouble(), longitude!!.toDouble())
+    }
+
+    fun saveOnlineStatus(ctx: Context, status: Int) {
+        val sharedPreference = ctx.getSharedPreferences("ONLINESTATUS", Context.MODE_PRIVATE)
+        val editor = sharedPreference.edit()
+        editor.putInt("status", status)
+        editor.commit()
+    }
+
+
+    private fun clearOnlineStatus(ctx: Context) {
+        val sharedPreference = ctx.getSharedPreferences("ONLINESTATUS", Context.MODE_PRIVATE)
+        val editor = sharedPreference.edit()
+        editor.putInt("status", 0)
+        editor.commit()
+    }
+
+
+    fun getOnlineStatus(ctx: Context): Int {
+        val sharedPreference = ctx.getSharedPreferences("ONLINESTATUS", Context.MODE_PRIVATE)
+        return sharedPreference.getInt("status", 0)
+    }
+
+    fun defaultToast(ctx: Context, message: String) {
+        val to = FancyToast.makeText(
+            ctx, message.uppercase(), FancyToast.LENGTH_LONG, FancyToast.INFO, false
+        )
+        to.setGravity(Gravity.CENTER, 0, 0)
+        to.show()
     }
 }

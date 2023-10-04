@@ -115,19 +115,21 @@
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/monomedium"
                     android:gravity="center"
+                    android:textAllCaps="true"
                     android:text="@string/estimated_pick_up_time"
                     android:textColor="@color/lightwhit"
-                    android:textSize="17sp"
+                    android:textSize="14sp"
                     android:theme="@style/loginPageSubHeadingTextTheme" />
 
                 <TextView
+                    android:textAllCaps="true"
                     android:id="@+id/estimatedtimes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/monomedium"
                     android:gravity="center"
                     android:textColor="@color/appColor"
-                    android:textSize="24sp"
+                    android:textSize="20sp"
                     android:theme="@style/loginPageSubHeadingTextTheme" />
 
                 <View
@@ -160,7 +162,8 @@
                         android:fontFamily="@font/monomedium"
                         android:gravity="center"
                         android:textColor="@color/lightwhit"
-                        android:textSize="17sp"
+                        android:textSize="14sp"
+                        android:textAllCaps="true"
                         android:theme="@style/loginPageSubHeadingTextTheme" />
 
                 </LinearLayout>
@@ -187,8 +190,9 @@
                         android:layout_weight="1"
                         android:fontFamily="@font/monomedium"
                         android:gravity="center"
+                        android:textAllCaps="true"
                         android:textColor="@color/lightwhit"
-                        android:textSize="17sp"
+                        android:textSize="14sp"
                         android:theme="@style/loginPageSubHeadingTextTheme" />
 
                 </LinearLayout>

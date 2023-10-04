@@ -1,7 +1,7 @@
 package com.app.chruchridedriver.data.model
 
 data class RequestDetails(
-    val bookingId: Int,
+    val bookingId: String,
     var currentMs: Long,
     var isStarted: Boolean,
     var pickupLat: Double,

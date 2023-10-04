@@ -110,5 +110,31 @@
         </FrameLayout>
 
     </LinearLayout>
+    <FrameLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:layout_alignParentRight="true"
+        android:layout_above="@+id/recycler"
+        android:layout_marginEnd="20sp"
+        android:layout_marginBottom="20sp"
+        android:background="@drawable/driverhomepagemenus">
 
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/currentlocation"
+            android:layout_width="40sp"
+            android:layout_height="40sp"
+            android:backgroundTint="@color/black"
+            android:src="@android:color/transparent"
+            app:fabSize="normal"
+            app:rippleColor="@color/white" />
+
+        <ImageView
+            android:layout_width="20sp"
+            android:layout_height="20sp"
+            android:layout_gravity="center"
+            android:elevation="16dp"
+            android:src="@drawable/baseline_my_location_24"
+            android:tint="@color/white" />
+    </FrameLayout>
 </RelativeLayout>

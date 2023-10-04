@@ -450,8 +450,8 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
             return
         }
         this.doubleBackToExitPressedOnce = true
-        Toast.makeText(this, getString(R.string.click_back_again_to_exit), Toast.LENGTH_SHORT)
-            .show()
+        cu.defaultToast(this, getString(R.string.click_back_again_to_exit))
+
 
         Handler(Looper.getMainLooper()).postDelayed(Runnable {
             doubleBackToExitPressedOnce = false

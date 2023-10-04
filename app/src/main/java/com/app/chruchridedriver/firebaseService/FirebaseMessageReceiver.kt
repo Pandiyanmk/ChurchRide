@@ -54,10 +54,11 @@ class FirebaseMessageReceiver : FirebaseMessagingService() {
             "ride_request" -> {
                 if (!TimerRequestPage.isTimerRequestPageActive) {
                     val intent = Intent(this, TimerRequestPage::class.java)
+                    intent.putExtra("bookingDetails", message)
                     intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
                     startActivity(intent)
                 } else {
-                    EventBus.getDefault().post("ride_request")
+                    EventBus.getDefault().post(message)
                 }
                 return
             }
