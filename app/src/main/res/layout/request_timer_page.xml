@@ -13,7 +13,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@+id/recycler"
+        android:layout_above="@+id/recyclerItem"
         android:padding="10sp">
 
         <fragment xmlns:android="http://schemas.android.com/apk/res/android"
@@ -23,13 +23,22 @@
             android:layout_height="match_parent" />
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler"
+    <LinearLayout
+        android:id="@+id/recyclerItem"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
-        tools:itemCount="1"
-        tools:listitem="@layout/request_timer_item" />
+        android:orientation="vertical">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recycler"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:itemCount="1"
+            tools:listitem="@layout/request_timer_item" />
+
+    </LinearLayout>
+
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -42,6 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:visibility="gone"
             android:layout_marginEnd="10sp"
             android:background="@drawable/driverhomepagemenus">
 
@@ -110,12 +120,13 @@
         </FrameLayout>
 
     </LinearLayout>
+
     <FrameLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
+        android:layout_above="@+id/recyclerItem"
         android:layout_alignParentRight="true"
-        android:layout_above="@+id/recycler"
+        android:layout_gravity="center"
         android:layout_marginEnd="20sp"
         android:layout_marginBottom="20sp"
         android:background="@drawable/driverhomepagemenus">
@@ -137,4 +148,5 @@
             android:src="@drawable/baseline_my_location_24"
             android:tint="@color/white" />
     </FrameLayout>
+
 </RelativeLayout>

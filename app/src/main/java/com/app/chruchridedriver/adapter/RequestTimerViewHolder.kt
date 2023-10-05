@@ -18,15 +18,19 @@ class RequestTimerViewHolder(
 
     fun bind(stopwatch: RequestDetails) {
         binding.stopwatchTimer.text = stopwatch.currentMs.displayTime()
-        binding.name.text = stopwatch.userName
-        binding.rating.text = stopwatch.userRating
         binding.pickup.text = stopwatch.pickupAddress
         binding.drop.text = stopwatch.dropAddress
         binding.estimatedtimes.text = "${stopwatch.estimatedTime} - ${stopwatch.estimatedMiles}"
-
         if (stopwatch.isStarted) {
         } else {
             startTimer(stopwatch)
+        }
+
+        binding.canceltrip.setOnClickListener {
+            listener.delete(stopwatch.bookingId)
+        }
+        binding.accept.setOnClickListener {
+            listener.accept(stopwatch.bookingId)
         }
     }
 

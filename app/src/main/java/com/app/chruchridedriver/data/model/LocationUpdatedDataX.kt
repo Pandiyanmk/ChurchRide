@@ -6,5 +6,6 @@ data class LocationUpdatedDataX(
     val fcmid: String,
     val supportTeamCall: String,
     val supportTeamEmail: String,
-    val supportTeamAddress: String
+    val supportTeamAddress: String,
+    val isRideStatus: String
 )

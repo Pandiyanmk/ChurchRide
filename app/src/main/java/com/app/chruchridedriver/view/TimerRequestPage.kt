@@ -1,10 +1,12 @@
 package com.app.chruchridedriver.view
 
 
+import android.app.Dialog
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.media.MediaPlayer
 import android.os.Bundle
+import android.view.Window
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -50,6 +52,7 @@ class TimerRequestPage : AppCompatActivity(), RequestListener, OnMapReadyCallbac
     private var carMarker: Marker? = null
     private var bearing = 0f
     var currentPos = 1
+    lateinit var imageLoader: Dialog
 
     private lateinit var mediaPlayer: MediaPlayer
 
@@ -85,6 +88,28 @@ class TimerRequestPage : AppCompatActivity(), RequestListener, OnMapReadyCallbac
 
         binding.currentlocation.setOnClickListener {
             plotMarker()
+        }
+
+        timerRequestPageViewModel.errorMessage.observe(this) { errorMessage ->
+            imageLoader?.let {
+                if (imageLoader.isShowing) {
+                    imageLoader.dismiss()
+                }
+            }
+            cu.defaultToast(this, errorMessage)
+        }
+
+        timerRequestPageViewModel.responseContent.observe(this) { result ->
+            imageLoader?.let {
+                if (imageLoader.isShowing) {
+                    imageLoader.dismiss()
+                }
+            }
+            if (result.status.isNotEmpty()) {
+                finish()
+            } else {
+                cu.defaultToast(this, getString(R.string.failed_try_again))
+            }
         }
 
         binding.recycler.apply {
@@ -151,6 +176,22 @@ class TimerRequestPage : AppCompatActivity(), RequestListener, OnMapReadyCallbac
 
     override fun delete(id: String) {
         deleteTimer(id)
+    }
+
+    override fun accept(id: String) {
+        acceptRide(id)
+    }
+
+    private fun acceptRide(bookingId: String) {
+        imageLoader = Dialog(this)
+        imageLoader.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val view = layoutInflater.inflate(R.layout.acceptingride, null)
+        imageLoader.setContentView(view)
+        imageLoader.window!!.setBackgroundDrawableResource(android.R.color.transparent)
+        imageLoader.setCanceledOnTouchOutside(false)
+        imageLoader.setCancelable(false)
+        imageLoader.show()
+        timerRequestPageViewModel.getAcceptResponse(bookingId, cu.getDriverId(this)!!)
     }
 
     private fun plotMarker() {

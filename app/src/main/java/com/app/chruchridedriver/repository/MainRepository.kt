@@ -1,6 +1,7 @@
 package com.app.chruchridedriver.repository
 
 import android.net.Uri
+import com.app.chruchridedriver.data.model.AcceptRideResponse
 import com.app.chruchridedriver.data.model.ChurchDetails
 import com.app.chruchridedriver.data.model.DocumentsResponse
 import com.app.chruchridedriver.data.model.DriverDetailsIdResponse
@@ -30,6 +31,37 @@ class MainRepository {
     ): Flow<NetworkState<SendOTResponse>> {
         try {
             val response = RetrofitClientAndEndPoints.getInstance().getLoginResponse(mobileNumber)
+
+            return if (response.isSuccessful) {
+                val responseBody = response.body()
+                if (responseBody != null) {
+                    flow {
+                        emit(NetworkState.Success(responseBody))
+                    }
+                } else {
+                    flow {
+                        emit(NetworkState.Error(response.message()))
+                    }
+                }
+            } else {
+                flow {
+                    emit(NetworkState.Error(response.message()))
+                }
+            }
+        } catch (e: Exception) {
+            return flow {
+                emit(NetworkState.Error(e.toString()))
+            }
+        }
+    }
+
+    /* API CALL To Get Accept Response */
+    suspend fun getAcceptResponse(
+        ride_id: String, driverId: String
+    ): Flow<NetworkState<AcceptRideResponse>> {
+        try {
+            val response =
+                RetrofitClientAndEndPoints.getInstance().getAcceptResponse(ride_id, driverId)
 
             return if (response.isSuccessful) {
                 val responseBody = response.body()

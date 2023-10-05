@@ -180,11 +180,16 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         }
 
         driverHomePageViewModel.responseContent.observe(this) { result ->
+            loader!!.visibility = View.GONE
             if (result.locationUpdatedData.isNotEmpty()) {
                 supportEmail = result.locationUpdatedData[0].supportTeamEmail
                 supportContactUs = result.locationUpdatedData[0].supportTeamCall
                 supportAddress = result.locationUpdatedData[0].supportTeamAddress
 
+                if (result.locationUpdatedData[0].isRideStatus == "1") {
+                    cu.defaultToast(this, "Got Ride")
+                    return@observe
+                }
                 if (result.locationUpdatedData[0].verified == "0") {
                     stopLocationService()
                     movToDocumentUploadStatusPage()
@@ -204,9 +209,6 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
                     }
                 }
             }
-
-
-            loader!!.visibility = View.GONE
         }
         driverHomePageViewModel.errorMessage.observe(this) {
             loader!!.visibility = View.GONE
@@ -652,8 +654,8 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
             loader!!.visibility = View.VISIBLE
             driverHomePageViewModel.updateCurrentLocation(
                 driverId = cu.getDriverId(this)!!,
-                latitude = "",
-                longitude = "",
+                latitude = "0.0",
+                longitude = "0.0",
                 activestatus = "$onlinestatus"
             )
         } else {

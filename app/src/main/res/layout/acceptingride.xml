@@ -12,24 +12,21 @@
     android:visibility="visible">
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
-        android:layout_width="100dp"
-        android:layout_height="100dp"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
         android:layout_centerInParent="true"
         android:indeterminate="true"
-        app:indicatorSize="70dp"
+        app:indicatorSize="40dp"
         app:trackThickness="2dp" />
 
-    <TextView
+
+    <ImageView
         android:id="@+id/loadingValue"
-        android:layout_width="50sp"
-        android:layout_height="50sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_centerInParent="true"
-        android:fontFamily="@font/mediumitalic"
         android:gravity="center"
-        android:text="0%"
-        android:textAllCaps="true"
-        android:textColor="@color/red"
-        android:textSize="17sp"
+        android:src="@drawable/ic_carsharing_fill_16dp"
         android:theme="@style/loginPageSubHeadingTextTheme" />
 </RelativeLayout>
 

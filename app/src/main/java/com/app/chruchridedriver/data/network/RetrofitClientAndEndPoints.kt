@@ -1,5 +1,6 @@
 package com.app.chruchridedriver.data.network
 
+import com.app.chruchridedriver.data.model.AcceptRideResponse
 import com.app.chruchridedriver.data.model.ChurchDetails
 import com.app.chruchridedriver.data.model.DocumentsResponse
 import com.app.chruchridedriver.data.model.DriverDetailsIdResponse
@@ -26,6 +27,12 @@ interface RetrofitClientAndEndPoints {
     suspend fun getLoginResponse(
         @Query("mobileNumber") mobileNumber: String
     ): Response<SendOTResponse>
+
+    @GET("accepttrip.php")
+    suspend fun getAcceptResponse(
+        @Query("ride_id") ride_id: String,
+        @Query("driverId") driverId: String
+    ): Response<AcceptRideResponse>
 
     @GET("login.php")
     suspend fun getDriverId(
