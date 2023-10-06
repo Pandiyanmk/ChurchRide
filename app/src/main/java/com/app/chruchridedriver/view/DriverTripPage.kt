@@ -5,6 +5,7 @@ import android.Manifest
 import android.animation.Animator
 import android.animation.ObjectAnimator
 import android.animation.TypeEvaluator
+import android.app.ActivityManager
 import android.app.AlertDialog
 import android.content.Context
 import android.content.Intent
@@ -24,12 +25,10 @@ import android.util.Property
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
-import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
-import com.apachat.loadingbutton.core.customViews.CircularProgressButton
 import com.app.chruchridedriver.R
 import com.app.chruchridedriver.location.LocationService
 import com.app.chruchridedriver.repository.MainRepository
@@ -38,7 +37,6 @@ import com.app.chruchridedriver.util.DynamicCountdownTimer
 import com.app.chruchridedriver.util.DynamicCountdownTimer.DynamicCountdownCallback
 import com.app.chruchridedriver.viewModel.DriverHomePageViewModel
 import com.app.chruchridedriver.viewModel.DriverHomePageViewModelFactory
-import com.gauravbhola.ripplepulsebackground.RipplePulseLayout
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
@@ -62,12 +60,11 @@ import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
 import org.greenrobot.eventbus.ThreadMode
-import java.util.Locale
 import kotlin.math.abs
 import kotlin.math.sign
 
 
-class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
+class DriverTripPage : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var driverHomePageViewModel: DriverHomePageViewModel
     private val cu = CommonUtil()
     private lateinit var mGoogleMap: GoogleMap
@@ -75,16 +72,13 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
     var timer: DynamicCountdownTimer? = null
     private var doubleBackToExitPressedOnce = false
     var loader: MaterialProgressBar? = null
-    private lateinit var mRipplePulseLayout: RipplePulseLayout
-    private lateinit var onandofflayout: FloatingActionButton
     private lateinit var gosettings: FloatingActionButton
     private lateinit var gotooverlay: FloatingActionButton
-    private lateinit var onandofftext: TextView
-    private lateinit var onlinetext: TextView
-    private lateinit var onlinesubtext: TextView
+    private lateinit var backpermissionclick: FloatingActionButton
     private lateinit var menulay: LinearLayout
     private lateinit var locationoff: LinearLayout
     private lateinit var alertlayout: LinearLayout
+    private lateinit var backgroundLayout: LinearLayout
     private var carMarker: Marker? = null
     private var bearing = 0f
     private val MY_PERMISSIONS_REQUEST_LOCATION = 99
@@ -101,7 +95,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.driver_home_page)
+        setContentView(R.layout.driver_trip_page)
 
         /* Hiding ToolBar */
         supportActionBar?.hide()
@@ -119,48 +113,17 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         onlinestatus = cu.getOnlineStatus(this)
 
 
-        mRipplePulseLayout = findViewById(R.id.layout_ripplepulse)
-        val logout: FloatingActionButton = findViewById(R.id.logout)
         val mylocation: FloatingActionButton = findViewById(R.id.mylocation)
-        val profile: FloatingActionButton = findViewById(R.id.profile)
-        val callsupport: FloatingActionButton = findViewById(R.id.callsupport)
-        onandofflayout = findViewById(R.id.onandofflayout)
-        onandofftext = findViewById(R.id.onandofftext)
-        onlinetext = findViewById(R.id.onlinetext)
-        onlinesubtext = findViewById(R.id.onlinesubtext)
         menulay = findViewById(R.id.menulay)
         loader = findViewById(R.id.loader)
         locationoff = findViewById(R.id.locationoff)
         alertlayout = findViewById(R.id.alertlayout)
+        backgroundLayout = findViewById(R.id.backgroundLayout)
         gosettings = findViewById(R.id.gosettings)
         gotooverlay = findViewById(R.id.gotooverlay)
+        backpermissionclick = findViewById(R.id.backpermissionclick)
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
-
-        getContactUs()
-
-        mRipplePulseLayout.startRippleAnimation()
-        logout.setOnClickListener {
-            stopLocationService()
-            moveToLoginPageWithDataClear()
-        }
-
-        onandofflayout.setOnClickListener {
-            if (onlinestatus == 0) {
-                checkLocationPermission()
-            } else {
-                goToOffline()
-            }
-        }
-
-        callsupport.setOnClickListener {
-            if (supportEmail.isNotEmpty()) {
-                openContactUs()
-            } else {
-                displayMessageInAlert(getString(R.string.failed_fetching_contact_information_try_again_later))
-            }
-
-        }
 
         mylocation.setOnClickListener {
             if (mapLoaded) {
@@ -173,13 +136,6 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
             }
         }
 
-        profile.setOnClickListener {
-            val driverDocPage = Intent(this, DriverProfilePage::class.java)
-            driverDocPage.putExtra("driverId", cu.getDriverId(this))
-            driverDocPage.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-            startActivity(driverDocPage)
-        }
-
         driverHomePageViewModel.responseContent.observe(this) { result ->
             loader!!.visibility = View.GONE
             if (result.locationUpdatedData.isNotEmpty()) {
@@ -187,14 +143,6 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
                 supportContactUs = result.locationUpdatedData[0].supportTeamCall
                 supportAddress = result.locationUpdatedData[0].supportTeamAddress
 
-                if (result.locationUpdatedData[0].isRideStatus == "1") {
-                    stopLocationService()
-                    val driverDocPage = Intent(this, DriverTripPage::class.java)
-                    driverDocPage.putExtra("driverId", cu.getDriverId(this))
-                    driverDocPage.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
-                    startActivity(driverDocPage)
-                    finish()
-                }
                 if (result.locationUpdatedData[0].verified == "0") {
                     stopLocationService()
                     movToDocumentUploadStatusPage()
@@ -222,10 +170,14 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         gotooverlay.setOnClickListener {
             checkOverlayPermission()
         }
-
-        if (onlinestatus == 1) {
-            goOnline()
+        backpermissionclick.setOnClickListener {
+            checkBackgroundLocationPermission()
         }
+        Handler().postDelayed({
+            startLocationServiceWithCheck()
+        }, 1000)
+        checkLocationPermission()
+        cu.saveRideStatus(this, 1)
     }
 
     private fun moveToLoginPageWithDataClear() {
@@ -276,7 +228,7 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
                     driverId = cu.getDriverId(this)!!,
                     latitude = "${it.latitude}",
                     longitude = "${it.longitude}",
-                    activestatus = "$onlinestatus"
+                    activestatus = "1"
                 )
             }
         }
@@ -285,7 +237,12 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
     override fun onResume() {
         super.onResume()
         if (!cu.hasLocationPermission(this)) {
-            goToOffline()
+            cu.defaultToast(this, getString(R.string.missing_location_permission), Gravity.CENTER)
+        }
+        if (!cu.hasBackgroundPermission(this)) {
+            backgroundLayout.visibility = View.VISIBLE
+        } else {
+            backgroundLayout.visibility = View.GONE
         }
         if (!Settings.canDrawOverlays(this)) {
             alertlayout.visibility = View.VISIBLE
@@ -341,22 +298,6 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
     }
 
 
-    private fun goToOffline() {
-        onlinestatus = 0
-        mRipplePulseLayout.startRippleAnimation()
-        onandofftext.text = getString(R.string.go)
-        onlinetext.text = getString(R.string.you_re_offline)
-        onlinesubtext.visibility = View.VISIBLE
-        loader!!.visibility = View.GONE
-        timer?.let {
-            it.Cancel()
-            timer = null
-        }
-        stopLocationService()
-        cu.saveOnlineStatus(this, onlinestatus)
-        updateLocation()
-    }
-
     private fun startLocationService() {
         Intent(applicationContext, LocationService::class.java).apply {
             action = LocationService.ACTION_START
@@ -404,8 +345,6 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
             updateMarker(it)
             cu.saveLocation(this, it.latitude, it.longitude)
         }
-
-
     }
 
     private fun animateMarkerToICS(marker: Marker, finalPosition: LatLng) {
@@ -570,13 +509,6 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
             enableLocation()
         } else {
-            startLocationService()
-            onlinestatus = 1
-            cu.saveOnlineStatus(this, onlinestatus)
-            mRipplePulseLayout.stopRippleAnimation()
-            onandofftext.text = getString(R.string.off)
-            onlinetext.text = getString(R.string.you_re_online)
-            onlinesubtext.visibility = View.GONE
             timer = DynamicCountdownTimer(updateTime, 1000)
             timer!!.setDynamicCountdownCallback(object : DynamicCountdownCallback {
                 override fun onTick() {
@@ -586,10 +518,10 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
                     updateLocation()
                     timer!!.Cancel()
                     timer!!.Start()
+                    startLocationServiceWithCheck()
                 }
             })
             timer!!.Start()
-            updateLocation()
         }
     }
 
@@ -634,40 +566,6 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
         }, 2000)
     }
 
-    private fun openContactUs() {
-        val view = layoutInflater.inflate(R.layout.contactus, null)
-        contactUs!!.setContentView(view)
-        val phonenumber = view.findViewById(R.id.phonenumber) as TextView
-        val email = view.findViewById(R.id.email) as TextView
-        val address = view.findViewById(R.id.address) as TextView
-        val closebutton = view.findViewById(R.id.closebutton) as CircularProgressButton
-        phonenumber.text = supportContactUs
-        email.text = supportEmail
-        address.text = supportAddress
-        phonenumber.paint?.isUnderlineText = true
-        closebutton.setOnClickListener {
-            contactUs!!.dismiss()
-        }
-        phonenumber.setOnClickListener {
-            cu.dialPad(this, phonenumber.text.toString())
-        }
-        contactUs!!.show()
-    }
-
-    private fun getContactUs() {
-        if (cu.isNetworkAvailable(this)) {
-            loader!!.visibility = View.VISIBLE
-            driverHomePageViewModel.updateCurrentLocation(
-                driverId = cu.getDriverId(this)!!,
-                latitude = "0.0",
-                longitude = "0.0",
-                activestatus = "$onlinestatus"
-            )
-        } else {
-            displayMessageInAlert(getString(R.string.no_internet).uppercase(Locale.getDefault()))
-        }
-    }
-
     private fun displayMessageInAlert(message: String) {
         cu.showAlert(message, this)
     }
@@ -679,6 +577,27 @@ class DriverHomePage : AppCompatActivity(), OnMapReadyCallback {
                     Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")
                 )
                 startActivityForResult(intent, 134)
+            }
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun <T> Context.isServiceRunning(service: Class<T>): Boolean {
+        return (getSystemService(ACTIVITY_SERVICE) as ActivityManager).getRunningServices(Integer.MAX_VALUE)
+            .any { it -> it.service.className == service.name }
+    }
+
+    private fun startLocationServiceWithCheck() {
+        val manager = getSystemService(LOCATION_SERVICE) as LocationManager
+        if (!manager.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
+            stopLocationService()
+            enableLocation()
+        } else {
+            if (cu.hasLocationPermission(this)) {
+                if (!this.isServiceRunning(LocationService::class.java)) {
+                    cu.defaultToast(this, "Location Service Started", Gravity.CENTER)
+                    startLocationService()
+                }
             }
         }
     }

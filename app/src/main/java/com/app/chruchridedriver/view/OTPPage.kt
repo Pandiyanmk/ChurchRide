@@ -10,7 +10,6 @@ import android.view.WindowManager
 import android.view.inputmethod.InputMethodManager
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.ViewModelProvider
 import com.apachat.loadingbutton.core.customViews.CircularProgressButton
@@ -93,11 +92,20 @@ class OTPPage : AppCompatActivity() {
                 } else {
                     if (result.driverDetails[0].verified == "1") {
                         updateHomeLogin(result.driverDetails[0].id, "driver")
-                        val driverDocPage = Intent(this, DriverHomePage::class.java)
-                        driverDocPage.putExtra("driverId", result.driverDetails[0].id)
-                        driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                        startActivity(driverDocPage)
-                        finish()
+                        if (cu.getIsRideStatus(this) == 0) {
+                            val driverDocPage = Intent(this, DriverHomePage::class.java)
+                            driverDocPage.putExtra("driverId", result.driverDetails[0].id)
+                            driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                            startActivity(driverDocPage)
+                            finish()
+                        } else {
+                            val driverDocPage = Intent(this, DriverTripPage::class.java)
+                            driverDocPage.putExtra("driverId", result.driverDetails[0].id)
+                            driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                            startActivity(driverDocPage)
+                            finish()
+                        }
+
                     } else {
                         updateLogin(result.driverDetails[0].id, "driver")
                         val driverDocPage = Intent(this, DocumentUploadStatus::class.java)
@@ -188,6 +196,7 @@ class OTPPage : AppCompatActivity() {
         editor.putInt("isDoc", 1)
         editor.commit()
     }
+
     private fun updateHomeLogin(driverId: String, type: String) {
         val sharedPreference = getSharedPreferences("LOGIN", Context.MODE_PRIVATE)
         val editor = sharedPreference.edit()

@@ -133,4 +133,5 @@
     <string name="allow_overlay_permission_for_displaying_ride_request">ALLOW OVERLAY PERMISSION FOR DISPLAYING RIDE REQUEST</string>
     <string name="new_ride_request_received">New Ride Request Received</string>
     <string name="failed_try_again">Failed Try Again</string>
+    <string name="missing_location_permission">Missing Location Permission</string>
 </resources>

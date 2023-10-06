@@ -133,4 +133,5 @@
     <string name="allow_overlay_permission_for_displaying_ride_request">PERMITIR PERMISO DE SUPERPOSICIÓN PARA MOSTRAR SOLICITUD DE VIAJE</string>
     <string name="new_ride_request_received">Nueva solicitud de viaje recibida</string>
     <string name="failed_try_again">Error en el intento de nuevo</string>
+    <string name="missing_location_permission">Permiso de ubicación faltante</string>
 </resources>

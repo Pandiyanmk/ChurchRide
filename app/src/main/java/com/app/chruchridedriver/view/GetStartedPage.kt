@@ -7,11 +7,13 @@ import android.os.Bundle
 import android.os.Handler
 import androidx.appcompat.app.AppCompatActivity
 import com.app.chruchridedriver.R
+import com.app.chruchridedriver.util.CommonUtil
 import java.util.Locale
 
 
 class GetStartedPage : AppCompatActivity() {
     var name: String? = null
+    val cu: CommonUtil = CommonUtil()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)/* Hiding ToolBar */
@@ -33,10 +35,19 @@ class GetStartedPage : AppCompatActivity() {
                 startActivity(moveToAboutPage)
                 finish()
             } else if (isLoggedInType == "driver" && isDoc == 2) {
-                val moveToAboutPage = Intent(this, DriverHomePage::class.java)
-                moveToAboutPage.putExtra("driverId", savedId)
-                startActivity(moveToAboutPage)
-                finish()
+                if (cu.getIsRideStatus(this) == 0) {
+                    val driverDocPage = Intent(this, DriverHomePage::class.java)
+                    driverDocPage.putExtra("driverId", savedId)
+                    driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    startActivity(driverDocPage)
+                    finish()
+                } else {
+                    val driverDocPage = Intent(this, DriverTripPage::class.java)
+                    driverDocPage.putExtra("driverId", savedId)
+                    driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                    startActivity(driverDocPage)
+                    finish()
+                }
             } else {
                 val moveToAboutPage = Intent(this, DriverSearchPage::class.java)
                 moveToAboutPage.putExtra("adminId", savedId)

@@ -39,6 +39,7 @@ class CommonUtil {
         editor.putInt("isDoc", 0)
         editor.commit()
         clearOnlineStatus(ctx)
+        clearRideStatus(ctx)
     }
 
     /* Function For Checking Network Availability */
@@ -91,6 +92,12 @@ class CommonUtil {
         ) == PackageManager.PERMISSION_GRANTED
     }
 
+    fun hasBackgroundPermission(ctx: Context): Boolean {
+        return ContextCompat.checkSelfPermission(
+            ctx, Manifest.permission.ACCESS_BACKGROUND_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    }
+
     fun dialPad(ctx: Context, phoneNumber: String) {
         val intent = Intent(Intent.ACTION_DIAL)
         intent.data = Uri.parse("tel:$phoneNumber")
@@ -119,6 +126,24 @@ class CommonUtil {
         editor.commit()
     }
 
+    fun saveRideStatus(ctx: Context, status: Int) {
+        val sharedPreference = ctx.getSharedPreferences("ISRIDE", Context.MODE_PRIVATE)
+        val editor = sharedPreference.edit()
+        editor.putInt("isRide", status)
+        editor.commit()
+    }
+
+    fun getIsRideStatus(ctx: Context): Int {
+        val sharedPreference = ctx.getSharedPreferences("ISRIDE", Context.MODE_PRIVATE)
+        return sharedPreference.getInt("isRide", 0)
+    }
+
+    private fun clearRideStatus(ctx: Context) {
+        val sharedPreference = ctx.getSharedPreferences("ISRIDE", Context.MODE_PRIVATE)
+        val editor = sharedPreference.edit()
+        editor.putInt("isRide", 0)
+        editor.commit()
+    }
 
     private fun clearOnlineStatus(ctx: Context) {
         val sharedPreference = ctx.getSharedPreferences("ONLINESTATUS", Context.MODE_PRIVATE)
@@ -133,11 +158,11 @@ class CommonUtil {
         return sharedPreference.getInt("status", 0)
     }
 
-    fun defaultToast(ctx: Context, message: String) {
+    fun defaultToast(ctx: Context, message: String,gravity: Int = Gravity.CENTER) {
         val to = FancyToast.makeText(
-            ctx, message.uppercase(), FancyToast.LENGTH_LONG, FancyToast.INFO, false
+            ctx, message.uppercase(), FancyToast.LENGTH_SHORT, FancyToast.INFO, false
         )
-        to.setGravity(Gravity.CENTER, 0, 0)
+        to.setGravity(gravity, 0, 0)
         to.show()
     }
 }

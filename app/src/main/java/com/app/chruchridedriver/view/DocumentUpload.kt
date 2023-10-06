@@ -13,6 +13,7 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.MediaStore
+import android.view.Gravity
 import android.view.View
 import android.view.Window
 import android.view.inputmethod.InputMethodManager
@@ -450,7 +451,7 @@ class DocumentUpload : AppCompatActivity(), ClickedAdapterInterface {
             return
         }
         this.doubleBackToExitPressedOnce = true
-        cu.defaultToast(this, getString(R.string.click_back_again_to_exit))
+        cu.defaultToast(this, getString(R.string.click_back_again_to_exit), Gravity.CENTER)
 
 
         Handler(Looper.getMainLooper()).postDelayed(Runnable {

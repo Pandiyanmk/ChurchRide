@@ -208,11 +208,19 @@ class DocumentUploadStatus : AppCompatActivity(), ClickedAdapterInterface {
                 driverProfile = result.driverProfile as ArrayList<driverProfileX>
                 if (result.driverProfile[0].verified == "1") {
                     updateLogin(driverId, "driver")
-                    val driverDocPage = Intent(this, DriverHomePage::class.java)
-                    driverDocPage.putExtra("driverId", driverId)
-                    driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
-                    startActivity(driverDocPage)
-                    finish()
+                    if (cu.getIsRideStatus(this) == 0) {
+                        val driverDocPage = Intent(this, DriverHomePage::class.java)
+                        driverDocPage.putExtra("driverId", driverId)
+                        driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        startActivity(driverDocPage)
+                        finish()
+                    } else {
+                        val driverDocPage = Intent(this, DriverTripPage::class.java)
+                        driverDocPage.putExtra("driverId", driverId)
+                        driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                        startActivity(driverDocPage)
+                        finish()
+                    }
                 } else {
                     name.text = result.driverProfile[0].name
                     mobileno.text = result.driverProfile[0].mobileno
