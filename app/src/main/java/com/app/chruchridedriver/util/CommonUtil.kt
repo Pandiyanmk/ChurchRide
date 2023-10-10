@@ -138,7 +138,7 @@ class CommonUtil {
         return sharedPreference.getInt("isRide", 0)
     }
 
-    private fun clearRideStatus(ctx: Context) {
+     fun clearRideStatus(ctx: Context) {
         val sharedPreference = ctx.getSharedPreferences("ISRIDE", Context.MODE_PRIVATE)
         val editor = sharedPreference.edit()
         editor.putInt("isRide", 0)

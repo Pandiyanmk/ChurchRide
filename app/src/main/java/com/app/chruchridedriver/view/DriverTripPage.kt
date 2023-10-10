@@ -7,11 +7,13 @@ import android.animation.ObjectAnimator
 import android.animation.TypeEvaluator
 import android.app.ActivityManager
 import android.app.AlertDialog
+import android.app.Dialog
 import android.content.Context
 import android.content.Intent
 import android.content.IntentSender.SendIntentException
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.graphics.drawable.BitmapDrawable
 import android.location.Location
 import android.location.LocationManager
@@ -24,12 +26,19 @@ import android.provider.Settings
 import android.util.Property
 import android.view.Gravity
 import android.view.View
+import android.view.Window
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.app.chruchridedriver.R
+import com.app.chruchridedriver.adapter.RideDetailsAdapter
+import com.app.chruchridedriver.data.model.RideDetail
+import com.app.chruchridedriver.interfaces.ClickedAdapterInterface
 import com.app.chruchridedriver.location.LocationService
 import com.app.chruchridedriver.repository.MainRepository
 import com.app.chruchridedriver.util.CommonUtil
@@ -51,6 +60,7 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.LatLngBounds
 import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
@@ -64,7 +74,7 @@ import kotlin.math.abs
 import kotlin.math.sign
 
 
-class DriverTripPage : AppCompatActivity(), OnMapReadyCallback {
+class DriverTripPage : AppCompatActivity(), OnMapReadyCallback, ClickedAdapterInterface {
     private lateinit var driverHomePageViewModel: DriverHomePageViewModel
     private val cu = CommonUtil()
     private lateinit var mGoogleMap: GoogleMap
@@ -76,6 +86,7 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback {
     private lateinit var gotooverlay: FloatingActionButton
     private lateinit var backpermissionclick: FloatingActionButton
     private lateinit var menulay: LinearLayout
+    private lateinit var rideData: RecyclerView
     private lateinit var locationoff: LinearLayout
     private lateinit var alertlayout: LinearLayout
     private lateinit var backgroundLayout: LinearLayout
@@ -92,6 +103,9 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback {
     var supportEmail = ""
     var supportAddress = ""
     var supportContactUs = ""
+    private var imageLoader: Dialog? = null
+    private var rideDetail: ArrayList<RideDetail>? = null
+    private var rideDetailsAdapter: RideDetailsAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -115,6 +129,7 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback {
 
         val mylocation: FloatingActionButton = findViewById(R.id.mylocation)
         menulay = findViewById(R.id.menulay)
+        rideData = findViewById(R.id.rideData)
         loader = findViewById(R.id.loader)
         locationoff = findViewById(R.id.locationoff)
         alertlayout = findViewById(R.id.alertlayout)
@@ -143,6 +158,15 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback {
                 supportContactUs = result.locationUpdatedData[0].supportTeamCall
                 supportAddress = result.locationUpdatedData[0].supportTeamAddress
 
+                if (result.locationUpdatedData[0].isRideStatus == "0") {
+                    cu.clearRideStatus(this)
+                    stopLocationService()
+                    val driverDocPage = Intent(this, DriverHomePage::class.java)
+                    driverDocPage.putExtra("driverId", cu.getDriverId(this))
+                    driverDocPage.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+                    startActivity(driverDocPage)
+                    finish()
+                }
                 if (result.locationUpdatedData[0].verified == "0") {
                     stopLocationService()
                     movToDocumentUploadStatusPage()
@@ -163,6 +187,25 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         }
+        driverHomePageViewModel.rideDetailsResponseContent.observe(this) { result ->
+            dismissImageLoader()
+            if (result.rideDetails.isNotEmpty()) {
+                rideData.layoutManager = LinearLayoutManager(this)
+                rideDetail = result.rideDetails as ArrayList<RideDetail>
+                rideDetailsAdapter = RideDetailsAdapter(rideDetail!!, this, this)
+                rideData.adapter = rideDetailsAdapter
+                addRideMarker(rideDetail!!)
+            } else {
+                clearAndMoveToHomePage()
+            }
+        }
+        driverHomePageViewModel.rideerrorMessage.observe(this) {
+            dismissImageLoader()
+            cu.getDriverId(this)?.let {
+                imageLoader()
+                driverHomePageViewModel.getRideDetails(it)
+            }
+        }
         driverHomePageViewModel.errorMessage.observe(this) {
             loader!!.visibility = View.GONE
         }
@@ -178,6 +221,11 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback {
         }, 1000)
         checkLocationPermission()
         cu.saveRideStatus(this, 1)
+        cu.getDriverId(this)?.let {
+            imageLoader()
+            driverHomePageViewModel.getRideDetails(it)
+
+        }
     }
 
     private fun moveToLoginPageWithDataClear() {
@@ -444,6 +492,48 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback {
         }
     }
 
+    private fun addRideMarker(rideDetails: ArrayList<RideDetail>) {
+        val hashMapMarker: HashMap<String, Marker> = HashMap()
+        val height = 100
+        val width = 60
+        val bitmap = ContextCompat.getDrawable(this, R.drawable.car_driver) as BitmapDrawable
+        val b = bitmap.bitmap
+        val smallMarker = Bitmap.createScaledBitmap(b, width, height, false)
+        val markerOptions = MarkerOptions()
+
+        val builder = LatLngBounds.Builder()
+
+
+        for (i in 0 until rideDetails.size) {
+            val bitmaps: Bitmap = getBitmapMarker("${i + 1}")!!
+            val car = BitmapDescriptorFactory.fromBitmap(bitmaps)
+            markerOptions.icon(car)
+            markerOptions.anchor(
+                0.5f, 0.5f
+            )
+            markerOptions.flat(true)
+            markerOptions.position(
+                LatLng(
+                    rideDetails[i].pickpup_lat.toDouble(), rideDetails[i].pickup_long.toDouble()
+                )
+            )
+            val marker: Marker = mGoogleMap.addMarker(markerOptions)
+            hashMapMarker[rideDetails[i].ride_id] = marker
+            builder.include(
+                LatLng(
+                    rideDetails[i].pickpup_lat.toDouble(), rideDetails[i].pickup_long.toDouble()
+                )
+            )
+        }
+
+        builder.include(
+            cu.getDriverLocation(this)
+        )
+        val point = CameraUpdateFactory.newLatLngBounds(builder.build(), 48)
+        anima(point)
+
+    }
+
     private fun checkBackgroundLocationPermission() {
         if (ContextCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_FINE_LOCATION
@@ -595,10 +685,68 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback {
         } else {
             if (cu.hasLocationPermission(this)) {
                 if (!this.isServiceRunning(LocationService::class.java)) {
-                    cu.defaultToast(this, "Location Service Started", Gravity.CENTER)
                     startLocationService()
                 }
             }
         }
+    }
+
+    private fun imageLoader() {
+        imageLoader?.let {
+            it.show()
+            return
+        }
+        imageLoader = Dialog(this)
+        imageLoader!!.requestWindowFeature(Window.FEATURE_NO_TITLE)
+        val view = layoutInflater.inflate(R.layout.acceptingride, null)
+        imageLoader!!.setContentView(view)
+        imageLoader!!.window!!.setBackgroundDrawableResource(android.R.color.transparent)
+        imageLoader!!.setCanceledOnTouchOutside(false)
+        imageLoader!!.setCancelable(false)
+        imageLoader!!.show()
+    }
+
+    private fun dismissImageLoader() {
+        imageLoader?.let {
+            if (it.isShowing) {
+                it.dismiss()
+            }
+        }
+
+    }
+
+    private fun clearAndMoveToHomePage() {
+        cu.clearRideStatus(this)
+        stopLocationService()
+        val driverDocPage = Intent(this, DriverHomePage::class.java)
+        driverDocPage.putExtra("driverId", cu.getDriverId(this))
+        driverDocPage.addFlags(Intent.FLAG_ACTIVITY_REORDER_TO_FRONT)
+        startActivity(driverDocPage)
+        finish()
+    }
+
+    override fun selectedValue(name: String?) {
+    }
+
+    private fun getBitmapMarker(number: String): Bitmap? {
+        val markerLayout: View = layoutInflater.inflate(R.layout.markerlayout, null)
+
+        val markerRating = markerLayout.findViewById<View>(R.id.marker_text) as TextView
+        markerRating.text = number
+
+        markerLayout.measure(
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
+        markerLayout.layout(0, 0, markerLayout.measuredWidth, markerLayout.measuredHeight)
+
+        val bitmap = Bitmap.createBitmap(
+            markerLayout.measuredWidth,
+            markerLayout.measuredHeight,
+            Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
+        markerLayout.draw(canvas)
+        return bitmap
     }
 }

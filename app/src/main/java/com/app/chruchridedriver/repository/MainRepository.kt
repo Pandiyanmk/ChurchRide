@@ -8,6 +8,7 @@ import com.app.chruchridedriver.data.model.DriverDetailsIdResponse
 import com.app.chruchridedriver.data.model.DriverRegisterationResponse
 import com.app.chruchridedriver.data.model.LocationUpdatedData
 import com.app.chruchridedriver.data.model.RegisteredDriver
+import com.app.chruchridedriver.data.model.RideDetails
 import com.app.chruchridedriver.data.model.SendOTResponse
 import com.app.chruchridedriver.data.model.UploadedDocStatus
 import com.app.chruchridedriver.data.model.UploadedDocument
@@ -385,6 +386,35 @@ class MainRepository {
         try {
             val response = RetrofitClientAndEndPoints.getInstance()
                 .updateCurrentLocation(driverId, latitude, longitude, activestatus)
+
+            return if (response.isSuccessful) {
+                val responseBody = response.body()
+                if (responseBody != null) {
+                    flow {
+                        emit(NetworkState.Success(responseBody))
+                    }
+                } else {
+                    flow {
+                        emit(NetworkState.Error(response.message()))
+                    }
+                }
+            } else {
+                flow {
+                    emit(NetworkState.Error(response.message()))
+                }
+            }
+        } catch (e: Exception) {
+            return flow {
+                emit(NetworkState.Error(e.toString()))
+            }
+        }
+    }
+
+    suspend fun getRideDetails(
+        driverId: String
+    ): Flow<NetworkState<RideDetails>> {
+        try {
+            val response = RetrofitClientAndEndPoints.getInstance().getRideDetails(driverId)
 
             return if (response.isSuccessful) {
                 val responseBody = response.body()

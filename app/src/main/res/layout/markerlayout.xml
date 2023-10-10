@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/layout_store_marker"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:background="@drawable/ic_rider_location_marker"
+    android:clickable="true"
+    android:focusableInTouchMode="true"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/marker_text"
+        android:layout_width="20sp"
+        android:layout_height="20sp"
+        android:layout_centerInParent="true"
+        android:background="@drawable/bg_circle"
+        android:fontFamily="@font/bold"
+        android:gravity="center"
+        android:text="1"
+        android:textColor="@android:color/white"
+        android:textSize="10sp"
+        android:textStyle="bold" />
+</RelativeLayout>

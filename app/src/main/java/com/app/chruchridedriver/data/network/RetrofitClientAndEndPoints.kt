@@ -7,6 +7,7 @@ import com.app.chruchridedriver.data.model.DriverDetailsIdResponse
 import com.app.chruchridedriver.data.model.DriverRegisterationResponse
 import com.app.chruchridedriver.data.model.LocationUpdatedData
 import com.app.chruchridedriver.data.model.RegisteredDriver
+import com.app.chruchridedriver.data.model.RideDetails
 import com.app.chruchridedriver.data.model.SendOTResponse
 import com.app.chruchridedriver.data.model.UploadedDocStatus
 import com.app.chruchridedriver.data.model.UploadedDocument
@@ -87,6 +88,11 @@ interface RetrofitClientAndEndPoints {
         @Query("longitude") longitude: String,
         @Query("activestatus") activestatus: String
     ): Response<LocationUpdatedData>
+
+    @GET("bookeddata.php")
+    suspend fun getRideDetails(
+        @Query("driverId") driverId: String
+    ): Response<RideDetails>
 
 
     /* Building Retrofit with Base URL */

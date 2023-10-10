@@ -2,6 +2,7 @@ package com.app.chruchridedriver.view
 
 
 import android.app.Dialog
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.media.MediaPlayer
@@ -106,6 +107,10 @@ class TimerRequestPage : AppCompatActivity(), RequestListener, OnMapReadyCallbac
                 }
             }
             if (result.status.isNotEmpty()) {
+                val driverDocPage = Intent(this, DriverTripPage::class.java)
+                driverDocPage.putExtra("driverId", cu.getDriverId(this))
+                driverDocPage.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK)
+                startActivity(driverDocPage)
                 finish()
             } else {
                 cu.defaultToast(this, getString(R.string.failed_try_again))

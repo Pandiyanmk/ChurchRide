@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_gravity="center"
@@ -120,7 +121,7 @@
                     android:layout_height="wrap_content"
                     android:layout_centerInParent="true"
                     android:layout_gravity="bottom|right"
-                    android:layout_marginBottom="10sp"
+                    android:layout_marginBottom="20sp"
                     android:background="@drawable/driverhomepagemenus">
 
                     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -140,6 +141,7 @@
                         android:src="@drawable/baseline_my_location_24"
                         android:tint="@color/white" />
                 </FrameLayout>
+
 
             </LinearLayout>
 
@@ -221,6 +223,7 @@
                             android:tint="@color/white" />
                     </FrameLayout>
                 </LinearLayout>
+
                 <LinearLayout
                     android:id="@+id/backgroundLayout"
                     android:layout_width="match_parent"
@@ -261,8 +264,8 @@
                                 android:fontFamily="@font/monomedium"
                                 android:gravity="center|start"
                                 android:text="@string/background_location_permission_needed_tap_allow_all_time_in_the_next_screen"
-                                android:textColor="@color/black"
                                 android:textAllCaps="true"
+                                android:textColor="@color/black"
                                 android:textSize="14sp"
                                 android:textStyle="bold"
                                 android:theme="@style/loginPageSubHeadingTextTheme" />
@@ -293,6 +296,7 @@
                         </FrameLayout>
                     </LinearLayout>
                 </LinearLayout>
+
                 <LinearLayout
                     android:id="@+id/alertlayout"
                     android:layout_width="match_parent"
@@ -370,4 +374,25 @@
 
     </LinearLayout>
 
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerInParent="true"
+        android:background="@drawable/ridepage_back"
+        android:gravity="center">
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rideData"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="10sp"
+            android:layout_marginTop="10sp"
+            android:layout_marginEnd="10sp"
+            android:layout_marginBottom="10sp"
+            tools:itemCount="2"
+            tools:listitem="@layout/ride_item">
+
+        </androidx.recyclerview.widget.RecyclerView>
+    </RelativeLayout>
 </RelativeLayout>
