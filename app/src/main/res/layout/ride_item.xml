@@ -11,7 +11,7 @@
         android:background="@drawable/driverhomepagemenus">
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/mylocation"
+            android:id="@+id/rideclick"
             android:layout_width="40sp"
             android:layout_height="40sp"
             android:backgroundTint="@color/green"

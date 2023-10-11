@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.app.chruchridedriver.R
 import com.app.chruchridedriver.data.model.RideDetail
 import com.app.chruchridedriver.interfaces.ClickedAdapterInterface
+import com.google.android.material.floatingactionbutton.FloatingActionButton
 
 class RideDetailsAdapter(
     private val mList: ArrayList<RideDetail>,
@@ -25,6 +26,9 @@ class RideDetailsAdapter(
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val documentModel = mList[position]
         holder.ride_count.text = "${position + 1}"
+        holder.rideclick.setOnClickListener {
+            onLanguageChangeListener.selectedValue(""+position)
+        }
     }
 
     override fun getItemCount(): Int {
@@ -33,5 +37,6 @@ class RideDetailsAdapter(
 
     class ViewHolder(ItemView: View) : RecyclerView.ViewHolder(ItemView) {
         val ride_count: TextView = itemView.findViewById(R.id.ride_count)
+        val rideclick: FloatingActionButton = itemView.findViewById(R.id.rideclick)
     }
 }

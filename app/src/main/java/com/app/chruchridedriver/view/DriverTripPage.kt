@@ -46,6 +46,7 @@ import com.app.chruchridedriver.util.DynamicCountdownTimer
 import com.app.chruchridedriver.util.DynamicCountdownTimer.DynamicCountdownCallback
 import com.app.chruchridedriver.viewModel.DriverHomePageViewModel
 import com.app.chruchridedriver.viewModel.DriverHomePageViewModelFactory
+import com.bumptech.glide.Glide
 import com.google.android.gms.common.api.ApiException
 import com.google.android.gms.common.api.ResolvableApiException
 import com.google.android.gms.location.LocationRequest
@@ -66,6 +67,7 @@ import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.material.bottomsheet.BottomSheetDialog
 import com.google.android.material.floatingactionbutton.FloatingActionButton
+import de.hdodenhof.circleimageview.CircleImageView
 import me.zhanghai.android.materialprogressbar.MaterialProgressBar
 import org.greenrobot.eventbus.EventBus
 import org.greenrobot.eventbus.Subscribe
@@ -84,6 +86,7 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback, ClickedAdapterIn
     var loader: MaterialProgressBar? = null
     private lateinit var gosettings: FloatingActionButton
     private lateinit var gotooverlay: FloatingActionButton
+    private lateinit var zoomall: FloatingActionButton
     private lateinit var backpermissionclick: FloatingActionButton
     private lateinit var menulay: LinearLayout
     private lateinit var rideData: RecyclerView
@@ -106,6 +109,7 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback, ClickedAdapterIn
     private var imageLoader: Dialog? = null
     private var rideDetail: ArrayList<RideDetail>? = null
     private var rideDetailsAdapter: RideDetailsAdapter? = null
+    private var riderDetailDialog: BottomSheetDialog? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -126,6 +130,9 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback, ClickedAdapterIn
 
         onlinestatus = cu.getOnlineStatus(this)
 
+        riderDetailDialog = BottomSheetDialog(this)
+        riderDetailDialog!!.setCancelable(true)
+
 
         val mylocation: FloatingActionButton = findViewById(R.id.mylocation)
         menulay = findViewById(R.id.menulay)
@@ -137,9 +144,15 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback, ClickedAdapterIn
         gosettings = findViewById(R.id.gosettings)
         gotooverlay = findViewById(R.id.gotooverlay)
         backpermissionclick = findViewById(R.id.backpermissionclick)
+        zoomall = findViewById(R.id.zoomall)
         val mapFragment = supportFragmentManager.findFragmentById(R.id.map) as SupportMapFragment
         mapFragment.getMapAsync(this)
 
+        zoomall.setOnClickListener {
+            rideDetail?.let {
+                zoomAllMarker(it)
+            }
+        }
         mylocation.setOnClickListener {
             if (mapLoaded) {
                 sendLoaction?.let {
@@ -534,6 +547,25 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback, ClickedAdapterIn
 
     }
 
+    private fun zoomAllMarker(rideDetails: ArrayList<RideDetail>) {
+
+        val builder = LatLngBounds.Builder()
+
+        for (i in 0 until rideDetails.size) {
+            builder.include(
+                LatLng(
+                    rideDetails[i].pickpup_lat.toDouble(), rideDetails[i].pickup_long.toDouble()
+                )
+            )
+        }
+
+        builder.include(
+            cu.getDriverLocation(this)
+        )
+        val point = CameraUpdateFactory.newLatLngBounds(builder.build(), 58)
+        anima(point)
+    }
+
     private fun checkBackgroundLocationPermission() {
         if (ContextCompat.checkSelfPermission(
                 this, Manifest.permission.ACCESS_FINE_LOCATION
@@ -725,7 +757,8 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback, ClickedAdapterIn
         finish()
     }
 
-    override fun selectedValue(name: String?) {
+    override fun selectedValue(position: String?) {
+        rideDetailsDialog(position!!.toInt())
     }
 
     private fun getBitmapMarker(number: String): Bitmap? {
@@ -741,12 +774,55 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback, ClickedAdapterIn
         markerLayout.layout(0, 0, markerLayout.measuredWidth, markerLayout.measuredHeight)
 
         val bitmap = Bitmap.createBitmap(
-            markerLayout.measuredWidth,
-            markerLayout.measuredHeight,
-            Bitmap.Config.ARGB_8888
+            markerLayout.measuredWidth, markerLayout.measuredHeight, Bitmap.Config.ARGB_8888
         )
         val canvas = Canvas(bitmap)
         markerLayout.draw(canvas)
         return bitmap
+    }
+
+    private fun rideDetailsDialog(pos: Int) {
+        val userName = rideDetail!![pos].userName
+        val userRating = rideDetail!![pos].rating
+        val profilePic = rideDetail!![pos].profilepic
+        val pickupAddress = rideDetail!![pos].pickup_address
+        val dropAddress = rideDetail!![pos].drop_address
+
+        val drop_lat = rideDetail!![pos].drop_lat
+        val drop_long = rideDetail!![pos].drop_long
+
+        val view = layoutInflater.inflate(R.layout.rider_details, null)
+        riderDetailDialog!!.setContentView(view)
+        val username = view.findViewById<TextView>(R.id.username)
+        val rating = view.findViewById<TextView>(R.id.rating)
+        val estimatedtimes = view.findViewById<TextView>(R.id.estimatedtimes)
+        val pickup = view.findViewById<TextView>(R.id.pickup)
+        val drop = view.findViewById<TextView>(R.id.drop)
+        val profile_picture = view.findViewById<CircleImageView>(R.id.profile_picture)
+        val navigatebutton = view.findViewById<FloatingActionButton>(R.id.navigatebutton)
+
+        username.text = userName
+        rating.text = "$userRating"
+        estimatedtimes.text = "0 mi - 0 min"
+        pickup.text = pickupAddress
+        drop.text = dropAddress
+
+        Glide.with(this).load(profilePic).placeholder(R.drawable.uploadprofile)
+            .into(profile_picture)
+
+        navigatebutton.setOnClickListener {
+            callGoogleMap("$drop_lat,$drop_long")
+        }
+
+        riderDetailDialog!!.show()
+    }
+
+    private fun callGoogleMap(destination: String) {
+        val strUri = "google.navigation:q=$destination&mode=d"
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(strUri))
+
+        intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity")
+
+        startActivity(intent)
     }
 }
