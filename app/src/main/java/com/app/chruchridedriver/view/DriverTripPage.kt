@@ -29,6 +29,7 @@ import android.view.View
 import android.view.Window
 import android.widget.LinearLayout
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -44,6 +45,7 @@ import com.app.chruchridedriver.repository.MainRepository
 import com.app.chruchridedriver.util.CommonUtil
 import com.app.chruchridedriver.util.DynamicCountdownTimer
 import com.app.chruchridedriver.util.DynamicCountdownTimer.DynamicCountdownCallback
+import com.app.chruchridedriver.util.FloatingWidgetService
 import com.app.chruchridedriver.viewModel.DriverHomePageViewModel
 import com.app.chruchridedriver.viewModel.DriverHomePageViewModelFactory
 import com.bumptech.glide.Glide
@@ -406,6 +408,13 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback, ClickedAdapterIn
             updateMarker(it)
             cu.saveLocation(this, it.latitude, it.longitude)
         }
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    fun onMessageEventFromFloating(openMe: String?) {
+        val driverDocPage = Intent(this, DriverTripPage::class.java)
+        driverDocPage.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+        startActivity(driverDocPage)
     }
 
     private fun animateMarkerToICS(marker: Marker, finalPosition: LatLng) {
@@ -790,6 +799,7 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback, ClickedAdapterIn
 
         val drop_lat = rideDetail!![pos].drop_lat
         val drop_long = rideDetail!![pos].drop_long
+        val callMobile = rideDetail!![pos].mobileno
 
         val view = layoutInflater.inflate(R.layout.rider_details, null)
         riderDetailDialog!!.setContentView(view)
@@ -800,6 +810,7 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback, ClickedAdapterIn
         val drop = view.findViewById<TextView>(R.id.drop)
         val profile_picture = view.findViewById<CircleImageView>(R.id.profile_picture)
         val navigatebutton = view.findViewById<FloatingActionButton>(R.id.navigatebutton)
+        val callme = view.findViewById<FloatingActionButton>(R.id.callme)
 
         username.text = userName
         rating.text = "$userRating"
@@ -811,7 +822,12 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback, ClickedAdapterIn
             .into(profile_picture)
 
         navigatebutton.setOnClickListener {
+            riderDetailDialog!!.dismiss()
             callGoogleMap("$drop_lat,$drop_long")
+        }
+
+        callme.setOnClickListener {
+            callNumber(callMobile)
         }
 
         riderDetailDialog!!.show()
@@ -824,5 +840,29 @@ class DriverTripPage : AppCompatActivity(), OnMapReadyCallback, ClickedAdapterIn
         intent.setClassName("com.google.android.apps.maps", "com.google.android.maps.MapsActivity")
 
         startActivity(intent)
+    }
+
+    private fun callNumber(mobileNumber: String) {
+        val intent = Intent(Intent.ACTION_DIAL)
+        intent.data = Uri.parse("tel:$mobileNumber")
+        startActivity(intent)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        showFloatingView()
+    }
+
+    override fun onStart() {
+        super.onStart()
+        stopFloatingView()
+    }
+
+    private fun showFloatingView() {
+        //startService(Intent(this, FloatingWidgetService::class.java))
+    }
+
+    private fun stopFloatingView() {
+        //stopService(Intent(this, FloatingWidgetService::class.java))
     }
 }

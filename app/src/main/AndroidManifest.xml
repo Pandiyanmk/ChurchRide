@@ -84,6 +84,7 @@
         <activity
             android:name="com.app.chruchridedriver.view.DriverTripPage"
             android:exported="false"
+            android:launchMode="singleInstance"
             android:windowSoftInputMode="stateAlwaysHidden|adjustResize" />
         <activity
             android:name="com.app.chruchridedriver.view.GetStartedPage"
@@ -105,6 +106,10 @@
         <service
             android:name=".location.LocationService"
             android:foregroundServiceType="location" />
+        <service
+            android:name=".util.FloatingWidgetService"
+            android:enabled="true"
+            android:exported="false" />
     </application>
 
 </manifest>
