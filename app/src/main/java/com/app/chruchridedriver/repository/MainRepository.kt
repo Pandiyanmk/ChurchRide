@@ -193,9 +193,7 @@ class MainRepository {
             try {
 
                 val response = RetrofitClientAndEndPoints.getInstance().uploadImage(imagePart)
-
                 withContext(Dispatchers.Main) {
-
                     if (response.isSuccessful) {
                         val uploadResponse = response.body()
                         if (uploadResponse?.status == true) {
@@ -204,15 +202,11 @@ class MainRepository {
                             Log.d("IMAGE_URL", imageUrl)
                             EventBus.getDefault().post(imageUrl)
                         }
-
-
                     } else {
                         EventBus.getDefault().post("Failed to upload image retry")
                     }
                 }
-
             } catch (e: Exception) {
-
                 e.printStackTrace()
                 EventBus.getDefault().post("Failed$e")
             }
