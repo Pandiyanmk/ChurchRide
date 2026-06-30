@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "718284457396",
+    "firebase_url": "https://taxi4ubetadriver.firebaseio.com",
+    "project_id": "taxi4ubetadriver",
+    "storage_bucket": "taxi4ubetadriver.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:718284457396:android:4750e1e42ccbff15795ee1",
+        "android_client_info": {
+          "package_name": "com.app.chruchridedriver"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIFyoofnbfTm4u74yvQw1NUf23WFvgAeQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
